@@ -79,8 +79,9 @@ export const getProduct = (id) => apiClient.get(`/products/${id}`);
 export const createProduct = (productData) => apiClient.post('/products', productData); // Admin
 export const updateProduct = (id, productData) => apiClient.put(`/products/${id}`, productData); // Admin
 export const deleteProduct = (id) => apiClient.delete(`/products/${id}`); // Admin
-export const uploadProductImages = (formData) => apiClient.post('/upload/images', formData); // Admin, expects FormData
-
+export const uploadProductImages = (formData) => apiClient.post('/upload/images', formData, {
+  headers: { 'Content-Type': 'multipart/form-data' },
+});
 // Orders
 export const createOrder = (orderData) => apiClient.post('/orders', orderData);
 export const getMyOrders = () => apiClient.get('/orders/my');

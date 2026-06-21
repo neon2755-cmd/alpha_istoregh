@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import useStore from '../../store';
-import useProducts from '../../hooks/useProducts';
+import { productsAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 
 const renderStars = (rating) => {
@@ -38,7 +38,9 @@ const renderStars = (rating) => {
 function ProductDetailPage() {
   const router = useRouter();
   const { id } = router.query;
-  const { product: fetchedProduct, loading, error } = useProducts();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { addToCart, user } = useStore();
 
   const [selectedImage, setSelectedImage] = useState(null);
@@ -46,31 +48,40 @@ function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    if (id) {
-      // fetchProductById is available on the hook when needed; the parent hook's
-      // product is left as-is for now since this page is detail-driven.
-    }
+    if (!id) return;
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const res = await productsAPI.get(id);
+        setProduct(res.product);
+      } catch (err) {
+        setError('Product not found');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
   }, [id]);
 
   useEffect(() => {
-    if (fetchedProduct) {
+    if (product) {
       setSelectedImage(
-        fetchedProduct.images?.[0]?.url || '/images/placeholder-phone.jpg'
+        product.images?.[0]?.url || '/images/placeholder-phone.jpg'
       );
-      if (fetchedProduct.variants?.length > 0) {
+      if (product.variants?.length > 0) {
         setSelectedVariant(
-          fetchedProduct.variants.reduce(
+          product.variants.reduce(
             (prev, cur) => (cur.price < prev.price ? cur : prev),
-            fetchedProduct.variants[0]
+            product.variants[0]
           )
         );
       } else {
         setSelectedVariant({
-          price: fetchedProduct.basePrice || 0,
+          price: product.basePrice || 0,
         });
       }
     }
-  }, [fetchedProduct]);
+  }, [product]);
 
   const handleAddToCart = () => {
     if (!user) {
@@ -82,7 +93,7 @@ function ProductDetailPage() {
       toast.error('Please select product options.');
       return;
     }
-    addToCart(fetchedProduct, quantity, selectedVariant);
+    addToCart(product, quantity, selectedVariant);
     toast.success('Added to cart');
     setQuantity(1);
   };
@@ -111,7 +122,7 @@ function ProductDetailPage() {
     );
   }
 
-  if (error || !fetchedProduct) {
+  if (error || !product) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
         <h1 className="text-2xl font-bold text-ink">Product not found</h1>
@@ -141,9 +152,9 @@ function ProductDetailPage() {
     comparePrice,
     brand,
     condition,
-  } = fetchedProduct;
+  } = product;
 
-  const currentPrice = selectedVariant?.price || fetchedProduct.basePrice || 0;
+  const currentPrice = selectedVariant?.price || product.basePrice || 0;
   const uniqueColors = Array.from(
     new Map(
       (variants || []).filter((v) => v.color).map((v) => [v.color, v])
@@ -242,7 +253,7 @@ function ProductDetailPage() {
             )}
 
             <div className="mt-3 flex items-center gap-2">
-              <div className="flex items-center">{renderStars(fetchedProduct.rating || 0)}</div>
+              <div className="flex items-center">{renderStars(product.rating || 0)}</div>
               <span className="text-xs text-ink-subtle">({reviews?.length || 0} reviews)</span>
             </div>
 
