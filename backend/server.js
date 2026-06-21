@@ -18,12 +18,22 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // CORS
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      process.env.CLIENT_URL,
+      'https://alpha-istoregh.vercel.app',
+    ].filter(Boolean);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-}));
-
-// Rate limiting — 1000 req / 15 min per IP
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+}));// Rate limiting — 1000 req / 15 min per IP
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
