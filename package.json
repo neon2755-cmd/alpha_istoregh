@@ -1,0 +1,16 @@
+{
+  "name": "alpha-istore",
+  "version": "1.0.0",
+  "description": "AlphaiStore — Ghana's #1 Phone Store. Full-stack Next.js + Express + MongoDB.",
+  "private": true,
+  "scripts": {
+    "dev:backend":  "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all":  "cd backend && npm install && cd ../frontend && npm install",
+    "seed":         "cd backend && npm run seed",
+    "build":        "cd frontend && npm run build"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

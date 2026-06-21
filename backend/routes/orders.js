@@ -1,0 +1,12 @@
+const router = require('express').Router();
+const ctrl   = require('../controllers/orderController');
+const { protect, adminOnly } = require('../middleware/auth');
+
+router.post('/',                   ctrl.createOrder);
+router.get('/my',    protect,      ctrl.getMyOrders);
+router.get('/track/:orderNumber',  ctrl.trackOrder);
+router.get('/',      protect, adminOnly, ctrl.getAllOrders);
+router.get('/dashboard-stats', protect, adminOnly, ctrl.getDashboardStats);
+router.patch('/:id/status', protect, adminOnly, ctrl.updateOrderStatus);
+
+module.exports = router;

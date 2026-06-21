@@ -1,0 +1,406 @@
+import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import Image from 'next/image';
+import toast from 'react-hot-toast';
+import {
+  Star,
+  Minus,
+  Plus,
+  ShoppingCart,
+  MessageCircle,
+  Zap,
+  ChevronLeft,
+} from 'lucide-react';
+import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import useStore from '../../store';
+import useProducts from '../../hooks/useProducts';
+import { formatPrice } from '../../lib/utils';
+
+const renderStars = (rating) => {
+  const stars = [];
+  const filled = Math.round(rating);
+  for (let i = 0; i < 5; i++) {
+    stars.push(
+      <Star
+        key={i}
+        className={`h-4 w-4 ${
+          i < filled
+            ? 'fill-amber-400 text-amber-400'
+            : 'fill-slate-200 text-slate-200'
+        }`}
+      />
+    );
+  }
+  return stars;
+};
+
+function ProductDetailPage() {
+  const router = useRouter();
+  const { id } = router.query;
+  const { product: fetchedProduct, loading, error } = useProducts();
+  const { addToCart, user } = useStore();
+
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    if (id) {
+      // fetchProductById is available on the hook when needed; the parent hook's
+      // product is left as-is for now since this page is detail-driven.
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (fetchedProduct) {
+      setSelectedImage(
+        fetchedProduct.images?.[0]?.url || '/images/placeholder-phone.jpg'
+      );
+      if (fetchedProduct.variants?.length > 0) {
+        setSelectedVariant(
+          fetchedProduct.variants.reduce(
+            (prev, cur) => (cur.price < prev.price ? cur : prev),
+            fetchedProduct.variants[0]
+          )
+        );
+      } else {
+        setSelectedVariant({
+          price: fetchedProduct.basePrice || 0,
+        });
+      }
+    }
+  }, [fetchedProduct]);
+
+  const handleAddToCart = () => {
+    if (!user) {
+      toast('Sign in to add items to cart.', { icon: '🔒' });
+      router.push('/auth/login');
+      return;
+    }
+    if (!selectedVariant) {
+      toast.error('Please select product options.');
+      return;
+    }
+    addToCart(fetchedProduct, quantity, selectedVariant);
+    toast.success('Added to cart');
+    setQuantity(1);
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div>
+            <SkeletonLoader height="560px" className="rounded-3xl mb-4" />
+            <div className="flex gap-3">
+              {[...Array(4)].map((_, i) => (
+                <SkeletonLoader key={i} width="80px" height="80px" className="rounded-2xl" />
+              ))}
+            </div>
+          </div>
+          <div>
+            <SkeletonLoader width="70%" height="32px" className="mb-3" />
+            <SkeletonLoader width="40%" height="20px" className="mb-6" />
+            <SkeletonLoader width="100%" height="80px" className="mb-8" />
+            <SkeletonLoader width="100%" height="52px" className="mb-3 rounded-full" />
+            <SkeletonLoader width="100%" height="52px" className="rounded-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !fetchedProduct) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <h1 className="text-2xl font-bold text-ink">Product not found</h1>
+        <p className="mt-2 text-sm text-ink-muted">We couldn't find that product.</p>
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="mt-6 inline-flex h-11 px-6 items-center rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-dark"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Back
+        </button>
+      </div>
+    );
+  }
+
+  const {
+    name,
+    description,
+    images,
+    variants,
+    reviews,
+    specifications,
+    isHotDeal,
+    isFeatured,
+    flashSale,
+    comparePrice,
+    brand,
+    condition,
+  } = fetchedProduct;
+
+  const currentPrice = selectedVariant?.price || fetchedProduct.basePrice || 0;
+  const uniqueColors = Array.from(
+    new Map(
+      (variants || []).filter((v) => v.color).map((v) => [v.color, v])
+    ).values()
+  );
+  const uniqueStorages = Array.from(
+    new Set((variants || []).map((v) => v.storage).filter(Boolean))
+  ).sort();
+
+  const waMessage = `Hi, I'm interested in ${name}${
+    selectedVariant?.storage ? ` (${selectedVariant.storage})` : ''
+  }${selectedVariant?.color ? ` ${selectedVariant.color}` : ''} at ${formatPrice(currentPrice)}. Link: ${
+    typeof window !== 'undefined' ? window.location.href : ''
+  }`;
+  const waLink = `https://wa.me/?text=${encodeURIComponent(waMessage)}`;
+
+  return (
+    <>
+      <Head>
+        <title>{name} — AlphaiStore</title>
+        <meta name="description" content={description || `Buy ${name} on AlphaiStore`} />
+      </Head>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        {/* Breadcrumb */}
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-primary mb-8 transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back
+        </button>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+          {/* Gallery */}
+          <div>
+            <div className="relative aspect-square rounded-3xl overflow-hidden bg-white border border-surface-border">
+              <img
+                src={selectedImage || '/images/placeholder-phone.jpg'}
+                alt={name}
+                className="w-full h-full object-contain p-8"
+              />
+              {flashSale?.endDate && (
+                <span className="absolute top-4 left-4 inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold">
+                  <Zap className="h-3.5 w-3.5" />
+                  Flash sale
+                </span>
+              )}
+            </div>
+
+            {images?.length > 1 && (
+              <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
+                {images.map((img, i) => {
+                  const url = typeof img === 'string' ? img : img.url;
+                  const active = selectedImage === url;
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setSelectedImage(url)}
+                      className={`relative h-20 w-20 shrink-0 rounded-2xl overflow-hidden border-2 bg-white transition-all ${
+                        active
+                          ? 'border-primary ring-2 ring-primary/20'
+                          : 'border-surface-border hover:border-ink-subtle'
+                      }`}
+                      aria-label={`View image ${i + 1}`}
+                    >
+                      <img src={url} alt={`${name} view ${i + 1}`} className="w-full h-full object-contain p-2" />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Details */}
+          <div>
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              {isFeatured && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-wider uppercase">
+                  Featured
+                </span>
+              )}
+              {isHotDeal && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-600 text-white text-xs font-bold tracking-wider uppercase">
+                  Hot deal
+                </span>
+              )}
+            </div>
+
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-ink">{name}</h1>
+            {brand && (
+              <p className="mt-2 text-sm text-ink-muted">
+                {brand}{condition ? ` · ${condition}` : ''}
+              </p>
+            )}
+
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex items-center">{renderStars(fetchedProduct.rating || 0)}</div>
+              <span className="text-xs text-ink-subtle">({reviews?.length || 0} reviews)</span>
+            </div>
+
+            <div className="mt-6 flex items-baseline gap-3">
+              <span className="text-3xl font-bold text-ink">{formatPrice(currentPrice)}</span>
+              {comparePrice && comparePrice > currentPrice && (
+                <span className="text-base text-ink-subtle line-through">{formatPrice(comparePrice)}</span>
+              )}
+            </div>
+
+            {description && (
+              <p className="mt-5 text-sm text-ink-muted leading-relaxed">{description}</p>
+            )}
+
+            {/* Color */}
+            {uniqueColors.length > 0 && (
+              <div className="mt-8">
+                <p className="text-sm font-semibold text-ink mb-3">
+                  Color: <span className="text-ink-muted font-normal">{selectedVariant?.color || ''}</span>
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  {uniqueColors.map((v) => {
+                    const active = selectedVariant?.color === v.color;
+                    return (
+                      <button
+                        key={v.color}
+                        type="button"
+                        onClick={() => setSelectedVariant(v)}
+                        aria-label={v.color}
+                        aria-pressed={active}
+                        title={v.color}
+                        className={`h-10 w-10 rounded-full border-2 transition-all ${
+                          active
+                            ? 'ring-2 ring-primary ring-offset-2 border-white'
+                            : 'border-transparent hover:border-ink-subtle'
+                        }`}
+                        style={{ backgroundColor: v.colorHex || '#ccc' }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Storage */}
+            {uniqueStorages.length > 0 && (
+              <div className="mt-6">
+                <p className="text-sm font-semibold text-ink mb-3">Storage</p>
+                <div className="flex flex-wrap gap-2">
+                  {uniqueStorages.map((storage) => {
+                    const matchingVariant = variants.find((v) => v.storage === storage);
+                    const active = selectedVariant?.storage === storage;
+                    return (
+                      <button
+                        key={storage}
+                        type="button"
+                        onClick={() => setSelectedVariant(matchingVariant)}
+                        aria-pressed={active}
+                        className={`h-10 px-5 rounded-full border text-sm font-semibold transition-all ${
+                          active
+                            ? 'border-primary bg-primary text-white'
+                            : 'border-surface-border bg-white text-ink hover:border-primary hover:text-primary'
+                        }`}
+                      >
+                        {storage}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Quantity */}
+            <div className="mt-6">
+              <p className="text-sm font-semibold text-ink mb-3">Quantity</p>
+              <div className="inline-flex items-center rounded-full border border-surface-border bg-white overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  disabled={quantity <= 1}
+                  aria-label="Decrease"
+                  className="h-11 w-11 inline-flex items-center justify-center text-ink-muted hover:text-ink disabled:opacity-40"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="w-12 text-center text-sm font-semibold text-ink">{quantity}</span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => q + 1)}
+                  aria-label="Increase"
+                  className="h-11 w-11 inline-flex items-center justify-center text-ink-muted hover:text-ink"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-dark shadow-smooth transition-all"
+              >
+                <ShoppingCart className="h-4 w-4" />
+                Add to cart
+              </button>
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-surface-border bg-white px-6 text-sm font-semibold text-ink hover:bg-surface-muted transition-all"
+              >
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp
+              </a>
+            </div>
+
+            {/* Specifications */}
+            {specifications && Object.keys(specifications).length > 0 && (
+              <div className="mt-10 rounded-2xl bg-white border border-surface-border p-6">
+                <h2 className="text-base font-bold text-ink mb-4">Specifications</h2>
+                <dl className="divide-y divide-surface-border">
+                  {Object.entries(specifications).map(([key, value]) => (
+                    <div key={key} className="flex justify-between py-3 text-sm">
+                      <dt className="text-ink-muted">{key}</dt>
+                      <dd className="text-ink font-semibold text-right">{String(value)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Reviews */}
+        {reviews && reviews.length > 0 && (
+          <section className="mt-20">
+            <h2 className="text-2xl font-bold text-ink mb-8">Customer Reviews</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {reviews.map((review, i) => (
+                <article
+                  key={review._id || i}
+                  className="rounded-3xl bg-white border border-surface-border p-6"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="flex">{renderStars(review.rating || 0)}</div>
+                    <span className="text-sm font-semibold text-ink">{review.rating}/5</span>
+                  </div>
+                  <p className="text-sm text-ink leading-relaxed">"{review.comment}"</p>
+                  <p className="mt-3 text-xs text-ink-subtle">— {review.user?.firstName || 'Anonymous'}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </>
+  );
+}
+
+export default ProductDetailPage;
