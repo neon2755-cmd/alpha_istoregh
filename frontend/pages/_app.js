@@ -1,4 +1,3 @@
-// frontend/pages/_app.js
 import '../styles/globals.css';
 import React, { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
@@ -6,8 +5,6 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-import Navbar from '../components/layout/Navbar';
-import MobileNav from '../components/layout/MobileNav';
 import WhatsAppFloat from '../components/ui/WhatsAppFloat';
 import CartDrawer from '../components/cart/CartDrawer';
 import { useStore } from '../store';
@@ -99,12 +96,11 @@ function MyApp({ Component, pageProps }) {
         />
         <div className="flex flex-col min-h-screen">
           {showLayout && <Header />}
-          <main className={`flex-1 ${showLayout ? 'pb-20 md:pb-0' : ''}`}>
+          <main className="flex-1">
             <Component {...pageProps} />
           </main>
           {showLayout && <Footer />}
-          {showLayout && <Navbar />}
-          {showLayout && <MobileNav />}
+
           {showLayout && <WhatsAppFloat />}
           {showLayout && isCartOpen && (
             <CartDrawer

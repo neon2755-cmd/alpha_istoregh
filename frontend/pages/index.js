@@ -185,62 +185,6 @@ function HomePage() {
           </div>
         </section>
 
-        {/* Latest Arrivals */}
-        <section className="pt-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <h2 className="text-3xl font-bold tracking-tight text-ink">
-                  Latest Arrivals
-                </h2>
-              </div>
-              <Link
-                href="/shop?sort=newest"
-                className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-dark"
-              >
-                Explore latest
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </div>
-            
-            {!loading && !error && latestArrivals.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {latestArrivals.slice(0, 4).map((product) => (
-                  <ProductCard key={product._id || product.id} product={product} />
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Best Sellers */}
-        <section className="pt-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <h2 className="text-3xl font-bold tracking-tight text-ink">
-                  Best Sellers
-                </h2>
-              </div>
-              <Link
-                href="/shop?sort=popular"
-                className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-dark"
-              >
-                See top rated
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </div>
-            
-            {!loading && !error && bestSellers.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {bestSellers.slice(0, 4).map((product) => (
-                  <ProductCard key={product._id || product.id} product={product} />
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-
         {/* Flash Deals */}
         <section className="pt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
