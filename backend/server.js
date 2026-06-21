@@ -97,6 +97,23 @@ app.get('/api/seed', async (req, res) => {
 app.post('/api/test-order', (req, res) => {
   res.json({ success: true, body: req.body });
 });
+app.post('/api/debug-order', async (req, res) => {
+  try {
+    const Order = require('./models/Order');
+    const order = await Order.create({
+      items: [{ product: '6a37b439958901efbd3e0a70', name: 'Test', image: '', price: 9499, quantity: 1 }],
+      delivery: { method: 'pickup', address: 'Kumasi Adum', fee: 0 },
+      payment: { method: 'cash' },
+      guestInfo: { name: 'Test User', email: 'test@test.com', phone: '055' },
+      subtotal: 9499,
+      total: 9499,
+      statusHistory: [{ status: 'pending', note: 'Order placed' }],
+    });
+    res.json({ success: true, order });
+  } catch (err) {
+    res.json({ success: false, error: err.message, stack: err.stack });
+  }
+});
 // 404 handler
 app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
 // Global error handler
