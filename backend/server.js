@@ -94,7 +94,9 @@ app.get('/api/seed', async (req, res) => {
     res.json({ success: false, error: err.message });
   }
 });
-
+app.post('/api/test-order', (req, res) => {
+  res.json({ success: true, body: req.body });
+});
 // 404 handler
 app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
 // Global error handler
