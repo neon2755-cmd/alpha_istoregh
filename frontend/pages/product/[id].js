@@ -13,7 +13,7 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
-import useStore from '../../store';
+import { useStore } from '../../store';
 import { productsAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 
