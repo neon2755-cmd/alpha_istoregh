@@ -50,12 +50,10 @@ const orderSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Auto order number
-orderSchema.pre('save', async function (next) {
+orderSchema.pre('save', async function () {
   if (!this.orderNumber) {
     const count = await mongoose.model('Order').countDocuments();
     this.orderNumber = `AIS-${new Date().getFullYear()}-${String(count + 1).padStart(5, '0')}`;
   }
-  next();
 });
-
 module.exports = mongoose.model('Order', orderSchema);
