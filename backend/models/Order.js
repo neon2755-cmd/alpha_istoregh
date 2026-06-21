@@ -16,6 +16,7 @@ const orderSchema = new mongoose.Schema({
   orderNumber: { type: String, unique: true },
   user:        { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   guestInfo: {
+    name:      String,
     firstName: String,
     lastName:  String,
     email:     String,
@@ -30,7 +31,7 @@ const orderSchema = new mongoose.Schema({
     method:  { type: String, enum: ['delivery', 'pickup'], default: 'delivery' },
   },
   payment: {
-    method:  { type: String, enum: ['mtn_momo', 'telecel', 'airteltigo', 'card', 'pay_on_delivery', 'whatsapp'], required: true },
+    method:  { type: String, enum: ['mtn_momo', 'telecel', 'airteltigo', 'card', 'pay_on_delivery', 'whatsapp', 'cash', 'paystack'], default: 'cash' },
     status:  { type: String, enum: ['pending', 'paid', 'failed'], default: 'pending' },
     reference: String,
     paidAt:  Date,
