@@ -43,13 +43,11 @@ const productSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Auto-generate slug
-productSchema.pre('save', function (next) {
+productSchema.pre('save', function () {
   if (this.isModified('name')) {
     this.slug = this.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now();
   }
-  next();
 });
-
 // Recalculate rating
 productSchema.methods.recalcRating = function () {
   if (!this.reviews.length) { this.rating = 0; this.numReviews = 0; return; }
