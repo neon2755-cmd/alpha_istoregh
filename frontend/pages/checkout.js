@@ -18,6 +18,7 @@ import { ordersAPI } from '../lib/api';
 import { formatPrice } from '../lib/utils';
 
 const DELIVERY_REGIONS = [
+  { region: 'Pickup at Kumasi Adum', fee: 0 },
   { region: 'Greater Accra', fee: 20 },
   { region: 'Ashanti', fee: 40 },
   { region: 'Western', fee: 50 },
@@ -56,8 +57,7 @@ export default function Checkout() {
   const clearCart = useStore((s) => s.clearCart);
 
   const [form, setForm] = useState({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
+    name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : '',
     email: user?.email || '',
     phone: user?.phone || '',
   });
@@ -82,11 +82,11 @@ export default function Checkout() {
   };
 
   const handleSubmit = async () => {
-    if (!form.firstName || !form.phone) {
+    if (!form.name || !form.phone) {
       toast.error('Please fill your name and phone number');
       return;
     }
-    if (!address && region.region !== 'Pickup (Accra)') {
+    if (!address && !region.region.startsWith('Pickup')) {
       toast.error('Please enter your delivery address');
       return;
     }
@@ -96,28 +96,30 @@ export default function Checkout() {
     }
     setSubmitting(true);
     try {
+      const isPickup = region.region.startsWith('Pickup');
+      const deliveryAddress = isPickup ? region.region : address;
+
       const res = await ordersAPI.create({
         items: cart.map((item) => ({
-          product: item.id,
+          product: item.id || item._id,
           quantity: item.quantity,
-          variant: item.variant,
+          variant: item.variant || null,
         })),
         delivery: {
-          region: region.region,
-          address,
-          notes,
+          method: isPickup ? 'pickup' : 'delivery',
+          address: deliveryAddress,
           fee: region.fee,
-          method: region.region === 'Pickup (Accra)' ? 'pickup' : 'delivery',
         },
         payment: { method: payment },
-        guestInfo: !user ? form : undefined,
-        promoCode: promo || undefined,
+        guestInfo: !user
+          ? { name: form.name, email: form.email, phone: form.phone }
+          : undefined,
+        promoCode: promo || '',
         discount,
-        subtotal,
-        total,
       });
       clearCart();
-      router.push(`/order-confirm?order=${res.data.order.orderNumber}`);
+      const orderNumber = res?.order?.orderNumber || res?.data?.order?.orderNumber;
+      router.push(`/order-confirm?order=${orderNumber}`);
     } catch (e) {
       toast.error(
         e?.response?.data?.message ||
@@ -173,25 +175,14 @@ export default function Checkout() {
                 </h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClass}>First name</label>
+                <div className="sm:col-span-2">
+                  <label className={labelClass}>Full name</label>
                   <input
                     className={inputClass}
-                    placeholder="Kwame"
-                    value={form.firstName}
+                    placeholder="Kwame Asante"
+                    value={form.name}
                     onChange={(e) =>
-                      setForm((f) => ({ ...f, firstName: e.target.value }))
-                    }
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>Last name</label>
-                  <input
-                    className={inputClass}
-                    placeholder="Asante"
-                    value={form.lastName}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, lastName: e.target.value }))
+                      setForm((f) => ({ ...f, name: e.target.value }))
                     }
                   />
                 </div>
@@ -248,7 +239,7 @@ export default function Checkout() {
                     ))}
                   </select>
                 </div>
-                {region.region !== 'Pickup (Accra)' && (
+                {region.region !== 'Pickup at Kumasi Adum' && region.region !== 'Pickup (Accra)' && (
                   <>
                     <div>
                       <label className={labelClass}>Address</label>
