@@ -53,7 +53,7 @@ function ProductDetailPage() {
       try {
         setLoading(true);
         const res = await productsAPI.get(id);
-        setProduct(res.product);
+        setProduct(res.product || res);
       } catch (err) {
         setError('Product not found');
       } finally {

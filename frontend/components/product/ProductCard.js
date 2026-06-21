@@ -1,156 +1,125 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { Plus, Sparkles, Flame, Heart } from 'lucide-react';
-import { formatPrice } from '../../lib/utils';
+import { Heart, ShoppingCart, Zap, Star } from 'lucide-react';
 import { useStore } from '../../store';
+import { formatPrice } from '../../lib/utils';
+import toast from 'react-hot-toast';
 
-function toggleWishlistItem(product) {
-  try {
-    const stored = localStorage.getItem('alphaistore_wishlist');
-    const items = stored ? JSON.parse(stored) : [];
-    const id = product._id || product.id;
-    const exists = items.find((i) => i.id === id);
-    const updated = exists
-      ? items.filter((i) => i.id !== id)
-      : [
-          ...items,
-          {
-            id,
-            name: product.name,
-            brand: product.brand,
-            price: product.basePrice || product.variants?.[0]?.price || 0,
-            imageUrl: product.images?.[0]?.url || null,
-          },
-        ];
-    localStorage.setItem('alphaistore_wishlist', JSON.stringify(updated));
-    return !exists;
-  } catch {
-    return false;
-  }
-}
+export default function ProductCard({ product }) {
+  const { addToCart, wishlist, toggleWishlist, user } = useStore();
+  
+  if (!product) return null;
 
-function isWishlisted(id) {
-  try {
-    const stored = localStorage.getItem('alphaistore_wishlist');
-    const items = stored ? JSON.parse(stored) : [];
-    return !!items.find((i) => i.id === id);
-  } catch {
-    return false;
-  }
-}
-
-function ProductCard({ product }) {
-  const { addToCart, setCartOpen } = useStore();
-  const price = product.basePrice || product.variants?.[0]?.price || 0;
-  const comparePrice = product.comparePrice;
-  const hasDiscount = comparePrice && comparePrice > price;
   const productId = product._id || product.id;
-
-  const [wishlisted, setWishlisted] = useState(false);
-
-  useEffect(() => {
-    setWishlisted(isWishlisted(productId));
-  }, [productId]);
+  const isWishlisted = wishlist.includes(productId);
 
   const handleWishlist = (e) => {
-    e.preventDefault();
     e.stopPropagation();
-    const added = toggleWishlistItem(product);
-    setWishlisted(added);
+    e.preventDefault();
+    if (!user) {
+      toast('Sign in to add to wishlist', { icon: '🔒' });
+      return;
+    }
+    toggleWishlist(productId);
   };
 
   const handleAddToCart = (e) => {
-    e.preventDefault();
     e.stopPropagation();
-    addToCart({
-      product: productId,
-      name: product.name,
-      price,
-      quantity: 1,
-      variant: product.variants?.[0] || null,
-      image: product.images?.[0]?.url
-    });
-    setCartOpen(true);
+    e.preventDefault();
+    if (!user) {
+      toast('Sign in to add to cart', { icon: '🔒' });
+      return;
+    }
+    addToCart(product, 1, product.variants?.[0] || null);
+    toast.success('Added to cart');
   };
 
+  const discountPercentage = product.comparePrice && product.comparePrice > product.basePrice 
+    ? Math.round(((product.comparePrice - product.basePrice) / product.comparePrice) * 100) 
+    : 0;
+
   return (
-    <article className="group flex flex-col bg-white rounded-3xl overflow-hidden hover:-translate-y-2 hover:shadow-smooth-lg transition-all duration-300">
-      <Link
-        href={`/product/${productId}`}
-        className="relative aspect-square bg-white overflow-hidden p-6"
+    <div 
+      className="group relative bg-white border border-surface-border rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300"
+      style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+    >
+      {/* Badges */}
+      <div style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        {discountPercentage > 0 && (
+          <span style={{ backgroundColor: '#EF4444', color: 'white', fontSize: '10px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '999px' }}>
+            -{discountPercentage}%
+          </span>
+        )}
+        {product.isHotDeal && (
+          <span style={{ backgroundColor: '#F59E0B', color: 'white', fontSize: '10px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '2px' }}>
+            <Zap size={10} /> Hot
+          </span>
+        )}
+        {product.isFeatured && (
+          <span style={{ backgroundColor: '#006989', color: 'white', fontSize: '10px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '2px' }}>
+            <Star size={10} /> Featured
+          </span>
+        )}
+      </div>
+
+      <button
+        onClick={handleWishlist}
+        style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 10, backgroundColor: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+        aria-label="Toggle wishlist"
       >
-        <img
-          src={product.images?.[0]?.url || '/images/placeholder-phone.jpg'}
-          alt={product.name || 'Product'}
-          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+        <Heart size={16} fill={isWishlisted ? '#EF4444' : 'transparent'} color={isWishlisted ? '#EF4444' : '#94A3B8'} />
+      </button>
+
+      {/* Image Container */}
+      <Link href={`/product/${productId}`} style={{ display: 'block', position: 'relative', width: '100%', paddingBottom: '100%', backgroundColor: '#F8FAFC' }}>
+        <img 
+          src={product.images?.[0]?.url || '/images/placeholder-phone.jpg'} 
+          alt={product.name}
+          style={{ position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', objectFit: 'contain', padding: '20px' }}
         />
-
-        {/* Badges top-left */}
-        <div className="absolute top-4 left-4 flex flex-col gap-2">
-          {product.isFeatured && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/80 backdrop-blur-sm text-ink text-[11px] font-bold tracking-wider uppercase shadow-sm">
-              <Sparkles className="h-3 w-3" />
-              Featured
-            </span>
-          )}
-          {product.isHotDeal && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-600 text-white text-[11px] font-bold tracking-wider uppercase shadow-sm">
-              <Flame className="h-3 w-3" />
-              Hot deal
-            </span>
-          )}
-        </div>
-
-        {/* Wishlist button top-right */}
-        <button
-          type="button"
-          onClick={handleWishlist}
-          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-          className="absolute top-4 right-4 h-9 w-9 inline-flex items-center justify-center rounded-full bg-white shadow-sm hover:scale-110 transition-transform"
-        >
-          <Heart
-            className={`h-4 w-4 transition-colors ${
-              wishlisted ? 'fill-red-500 text-red-500' : 'text-ink-subtle'
-            }`}
-          />
-        </button>
       </Link>
 
-      <div className="flex flex-col flex-1 p-6">
-        <Link
-          href={`/product/${productId}`}
-          className="text-lg font-bold text-ink hover:text-primary line-clamp-1"
-        >
-          {product.name}
-        </Link>
-
-        <p className="mt-1 text-sm text-ink-muted">
-          {product.variants?.[0]?.storage || '128GB'}{product.brand ? ` · ${product.brand}` : ''}
-        </p>
-
-        <div className="mt-4 flex flex-col">
-          {hasDiscount && (
-            <span className="text-xs text-ink-subtle line-through font-medium">
-              {formatPrice(comparePrice)}
-            </span>
-          )}
-          <span className="text-xl font-bold text-ink tracking-tight">
-            {formatPrice(price)}
-          </span>
+      {/* Content Container */}
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flexGrow: 1, gap: '8px' }}>
+        {/* Brand & Condition */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#94A3B8', fontWeight: '600' }}>
+          <span>{product.brand}</span>
+          <span>{product.condition}</span>
         </div>
 
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          className="mt-6 w-full inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors"
-          aria-label={`Add ${product.name} to cart`}
-        >
-          <Plus className="h-4 w-4" />
-          Add to cart
-        </button>
+        {/* Title */}
+        <Link href={`/product/${productId}`}>
+          <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: '0', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {product.name}
+          </h3>
+        </Link>
+
+        <div style={{ flexGrow: 1 }} />
+
+        {/* Price & Add to Cart */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '4px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {product.comparePrice && product.comparePrice > product.basePrice && (
+              <span style={{ fontSize: '12px', color: '#94A3B8', textDecoration: 'line-through' }}>
+                {formatPrice(product.comparePrice)}
+              </span>
+            )}
+            <span style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A' }}>
+              {formatPrice(product.basePrice)}
+            </span>
+          </div>
+
+          <button
+            onClick={handleAddToCart}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#006989', color: 'white', border: 'none', cursor: 'pointer', transition: 'background-color 0.2s' }}
+            aria-label="Add to cart"
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00526b'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#006989'}
+          >
+            <ShoppingCart size={16} />
+          </button>
+        </div>
       </div>
-    </article>
+    </div>
   );
 }
-
-export default ProductCard;
