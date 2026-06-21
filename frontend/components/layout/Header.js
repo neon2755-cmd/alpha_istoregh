@@ -28,13 +28,22 @@ export default function Header() {
   useEffect(() => {
     let active = true;
     settingsAPI.get().then(res => {
-      if (active && res.settings) setSettings(res.settings);
+      if (active && res.settings) {
+        setSettings(res.settings);
+        if (typeof window !== 'undefined') {
+          if (res.settings.storeName) localStorage.setItem('storeName', res.settings.storeName);
+          if (res.settings.logo?.url) localStorage.setItem('storeLogo', res.settings.logo.url);
+        }
+      }
     }).catch(() => {});
     return () => { active = false };
   }, []);
 
-  const storeName = settings?.storeName || 'AlphaiStore';
-  const logoUrl = settings?.logo?.url;
+  const cachedName = typeof window !== 'undefined' ? localStorage.getItem('storeName') : null;
+  const cachedLogo = typeof window !== 'undefined' ? localStorage.getItem('storeLogo') : null;
+
+  const storeName = settings?.storeName || cachedName || 'AlphaiStore';
+  const logoUrl = settings?.logo?.url || cachedLogo;
 
   return (
     <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-md border-b border-surface-border shadow-sm rounded-b-3xl">
@@ -43,7 +52,7 @@ export default function Header() {
           <div className="flex items-center justify-between w-full lg:w-auto">
             <Link href="/" className="flex items-center gap-2 shrink-0">
               {logoUrl ? (
-                <img src={logoUrl} alt={storeName} className="h-8 w-auto object-contain" />
+                <img src={logoUrl} alt={storeName} loading="eager" className="h-8 w-auto object-contain" />
               ) : (
                 <span className="text-xl font-bold tracking-tight text-ink">
                   {storeName}

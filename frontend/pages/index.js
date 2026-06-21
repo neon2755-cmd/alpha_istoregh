@@ -95,8 +95,10 @@ function HomePage() {
                   alt={heroTitle}
                   fill
                   priority
+                  loading="eager"
+                  fetchPriority="high"
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-contain drop-shadow-2xl"
+                  className="object-contain drop-shadow-2xl bg-surface-muted/20"
                 />
               </div>
             </div>
@@ -126,10 +128,10 @@ function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {settings.promoBanners.map((promo, idx) => (
-                <div key={idx} style={{ backgroundColor: promo.color || '#EAEBED' }} className={`rounded-3xl overflow-hidden shadow-sm flex items-center justify-between p-8 relative min-h-[220px] promo-pattern-${promo.pattern || 'none'}`}>
-                  <div className="relative z-10 max-w-[60%]">
-                    <h3 className="text-2xl font-bold text-white mb-2 leading-tight">{promo.title}</h3>
-                    <p className="text-white/80 mb-6 text-sm">{promo.subtitle}</p>
+                <div key={idx} style={{ backgroundColor: promo.color || '#EAEBED' }} className={`rounded-3xl overflow-hidden shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between p-6 md:p-8 relative min-h-[220px] promo-pattern-${promo.pattern || 'none'}`}>
+                  <div className="relative z-10 max-w-full md:max-w-[60%] mb-20 md:mb-0">
+                    <h3 className="text-xl md:text-2xl font-bold text-white mb-2 leading-tight">{promo.title}</h3>
+                    <p className="text-white/80 mb-6 text-xs md:text-sm">{promo.subtitle}</p>
                     {promo.link && (
                       <Link href={promo.link} className="inline-flex h-10 items-center justify-center px-6 rounded-full bg-white text-ink text-sm font-bold shadow-sm hover:-translate-y-0.5 transition-transform">
                         {promo.cta || 'Shop Now'}
@@ -137,7 +139,7 @@ function HomePage() {
                     )}
                   </div>
                   {promo.image?.url && (
-                    <div className="absolute right-0 bottom-0 top-0 w-1/2 flex items-end justify-end z-10">
+                    <div className="absolute right-0 bottom-0 md:top-0 w-2/3 md:w-1/2 flex items-end justify-end z-10">
                       <img src={promo.image.url} alt={promo.title} className="max-h-[110%] object-contain object-bottom drop-shadow-xl" />
                     </div>
                   )}

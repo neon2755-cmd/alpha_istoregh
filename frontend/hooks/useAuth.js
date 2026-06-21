@@ -69,15 +69,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {/* Optionally render a loading spinner while isLoadingAuth is true */}
-      {isLoadingAuth && authChecked ? (
-         <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <p className="text-lg text-primary">Loading app...</p>
-             {/* Consider a proper spinner component here */}
-         </div>
-      ) : (
-        children
-      )}
+      {children}
     </AuthContext.Provider>
   );
 };
