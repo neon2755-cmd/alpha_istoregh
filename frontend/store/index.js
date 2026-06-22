@@ -61,8 +61,12 @@ export const useStore = create(
       setCartOpen: (open) => set({ isCartOpen: open }),
       addToCart: (product, qty = 1, variant = null) => {
         set((state) => {
+          let normalizedVariant = variant;
+          if (variant && variant.color && typeof variant.color === 'object') {
+            normalizedVariant = { ...variant, color: variant.color.name };
+          }
           const existingIndex = state.cart.findIndex(
-            (item) => item.id === product.id && JSON.stringify(item.variant || {}) === JSON.stringify(variant || {})
+            (item) => item.id === product.id && JSON.stringify(item.variant || {}) === JSON.stringify(normalizedVariant || {})
           );
           let updatedCart;
           if (existingIndex > -1) {
@@ -72,10 +76,10 @@ export const useStore = create(
             const newItem = {
               id: product.id || product._id,
               name: product.name,
-              price: variant?.price || product.basePrice || product.price || 0,
+              price: normalizedVariant?.price || product.basePrice || product.price || 0,
               quantity: qty,
               imageUrl: product.images?.[0]?.url || '/images/placeholder-phone.jpg',
-              variant,
+              variant: normalizedVariant,
             };
             updatedCart = [...state.cart, newItem];
           }

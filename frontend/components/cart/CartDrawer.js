@@ -80,7 +80,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                       {item.variant && (
                         <p className="mt-1 text-xs text-ink-subtle">
                           {Object.entries(item.variant)
-                            .map(([key, value]) => `${key}: ${value}`)
+                            .map(([key, value]) => `${key}: ${value?.name || value}`)
                             .join(' · ')}
                         </p>
                       )}

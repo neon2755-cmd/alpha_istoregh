@@ -326,7 +326,7 @@ export default function Checkout() {
                         {item.name}
                       </p>
                       <p className="text-xs text-ink-subtle">
-                        {item.variant?.storage || item.variant?.color || ''} × {item.quantity}
+                        {item.variant?.storage || item.variant?.color?.name || item.variant?.color || ''} × {item.quantity}
                       </p>
                     </div>
                     <span className="text-sm font-semibold text-ink whitespace-nowrap">
