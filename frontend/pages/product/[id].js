@@ -166,7 +166,7 @@ function ProductDetailPage() {
 
   const waMessage = `Hi, I'm interested in ${name}${
     selectedVariant?.storage ? ` (${selectedVariant.storage})` : ''
-  }${selectedVariant?.color ? ` ${selectedVariant.color}` : ''} at ${formatPrice(currentPrice)}. Link: ${
+  }${selectedVariant?.color ? ` ${typeof selectedVariant.color === 'object' ? selectedVariant.color.name : selectedVariant.color}` : ''} at ${formatPrice(currentPrice)}. Link: ${
     typeof window !== 'undefined' ? window.location.href : ''
   }`;
   const waLink = `https://wa.me/?text=${encodeURIComponent(waMessage)}`;
@@ -272,25 +272,25 @@ function ProductDetailPage() {
             {uniqueColors.length > 0 && (
               <div className="mt-8">
                 <p className="text-sm font-semibold text-ink mb-3">
-                  Color: <span className="text-ink-muted font-normal">{selectedVariant?.color || ''}</span>
+                  Color: <span className="text-ink-muted font-normal">{typeof selectedVariant?.color === 'object' ? selectedVariant?.color?.name : selectedVariant?.color || ''}</span>
                 </p>
                 <div className="flex flex-wrap gap-3">
                   {uniqueColors.map((v) => {
-                    const active = selectedVariant?.color === v.color;
+                    const active = (typeof selectedVariant?.color === 'object' ? selectedVariant?.color?.name : selectedVariant?.color) === (typeof v.color === 'object' ? v.color?.name : v.color);
                     return (
                       <button
-                        key={v.color}
+                        key={typeof v.color === 'object' ? v.color?.name : v.color}
                         type="button"
                         onClick={() => setSelectedVariant(v)}
-                        aria-label={v.color}
+                        aria-label={typeof v.color === 'object' ? v.color?.name : v.color}
                         aria-pressed={active}
-                        title={v.color}
+                        title={typeof v.color === 'object' ? v.color?.name : v.color}
                         className={`h-10 w-10 rounded-full border-2 transition-all ${
                           active
                             ? 'ring-2 ring-primary ring-offset-2 border-white'
                             : 'border-transparent hover:border-ink-subtle'
                         }`}
-                        style={{ backgroundColor: v.colorHex || '#ccc' }}
+                        style={{ backgroundColor: v.colorHex || (typeof v.color === 'object' ? v.color?.hex : v.color) || '#ccc' }}
                       />
                     );
                   })}

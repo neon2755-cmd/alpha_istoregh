@@ -30,7 +30,13 @@ export default function ProductCard({ product }) {
       toast('Sign in to add to cart', { icon: '🔒' });
       return;
     }
-    addToCart(product, 1, product.variants?.[0] || null);
+    const variant = product.variants?.[0] || null;
+    const normalizedVariant = variant ? {
+      color: typeof variant.color === 'object' ? (variant.color?.name || '') : (variant.color || ''),
+      storage: variant.storage || '',
+      price: variant.price || 0,
+    } : null;
+    addToCart(product, 1, normalizedVariant);
     toast.success('Added to cart');
   };
 

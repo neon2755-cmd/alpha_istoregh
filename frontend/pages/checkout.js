@@ -311,7 +311,6 @@ export default function Checkout() {
                   >
                     <div className="h-12 w-12 shrink-0 rounded-md bg-surface-muted border border-surface-border overflow-hidden flex items-center justify-center">
                       {item.imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={item.imageUrl}
                           alt={item.name}
@@ -326,7 +325,7 @@ export default function Checkout() {
                         {item.name}
                       </p>
                       <p className="text-xs text-ink-subtle">
-                        {item.variant?.storage || item.variant?.color?.name || item.variant?.color || ''} × {item.quantity}
+                        {item.variant?.storage || (typeof item.variant?.color === 'object' ? item.variant?.color?.name : item.variant?.color) || ''} × {item.quantity}
                       </p>
                     </div>
                     <span className="text-sm font-semibold text-ink whitespace-nowrap">

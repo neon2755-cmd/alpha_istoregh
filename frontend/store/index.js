@@ -61,10 +61,11 @@ export const useStore = create(
       setCartOpen: (open) => set({ isCartOpen: open }),
       addToCart: (product, qty = 1, variant = null) => {
         set((state) => {
-          let normalizedVariant = variant;
-          if (variant && variant.color && typeof variant.color === 'object') {
-            normalizedVariant = { ...variant, color: variant.color.name };
-          }
+          const normalizedVariant = variant ? {
+            color: typeof variant.color === 'object' ? (variant.color?.name || variant.color?.hex || '') : (variant.color || ''),
+            storage: variant.storage || '',
+            price: variant.price || 0,
+          } : null;
           const existingIndex = state.cart.findIndex(
             (item) => item.id === product.id && JSON.stringify(item.variant || {}) === JSON.stringify(normalizedVariant || {})
           );

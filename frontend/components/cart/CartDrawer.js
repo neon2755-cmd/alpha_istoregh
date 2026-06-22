@@ -76,11 +76,10 @@ export default function CartDrawer({ isOpen, onClose }) {
                           {formatPrice(item.price)}
                         </p>
                       </div>
-
                       {item.variant && (
                         <p className="mt-1 text-xs text-ink-subtle">
                           {Object.entries(item.variant)
-                            .map(([key, value]) => `${key}: ${value?.name || value}`)
+                            .map(([key, value]) => `${key}: ${typeof value === 'object' && value !== null ? (value?.name || '') : value}`)
                             .join(' · ')}
                         </p>
                       )}

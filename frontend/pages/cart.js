@@ -79,7 +79,7 @@ function CartPage() {
                             {item.variant && (
                               <p className="mt-1 text-xs text-ink-subtle">
                                 {Object.entries(item.variant)
-                                  .map(([k, v]) => `${k}: ${v?.name || v}`)
+                                  .map(([k, v]) => `${k}: ${typeof v === 'object' && v !== null ? (v?.name || '') : v}`)
                                   .join(' · ')}
                               </p>
                             )}
