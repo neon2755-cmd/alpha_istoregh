@@ -10,9 +10,9 @@ import {
   ShoppingCart,
   Zap,
   ChevronLeft,
+  Share,
 } from 'lucide-react';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
-import WhatsAppIcon from '../../components/ui/WhatsAppIcon';
 import { useStore } from '../../store';
 import { productsAPI, settingsAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
@@ -195,7 +195,7 @@ function ProductDetailPage() {
   }${selectedVariant?.color ? ` ${typeof selectedVariant.color === 'object' ? selectedVariant.color.name : selectedVariant.color}` : ''} at ${formatPrice(currentPrice)}. Link: ${
     typeof window !== 'undefined' ? window.location.href : ''
   }`;
-  const waNumber = (settings?.contact?.whatsapp?.[0] || siteConfig.whatsappNumber || '').replace(/[^0-9]/g, '');
+  const waNumber = (settings?.contact?.whatsapp?.[0] || siteConfig?.contact?.whatsappNumber || '').replace(/[^0-9]/g, '');
   const waLink = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}` : `https://wa.me/?text=${encodeURIComponent(waMessage)}`;
 
   return (
