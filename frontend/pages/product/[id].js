@@ -8,11 +8,11 @@ import {
   Minus,
   Plus,
   ShoppingCart,
-  MessageCircle,
   Zap,
   ChevronLeft,
 } from 'lucide-react';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import WhatsAppIcon from '../../components/ui/WhatsAppIcon';
 import { useStore } from '../../store';
 import { productsAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
@@ -366,7 +366,7 @@ function ProductDetailPage() {
                 rel="noopener noreferrer"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-surface-border bg-white px-6 text-sm font-semibold text-ink hover:bg-surface-muted transition-all"
               >
-                <MessageCircle className="h-4 w-4" />
+                <WhatsAppIcon className="h-5 w-5 text-[#25D366]" />
                 WhatsApp
               </a>
             </div>
