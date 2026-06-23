@@ -49,6 +49,7 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/orders',   require('./routes/orders'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/upload',   require('./routes/upload'));
+app.use('/api/contact',  require('./routes/contact'));
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ success: true, message: 'AlphaiStore API is running 🚀' }));

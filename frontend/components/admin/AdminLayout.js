@@ -9,12 +9,14 @@ import {
   Store,
   Menu,
   X,
+  Mail,
 } from 'lucide-react';
 
 const adminNavItems = [
   { href: '/admin', label: 'Dashboard', Icon: LayoutDashboard, exact: true },
   { href: '/admin/products', label: 'Products', Icon: Smartphone },
   { href: '/admin/orders', label: 'Orders', Icon: ClipboardList },
+  { href: '/admin/messages', label: 'Messages', Icon: Mail },
   { href: '/admin/settings', label: 'Settings', Icon: Settings },
 ];
 

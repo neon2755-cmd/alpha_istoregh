@@ -320,6 +320,26 @@ export default function AdminSettings() {
                 </div>
 
                 <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className={`${labelClass} mb-0`}>Phone Numbers</label>
+                    <button type="button" onClick={() => addContactItem('phones')} className="text-xs font-bold text-primary hover:text-primary-dark">+ Add Number</button>
+                  </div>
+                  <div className="space-y-3">
+                    {(Array.isArray(settings.contact?.phones) ? settings.contact.phones : []).map((num, idx) => (
+                      <div key={idx} className="flex gap-2">
+                        <input type="text" value={num} onChange={(e) => handleContactArray('phones', idx, e.target.value)} className={inputClass} placeholder="+233..." />
+                        <button type="button" onClick={() => removeContactItem('phones', idx)} className="w-11 h-11 flex items-center justify-center rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-colors"><Trash2 className="h-4 w-4" /></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className={labelClass}>Email Address</label>
+                  <input type="email" value={settings.contact?.email || ''} onChange={(e) => handleChange('contact', 'email', e.target.value)} className={inputClass} placeholder="info@example.com" />
+                </div>
+
+                <div>
                   <label className={labelClass}>Physical Address</label>
                   <textarea rows={2} value={settings.contact?.address || ''} onChange={(e) => handleChange('contact', 'address', e.target.value)} className={textareaClass} placeholder="Enter full address" />
                 </div>

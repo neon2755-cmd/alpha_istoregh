@@ -92,8 +92,7 @@ export const getDashboardStats = () => apiClient.get('/orders/dashboard-stats');
 
 // Settings
 export const getSettings = () => apiClient.get('/settings');
-export const updateSettings = (settingsData) => apiClient.put('/settings', settingsData); // Admin
-
+export const updateSettings = (settingsData) => apiClient.put('/settings', settingsData);
 
 // Generic fetch - can be used if specific functions aren't listed
 export const fetchAPI = (endpoint, method = 'GET', data = null, params = null) => {
@@ -159,4 +158,11 @@ export const settingsAPI = {
 
 export const uploadAPI = {
   images: uploadProductImages,
+};
+
+export const contactAPI = {
+  submit: (data) => apiClient.post('/contact', data),
+  getAll: (params) => apiClient.get('/contact', { params }),
+  markReplied: (id) => apiClient.patch(`/contact/${id}/reply`),
+  delete: (id) => apiClient.delete(`/contact/${id}`),
 };
