@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Package, Search, ExternalLink, Edit2, Check, Trash2 } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
-import { ordersAPI, fetchAPI } from '../../lib/api';
+import { ordersAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import Link from 'next/link';
 
@@ -51,7 +51,7 @@ export default function AdminOrders() {
   const handleClearAll = async () => {
     if (!confirm('Are you sure? This will permanently delete ALL orders. This action cannot be undone.')) return;
     try {
-      const res = await fetchAPI('/orders/clear', 'DELETE');
+      const res = await ordersAPI.clearAll();
       alert(res.data?.message || 'All orders deleted');
       fetchOrders();
     } catch (e) {

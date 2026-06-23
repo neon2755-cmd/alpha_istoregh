@@ -78,8 +78,8 @@ mongoose
     console.log('✅ MongoDB connected');
 
     // Auto-sync admin credentials from .env on every deploy/restart
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD || process.env.SMTP_PASSWORD;
     if (adminEmail && adminPassword) {
       try {
         const hashedPassword = await bcrypt.hash(adminPassword, 12);

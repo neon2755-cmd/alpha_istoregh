@@ -144,7 +144,8 @@ export const ordersAPI = {
   track: trackOrder,
   getAll: getAllOrders,
   updateStatus: updateOrderStatus,
-  getStats: getDashboardStats,
+  getDashboardStats: getDashboardStats,
+  clearAll: () => apiClient.delete('/orders/clear'),
 };
 
 export const productsAPI = {

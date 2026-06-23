@@ -49,8 +49,8 @@ exports.login = async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
     if (!user || !(await user.comparePassword(password))) {
-      const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
-      const adminPassword = process.env.ADMIN_PASSWORD;
+      const adminEmail = (process.env.ADMIN_EMAIL || process.env.SMTP_EMAIL || '').toLowerCase();
+      const adminPassword = process.env.ADMIN_PASSWORD || process.env.SMTP_PASSWORD;
       if (email.toLowerCase() === adminEmail && password === adminPassword && adminEmail && adminPassword) {
         const hashed = await bcrypt.hash(adminPassword, 12);
         const admin = await User.findOneAndUpdate(
