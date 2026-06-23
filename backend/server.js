@@ -66,16 +66,39 @@ app.use((err, req, res, next) => {
   });
 });
 
+const User = require('./models/User');
+const bcrypt = require('bcryptjs');
+
 // ── Database & Start ──────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log('✅ MongoDB connected');
+
+    // Auto-sync admin credentials from .env on every deploy/restart
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (adminEmail && adminPassword) {
+      try {
+        const hashedPassword = await bcrypt.hash(adminPassword, 12);
+        const result = await User.findOneAndUpdate(
+          { role: 'admin' },
+          { email: adminEmail.toLowerCase(), password: hashedPassword },
+          { upsert: true, new: true, select: '-password' }
+        );
+        console.log(`🔑 Admin synced: ${result.email}`);
+      } catch (err) {
+        console.error('⚠️  Failed to sync admin:', err.message);
+      }
+    }
+
     app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
   })
   .catch((err) => {
     console.error('❌ MongoDB connection failed:', err.message);
     process.exit(1);
   });
+
+module.exports = app;

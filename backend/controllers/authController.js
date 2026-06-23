@@ -48,8 +48,20 @@ exports.login = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email and password required' });
 
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
-    if (!user || !(await user.comparePassword(password)))
+    if (!user || !(await user.comparePassword(password))) {
+      const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      if (email.toLowerCase() === adminEmail && password === adminPassword && adminEmail && adminPassword) {
+        const hashed = await bcrypt.hash(adminPassword, 12);
+        const admin = await User.findOneAndUpdate(
+          { email: adminEmail },
+          { password: hashed, role: 'admin' },
+          { upsert: true, new: true, select: '-password' }
+        );
+        return sendAuth(res, admin);
+      }
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
 
     sendAuth(res, user);
   } catch (err) {
