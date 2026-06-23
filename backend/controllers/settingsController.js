@@ -7,7 +7,7 @@ const getOrCreate = async () => {
 };
 
 // GET /api/settings (public)
-exports.getSettings = async (req, res) => {
+const getSettings = async (req, res) => {
   try {
     const settings = await getOrCreate();
     res.json({ success: true, settings });
@@ -17,7 +17,7 @@ exports.getSettings = async (req, res) => {
 };
 
 // PUT /api/settings (admin)
-exports.updateSettings = async (req, res) => {
+const updateSettings = async (req, res) => {
   try {
     let settings = await Settings.findOne();
     if (!settings) {
@@ -51,7 +51,7 @@ exports.updateSettings = async (req, res) => {
 };
 
 // GET /api/settings/promo/:code (public)
-exports.validatePromoCode = async (req, res) => {
+const validatePromoCode = async (req, res) => {
   try {
     const settings = await getOrCreate();
     if (!settings?.promoCodes?.length) {

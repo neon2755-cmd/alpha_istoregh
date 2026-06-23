@@ -51,11 +51,13 @@ export default function AdminOrders() {
   const handleClearAll = async () => {
     if (!confirm('Are you sure? This will permanently delete ALL orders. This action cannot be undone.')) return;
     try {
-      await fetchAPI('/orders/clear', 'DELETE');
-      alert('All orders deleted');
+      const res = await fetchAPI('/orders/clear', 'DELETE');
+      alert(res.data?.message || 'All orders deleted');
       fetchOrders();
     } catch (e) {
-      alert('Failed to delete orders');
+      const msg = e?.response?.data?.message || e?.message || 'Unknown error';
+      alert('Failed to delete orders: ' + msg);
+      console.error('Delete all orders error:', e);
     }
   };
 
