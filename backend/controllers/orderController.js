@@ -1,5 +1,7 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const Settings = require('../models/Settings');
+const { sendOrderConfirmation, sendAdminNotification } = require('../utils/mailer');
 
 // POST /api/orders
 exports.createOrder = async (req, res, next) => {
@@ -53,6 +55,17 @@ exports.createOrder = async (req, res, next) => {
       total,
       statusHistory: [{ status: 'pending', note: 'Order placed' }],
     });
+
+    const customerEmail = req.user?.email || guestInfo?.email;
+    if (customerEmail) {
+      sendOrderConfirmation(order, customerEmail).catch(() => {});
+    }
+
+    const settings = await Settings.findOne();
+    const adminEmail = settings?.contact?.email;
+    if (adminEmail) {
+      sendAdminNotification(order, adminEmail).catch(() => {});
+    }
 
     res.status(201).json({ success: true, order });
   } catch (err) {

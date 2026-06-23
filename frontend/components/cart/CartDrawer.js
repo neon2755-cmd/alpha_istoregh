@@ -1,10 +1,11 @@
 import React from 'react';
-import { X, Minus, Plus, Trash2, MessageCircle } from 'lucide-react';
+import { X, Minus, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useStore } from '../../store';
 import { formatPrice } from '../../lib/utils';
 import siteConfig from '../../config';
+import WhatsAppIcon from '../ui/WhatsAppIcon';
 
 export default function CartDrawer({ isOpen, onClose }) {
   const { cart, removeFromCart, updateQuantity, clearCart } = useStore();
@@ -161,7 +162,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                 rel="noopener noreferrer"
                 className="mt-2 inline-flex w-full h-11 items-center justify-center gap-2 rounded-lg border border-[#25D366] text-[#25D366] text-sm font-medium hover:bg-[#25D366] hover:text-white"
               >
-                <MessageCircle size={18} color="#25D366" style={{ display: 'inline', marginRight: '6px' }} />
+                <WhatsAppIcon className="h-[18px] w-[18px] text-[#25D366]" />
                 Order via WhatsApp
               </a>
               <button

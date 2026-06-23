@@ -58,7 +58,7 @@ export default function ProductCard({ product }) {
             <p style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: 0 }}>{formatPrice(price)}</p>
           </div>
           <button onClick={handleAddToCart} style={{ background: '#006989', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 12px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
-            <ShoppingCart size={13} /> Add
+            <ShoppingCart size={13} /> Add to cart
           </button>
         </div>
       </div>

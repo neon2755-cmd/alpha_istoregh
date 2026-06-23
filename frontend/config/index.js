@@ -8,6 +8,12 @@ const siteConfig = {
       light: '#e8f4f8',
     },
   },
+  contact: {
+    address: 'Adum P.Z, Kumasi, Ghana',
+    phone: '+233 575 453 086',
+    email: 'info@alphaistore.com',
+    whatsappNumber: '233575453086',
+  },
 };
 
 export default siteConfig;

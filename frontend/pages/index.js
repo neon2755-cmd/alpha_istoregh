@@ -9,8 +9,8 @@ import {
   HeadphonesIcon,
   ArrowRight,
   ChevronRight,
-  MessageCircle,
 } from 'lucide-react';
+import WhatsAppIcon from '../components/ui/WhatsAppIcon';
 import useProducts from '../hooks/useProducts';
 import ProductCard from '../components/product/ProductCard';
 import SkeletonLoader from '../components/ui/SkeletonLoader';
@@ -84,23 +84,27 @@ function HomePage() {
                   rel="noopener noreferrer"
                   className="inline-flex h-12 items-center justify-center gap-2 px-8 rounded-full bg-white text-ink text-sm font-semibold hover:bg-surface-muted shadow-sm border border-surface-border transition-all"
                 >
-                  <MessageCircle size={18} color="#25D366" style={{ display: 'inline', marginRight: '6px' }} />
+                  <WhatsAppIcon className="h-[18px] w-[18px] text-[#25D366]" />
                   Order on WhatsApp
                 </Link>
               </div>
             </div>
             <div className="relative flex justify-center items-center z-0 md:h-[450px] h-[300px]">
               <div className="relative w-full h-full max-w-md animate-float">
-                <Image
-                  src={heroImage}
-                  alt={heroTitle}
-                  fill
-                  priority
-                  loading="eager"
-                  fetchPriority="high"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-contain drop-shadow-2xl bg-surface-muted/20"
-                />
+                {!heroImage ? (
+                  <SkeletonLoader width="100%" height="100%" className="rounded-3xl" />
+                ) : (
+                  <Image
+                    src={heroImage}
+                    alt={heroTitle}
+                    fill
+                    priority
+                    loading="eager"
+                    fetchPriority="high"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-contain drop-shadow-2xl bg-surface-muted/20"
+                  />
+                )}
               </div>
             </div>
           </div>
