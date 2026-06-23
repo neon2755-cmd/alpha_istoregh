@@ -51,7 +51,7 @@ export default function Track() {
     setOrder(null);
     try {
       const res = await ordersAPI.track(orderNum.trim().replace('#', ''));
-      setOrder(res.data.order);
+      setOrder(res.order);
     } catch {
       setError('Order not found. Please check the order number and try again.');
     } finally {
@@ -88,7 +88,7 @@ export default function Track() {
               value={orderNum}
               onChange={(e) => setOrderNum(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleTrack()}
-              placeholder="e.g. AIS-2024-00001"
+               placeholder="e.g. AIS-XXXXX-123ABC"
               className={inputClass}
             />
             <button
