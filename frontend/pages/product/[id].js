@@ -355,7 +355,7 @@ function ProductDetailPage() {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="flex-1 h-14 items-center justify-center gap-2 rounded-full bg-primary text-white text-base font-bold hover:bg-primary-dark shadow-smooth transition-all"
+                className="flex-1 inline-flex h-14 items-center justify-center gap-2 rounded-full bg-primary text-white text-base font-bold hover:bg-primary-dark shadow-smooth transition-all"
               >
                 <ShoppingCart className="h-5 w-5" />
                 Add to cart
