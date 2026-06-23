@@ -52,13 +52,13 @@ export default function ProductCard({ product }) {
         <Link href={`/product/${productId}`} style={{ textDecoration: 'none' }}>
           <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', margin: 0, lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</h3>
         </Link>
-        <div style={{ marginTop: 'auto', paddingTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ marginTop: 'auto', paddingTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <div>
             {hasDiscount && <p style={{ fontSize: '11px', color: '#94a3b8', textDecoration: 'line-through', margin: 0 }}>{formatPrice(comparePrice)}</p>}
             <p style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: 0 }}>{formatPrice(price)}</p>
           </div>
-          <button onClick={handleAddToCart} style={{ background: '#006989', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 12px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
-            <ShoppingCart size={13} /> Add to cart
+          <button onClick={handleAddToCart} style={{ background: '#006989', color: '#fff', border: 'none', borderRadius: '10px', padding: '10px 14px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap', width: '100%' }}>
+            <ShoppingCart size={14} /> Add to cart
           </button>
         </div>
       </div>

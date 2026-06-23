@@ -24,7 +24,7 @@ export default function AdminOrders() {
   const fetchOrders = async () => {
     try {
       const res = await ordersAPI.getAll();
-      setOrders(res.data?.orders || []);
+      setOrders(res.orders || res.data?.orders || []);
     } catch (e) {
       console.error(e);
     } finally {
