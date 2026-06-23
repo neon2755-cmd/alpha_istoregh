@@ -1,8 +1,11 @@
 /**
  * Seed script — run: node utils/seed.js
  * Creates an admin user + sample products
+ *
+ * NOTE: Set ADMIN_EMAIL and ADMIN_PASSWORD in your .env file,
+ * or pass them as environment variables when running this script.
  */
-require('dotenv').config(); // looks for .env in process.cwd() which is backend/
+require('dotenv').config();
 const mongoose = require('mongoose');
 const User    = require('../models/User');
 const Product = require('../models/Product');
@@ -83,20 +86,33 @@ const products = [
 ];
 
 async function seed() {
+  if (!process.env.MONGO_URI) {
+    console.error('ERROR: MONGO_URI is not set in .env');
+    process.exit(1);
+  }
+
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (!adminEmail || !adminPassword) {
+    console.error('ERROR: Set ADMIN_EMAIL and ADMIN_PASSWORD in your .env file before seeding.');
+    process.exit(1);
+  }
+
   await mongoose.connect(process.env.MONGO_URI);
   console.log('Connected to MongoDB');
 
   await Promise.all([User.deleteMany({}), Product.deleteMany({})]);
   console.log('Cleared existing data');
 
-  // Admin user
   await User.create({
-    firstName: 'Alpha', lastName: 'Admin',
-    email: 'admin@alphaistore.gh',
-    password: 'Admin@1234',
+    firstName: 'Alpha',
+    lastName: 'Admin',
+    email: adminEmail,
+    password: adminPassword,
     role: 'admin',
   });
-  console.log('✅ Admin created: admin@alphaistore.gh / Admin@1234');
+  console.log('✅ Admin created:', adminEmail);
 
   await Product.insertMany(products);
   console.log(`✅ ${products.length} products seeded`);

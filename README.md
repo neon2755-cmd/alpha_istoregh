@@ -111,8 +111,12 @@ npm run dev
 
 **Seed the database:**
 ```bash
+# Add these to backend/.env first:
+# ADMIN_EMAIL=your-admin@email.com
+# ADMIN_PASSWORD=your-secure-password
+
 npm run seed
-# Creates admin: admin@alphaistore.gh / Admin@1234
+# Creates admin user
 # Creates 6 sample products
 ```
 
@@ -139,10 +143,10 @@ NEXT_PUBLIC_WHATSAPP_NUMBER=233000000000
 
 ## 🔑 Admin Access
 
-After seeding:
+After seeding, use the `ADMIN_EMAIL` and `ADMIN_PASSWORD` you set in your `backend/.env` file:
 - URL: `http://localhost:3000/auth/login`
-- Email: `admin@alphaistore.gh`
-- Password: `Admin@1234`
+- Email: *the value you set for `ADMIN_EMAIL`*
+- Password: *the value you set for `ADMIN_PASSWORD`*
 
 ---
 
