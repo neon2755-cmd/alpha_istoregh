@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
      // Don't run redirection logic until auth state is fully loaded
      if (!isLoadingAuth && authChecked) {
         const protectedRoutes = ['/orders', '/profile']; // Add routes that require login
-        const adminRoutes = ['/admin', '/admin/*']; // Add admin routes
+         const adminRoutes = ['/portal', '/portal/*']; // Add admin routes
 
          // Check if current route requires login and user is not logged in
          const isProtectedRoute = protectedRoutes.some(route => router.pathname.startsWith(route));

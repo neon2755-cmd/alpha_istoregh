@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Mail, MessageSquare, Trash2, Check, CheckCheck } from 'lucide-react';
-import AdminLayout from '../../components/admin/AdminLayout';
+import AdminLayout from '../../components/portal/AdminLayout';
 import { contactAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import toast from 'react-hot-toast';

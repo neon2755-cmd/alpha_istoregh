@@ -88,7 +88,7 @@ function MyApp({ Component, pageProps }) {
 
   const showLayout = !['/auth/login', '/auth/signup', '/404'].some((path) =>
     router.pathname.startsWith(path)
-  ) && !router.pathname.startsWith('/admin');
+  ) && !router.pathname.startsWith('/portal');
 
   return (
     <AuthProvider>

@@ -8,7 +8,7 @@ import {
   ArrowUpRight,
   ExternalLink,
 } from 'lucide-react';
-import AdminLayout from '../../components/admin/AdminLayout';
+import AdminLayout from '../../components/portal/AdminLayout';
 import { ordersAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
@@ -97,7 +97,7 @@ export default function AdminDashboard() {
                 Recent orders
               </h2>
               <Link
-                href="/admin/orders"
+                href="/portal/orders"
                 className="text-xs lg:text-sm font-semibold text-primary hover:text-primary-dark inline-flex items-center gap-1 bg-primary/5 px-3 lg:px-4 py-1.5 lg:py-2 rounded-full transition-colors"
               >
                 View all

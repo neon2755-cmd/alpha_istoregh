@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Save, Store, MapPin, Image as ImageIcon, CreditCard, Plus, Trash2, Link as LinkIcon, UploadCloud } from 'lucide-react';
-import AdminLayout from '../../components/admin/AdminLayout';
+import AdminLayout from '../../components/portal/AdminLayout';
 import { settingsAPI, uploadAPI } from '../../lib/api';
 
 const inputClass =

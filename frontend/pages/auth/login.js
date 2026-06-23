@@ -34,7 +34,7 @@ export default function Login() {
       setToken(data.token);
       setUser(data.user);
       toast.success(`Welcome back, ${data.user.firstName || 'there'}!`);
-      router.push(data.user.role === 'admin' ? '/admin' : '/');
+      router.push(data.user.role === 'admin' ? '/portal' : '/');
     } catch (error) {
       toast.error(error.message || 'Login failed');
     } finally {

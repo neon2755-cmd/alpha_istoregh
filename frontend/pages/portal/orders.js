@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Package, Search, ExternalLink, Edit2, Check } from 'lucide-react';
-import AdminLayout from '../../components/admin/AdminLayout';
+import AdminLayout from '../../components/portal/AdminLayout';
 import { ordersAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import Link from 'next/link';

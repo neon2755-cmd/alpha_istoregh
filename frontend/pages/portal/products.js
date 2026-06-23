@@ -5,7 +5,7 @@ import {
   Star, Flame, Tag, ChevronDown, Loader2, AlertTriangle,
   PackageCheck, Eye, EyeOff,
 } from 'lucide-react';
-import AdminLayout from '../../components/admin/AdminLayout';
+import AdminLayout from '../../components/portal/AdminLayout';
 import { productsAPI, uploadAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import toast from 'react-hot-toast';

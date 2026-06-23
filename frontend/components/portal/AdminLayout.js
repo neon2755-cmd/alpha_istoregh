@@ -13,11 +13,11 @@ import {
 } from 'lucide-react';
 
 const adminNavItems = [
-  { href: '/admin', label: 'Dashboard', Icon: LayoutDashboard, exact: true },
-  { href: '/admin/products', label: 'Products', Icon: Smartphone },
-  { href: '/admin/orders', label: 'Orders', Icon: ClipboardList },
-  { href: '/admin/messages', label: 'Messages', Icon: Mail },
-  { href: '/admin/settings', label: 'Settings', Icon: Settings },
+  { href: '/portal', label: 'Dashboard', Icon: LayoutDashboard, exact: true },
+  { href: '/portal/products', label: 'Products', Icon: Smartphone },
+  { href: '/portal/orders', label: 'Orders', Icon: ClipboardList },
+  { href: '/portal/messages', label: 'Messages', Icon: Mail },
+  { href: '/portal/settings', label: 'Settings', Icon: Settings },
 ];
 
 const AdminLayout = ({ children, title, subtitle }) => {
@@ -40,7 +40,7 @@ const AdminLayout = ({ children, title, subtitle }) => {
       <nav className="flex-1 px-4 py-6 overflow-y-auto">
         <ul className="space-y-2">
           {adminNavItems.map(({ href, label, Icon }) => {
-            const active = isActive({ href, exact: href === '/admin' });
+            const active = isActive({ href, exact: href === '/portal' });
             return (
               <li key={href}>
                 <Link
