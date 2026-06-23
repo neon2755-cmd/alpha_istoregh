@@ -123,7 +123,7 @@ export default function AdminDashboard() {
                   <SkeletonLoader key={i} height="48px" className="rounded-xl" />
                 ))}
               </div>
-            ) : recentOrders.length === 0 ? (
+                ) : recentOrders?.length === 0 ? (
               <div className="py-10 text-center border-2 border-dashed border-surface-border rounded-2xl">
                 <ShoppingCart className="h-8 w-8 text-ink-subtle mx-auto mb-3" />
                 <p className="text-sm font-medium text-ink-muted">No orders yet</p>
@@ -176,11 +176,11 @@ export default function AdminDashboard() {
                 <div className="h-64">
                   <Bar
                     data={{
-                      labels: stats.topProducts.map(p => p.name.length > 20 ? p.name.substring(0, 20) + '...' : p.name),
+                      labels: stats?.topProducts?.map(p => p.name.length > 20 ? p.name.substring(0, 20) + '...' : p.name) || [],
                       datasets: [
                         {
                           label: 'Units Sold',
-                          data: stats.topProducts.map(p => p.sold),
+                          data: stats?.topProducts?.map(p => p.sold) || [],
                           backgroundColor: [
                             'rgba(0, 105, 137, 0.8)',
                             'rgba(0, 105, 137, 0.65)',
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div className="space-y-2">
-                  {stats.topProducts.map((product, i) => (
+                  {stats?.topProducts?.length > 0 && stats.topProducts.map((product, i) => (
                     <div key={product._id || i} className="flex items-center justify-between p-3 rounded-xl border border-surface-border">
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="h-7 w-7 inline-flex items-center justify-center rounded-lg bg-primary-50 text-primary text-xs font-bold">
