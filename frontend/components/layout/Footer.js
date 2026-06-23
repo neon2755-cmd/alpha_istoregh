@@ -38,34 +38,14 @@ function Footer() {
 
         {/* Collapsible Content */}
         <div className={`grid grid-cols-1 md:grid-cols-4 gap-8 overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[800px] opacity-100 mb-12' : 'max-h-0 opacity-0 mb-0'}`}>
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-ink mb-6">Shop</h3>
-            <ul className="space-y-4 text-sm text-ink-muted">
-              <li><Link href="/shop" className="hover:text-primary transition-colors">Shop All</Link></li>
-              <li><Link href="/shop?brand=iphone" className="hover:text-primary transition-colors">iPhone</Link></li>
-              <li><Link href="/shop?category=macbook" className="hover:text-primary transition-colors">MacBook</Link></li>
-              <li><Link href="/shop?category=ipad" className="hover:text-primary transition-colors">iPad</Link></li>
-              <li><Link href="/shop?category=watch" className="hover:text-primary transition-colors">Apple Watch</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-ink mb-6">Support</h3>
-            <ul className="space-y-4 text-sm text-ink-muted">
-              <li><Link href="/track" className="hover:text-primary transition-colors">Order Tracking</Link></li>
-              <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
-              <li><Link href="/about" className="hover:text-primary transition-colors">Trade-In Program</Link></li>
-              <li><Link href="/about" className="hover:text-primary transition-colors">Student Discounts</Link></li>
-            </ul>
-          </div>
-
+          {/* Contact - first on all devices */}
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-ink mb-6">Contact</h3>
-            <ul className="space-y-4 text-sm text-ink-muted">
+            <ul className="space-y-3 text-sm text-ink-muted list-none">
               {contact.address && (
                 <li className="flex items-start gap-2">
                   <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-ink-subtle" />
-                  {contact.address}
+                  <span>{contact.address}</span>
                 </li>
               )}
               {(contact.phones?.[0] || contact.phone) && (
@@ -88,8 +68,29 @@ function Footer() {
           </div>
 
           <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-ink mb-6">Shop</h3>
+            <ul className="space-y-4 text-sm text-ink-muted list-none">
+              <li><Link href="/shop" className="hover:text-primary transition-colors">Shop All</Link></li>
+              <li><Link href="/shop?brand=iphone" className="hover:text-primary transition-colors">iPhone</Link></li>
+              <li><Link href="/shop?category=macbook" className="hover:text-primary transition-colors">MacBook</Link></li>
+              <li><Link href="/shop?category=ipad" className="hover:text-primary transition-colors">iPad</Link></li>
+              <li><Link href="/shop?category=watch" className="hover:text-primary transition-colors">Apple Watch</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-ink mb-6">Support</h3>
+            <ul className="space-y-4 text-sm text-ink-muted list-none">
+              <li><Link href="/track" className="hover:text-primary transition-colors">Order Tracking</Link></li>
+              <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
+              <li><Link href="/about" className="hover:text-primary transition-colors">Trade-In Program</Link></li>
+              <li><Link href="/about" className="hover:text-primary transition-colors">Student Discounts</Link></li>
+            </ul>
+          </div>
+
+          <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-ink mb-6">{storeName}</h3>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               {social?.facebook && (
                 <a href={social.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="h-10 w-10 inline-flex items-center justify-center rounded-full bg-surface-muted text-ink hover:bg-surface-border transition-colors">
                   <Facebook className="h-4 w-4" />
