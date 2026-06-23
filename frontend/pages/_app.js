@@ -11,18 +11,22 @@ import { useStore } from '../store';
 import { AuthProvider } from '../hooks/useAuth';
 import siteConfig from '../config';
 import { settingsAPI } from '../lib/api';
+import { useSettings } from '../hooks/useSettings';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
   }
-  static getDerivedStateFromError() {
-    return { hasError: true };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
   }
+
   componentDidCatch(error, errorInfo) {
-    console.error('ErrorBoundary caught', error, errorInfo);
+    console.error('ErrorBoundary caught:', error, errorInfo);
   }
+
   render() {
     if (this.state.hasError) {
       return (
@@ -51,13 +55,8 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      window.onerror = (msg, url, line, col, err) => {
-        console.error('Global error:', msg, url, line, col, err);
-      };
-    }
-    if (typeof window !== 'undefined') {
       const storedToken = localStorage.getItem('authToken');
-      if (storedToken && storedToken !== token) {
+      if (storedToken) {
         setToken(storedToken);
         fetchUser();
       }
@@ -72,26 +71,8 @@ function MyApp({ Component, pageProps }) {
     }).catch(() => {});
   }, []);
 
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
-
-  useEffect(() => {
-    const handleRouteChange = () => setCartOpen(false);
-    router.events.on('routeChangeStart', handleRouteChange);
-    return () => router.events.off('routeChangeStart', handleRouteChange);
-  }, [router.events, setCartOpen]);
-
-  const showLayout = !['/auth/login', '/auth/signup', '/404'].some((path) =>
-    router.pathname.startsWith(path)
-  ) && !router.pathname.startsWith('/portal');
-
   return (
-    <AuthProvider>
+    <>
       <Head>
         <title>{siteConfig.name}</title>
         <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
@@ -99,35 +80,33 @@ function MyApp({ Component, pageProps }) {
         <link rel="icon" type="image/svg+xml" href={favicon} />
       </Head>
       <ErrorBoundary>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: '#0F172A',
-              color: '#fff',
-              borderRadius: '10px',
-              fontSize: '14px',
-            },
-          }}
-        />
-        <div className="flex flex-col min-h-screen">
-          {showLayout && <Header />}
-          <main className="flex-1">
+        <AuthProvider>
+          <Header />
+          <CartDrawer isOpen={isCartOpen} onClose={() => setCartOpen(false)} />
+          <WhatsAppFloat />
+          <main className="min-h-screen bg-background">
             <Component {...pageProps} />
           </main>
-          {showLayout && <Footer />}
-
-          {showLayout && <WhatsAppFloat />}
-          {showLayout && isCartOpen && (
-            <CartDrawer
-              isOpen={isCartOpen}
-              onClose={() => setCartOpen(false)}
-            />
-          )}
-        </div>
+          <Footer />
+        </AuthProvider>
       </ErrorBoundary>
-    </AuthProvider>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#0F172A',
+            color: '#fff',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            fontSize: '14px',
+            fontWeight: 500,
+          },
+          success: { iconTheme: { primary: '#006989', secondary: '#fff' } },
+          error: { iconTheme: { primary: '#EF4444', secondary: '#fff' } },
+        }}
+      />
+    </>
   );
 }
 
