@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Facebook, Instagram, ChevronUp, ChevronDown } from 'lucide-react';
+import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
 import siteConfig from '../../config';
 import { settingsAPI } from '../../lib/api';
 
 function Footer() {
   const currentYear = new Date().getFullYear();
   const [settings, setSettings] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -19,31 +18,48 @@ function Footer() {
 
   const storeName = settings?.storeName || siteConfig.name;
   const social = settings?.social || siteConfig.social;
+  const contact = settings?.contact || {};
 
   return (
-    <footer className="mt-auto bg-white border-t border-surface-border rounded-t-[2.5rem] shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.02)] transition-all duration-500 ease-in-out">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Toggle Button */}
-        <div className="flex justify-center mb-6">
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-2 text-xs font-semibold text-ink-muted hover:text-ink transition-colors uppercase tracking-widest px-4 py-2 rounded-full hover:bg-surface-muted"
-          >
-            {isExpanded ? 'Show Less' : 'Show More'}
-            {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-          </button>
-        </div>
-
-        {/* Collapsible Content */}
-        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[1000px] opacity-100 mb-12' : 'max-h-0 opacity-0 mb-0'}`}>
-          <div className="lg:col-span-2">
-            <div className="flex items-center gap-2 mb-6">
-              <span className="text-ink text-xl font-bold tracking-tight">
-                {storeName}
-              </span>
+    <footer className="mt-auto bg-white border-t border-surface-border">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Store Info */}
+          <div>
+            <h3 className="text-lg font-bold text-ink mb-4">{storeName}</h3>
+            <div className="space-y-3 text-sm text-ink-muted">
+              {contact.address && (
+                <p className="flex items-start gap-2">
+                  <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-ink-subtle" />
+                  {contact.address}
+                </p>
+              )}
+              {contact.phones?.[0] && (
+                <p className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 shrink-0 text-ink-subtle" />
+                  <a href={`tel:${contact.phones[0]}`} className="hover:text-primary transition-colors">
+                    {contact.phones[0]}
+                  </a>
+                </p>
+              )}
+              {contact.phone && !contact.phones?.[0] && (
+                <p className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 shrink-0 text-ink-subtle" />
+                  <a href={`tel:${contact.phone}`} className="hover:text-primary transition-colors">
+                    {contact.phone}
+                  </a>
+                </p>
+              )}
+              {contact.email && (
+                <p className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 shrink-0 text-ink-subtle" />
+                  <a href={`mailto:${contact.email}`} className="hover:text-primary transition-colors">
+                    {contact.email}
+                  </a>
+                </p>
+              )}
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mt-6">
               {social?.facebook && (
                 <a href={social.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="h-10 w-10 inline-flex items-center justify-center rounded-full bg-surface-muted text-ink hover:bg-surface-border transition-colors">
                   <Facebook className="h-4 w-4" />
@@ -67,9 +83,11 @@ function Footer() {
             </div>
           </div>
 
+          {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-ink mb-6">Shop</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-ink mb-6">Quick Links</h3>
             <ul className="space-y-4 text-sm text-ink-muted">
+              <li><Link href="/shop" className="hover:text-primary transition-colors">Shop All</Link></li>
               <li><Link href="/shop?brand=iphone" className="hover:text-primary transition-colors">iPhone</Link></li>
               <li><Link href="/shop?category=macbook" className="hover:text-primary transition-colors">MacBook</Link></li>
               <li><Link href="/shop?category=ipad" className="hover:text-primary transition-colors">iPad</Link></li>
@@ -77,6 +95,7 @@ function Footer() {
             </ul>
           </div>
 
+          {/* Support */}
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-ink mb-6">Support</h3>
             <ul className="space-y-4 text-sm text-ink-muted">
@@ -84,12 +103,50 @@ function Footer() {
               <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
               <li><Link href="/about" className="hover:text-primary transition-colors">Trade-In Program</Link></li>
               <li><Link href="/about" className="hover:text-primary transition-colors">Student Discounts</Link></li>
+              <li><Link href="/auth/login" className="hover:text-primary transition-colors">My Account</Link></li>
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-ink mb-6">Contact</h3>
+            <ul className="space-y-4 text-sm text-ink-muted">
+              {contact.email && (
+                <li>
+                  <a href={`mailto:${contact.email}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+                    <Mail className="h-4 w-4 shrink-0" />
+                    {contact.email}
+                  </a>
+                </li>
+              )}
+              {contact.phones?.[0] && (
+                <li>
+                  <a href={`tel:${contact.phones[0]}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+                    <Phone className="h-4 w-4 shrink-0" />
+                    {contact.phones[0]}
+                  </a>
+                </li>
+              )}
+              {contact.phone && !contact.phones?.[0] && (
+                <li>
+                  <a href={`tel:${contact.phone}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+                    <Phone className="h-4 w-4 shrink-0" />
+                    {contact.phone}
+                  </a>
+                </li>
+              )}
+              {contact.address && (
+                <li className="flex items-start gap-2">
+                  <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+                  {contact.address}
+                </li>
+              )}
             </ul>
           </div>
         </div>
 
-        {/* Compact Footer Bottom */}
-        <div className={`pt-6 ${isExpanded ? 'border-t border-surface-border' : ''} flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-300`}>
+        {/* Bottom bar */}
+        <div className="mt-12 pt-6 border-t border-surface-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs font-medium text-ink-muted">
             © {currentYear} {storeName}. All rights reserved.
           </p>

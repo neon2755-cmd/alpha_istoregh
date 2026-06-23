@@ -1,11 +1,15 @@
 import React from 'react';
 import WhatsAppIcon from './WhatsAppIcon';
+import { useSettings } from '../../hooks/useSettings';
 import siteConfig from '../../config';
 
 export default function WhatsAppFloat() {
-  const phoneNumber = siteConfig.whatsappNumber;
-  const message = `Hello ${siteConfig.name} team!`;
-  const waLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  const { settings } = useSettings();
+  const phoneNumber = (settings?.contact?.whatsapp?.[0] || siteConfig.whatsappNumber || '').replace(/[^0-9]/g, '');
+  const message = `Hello ${settings?.storeName || siteConfig.name} team!`;
+  const waLink = phoneNumber ? `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}` : '#';
+
+  if (!phoneNumber) return null;
 
   return (
     <a

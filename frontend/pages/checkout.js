@@ -1,23 +1,22 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import toast from 'react-hot-toast';
 import {
   Smartphone,
   CreditCard,
   Banknote,
-  MessageCircle,
   Truck,
   User,
   ShoppingBag,
   Lock,
   ArrowRight,
+  Share,
 } from 'lucide-react';
-import WhatsAppIcon from '../components/ui/WhatsAppIcon';
 import { useStore } from '../store';
-import { ordersAPI } from '../lib/api';
+import { ordersAPI, settingsAPI } from '../lib/api';
 import { formatPrice } from '../lib/utils';
-import siteConfig from '../config';
+import { useSettings } from '../hooks/useSettings';
+import toast from 'react-hot-toast';
 
 const DELIVERY_REGIONS = [
   { region: 'Pickup at Kumasi Adum', fee: 0 },
@@ -40,7 +39,6 @@ const PAYMENT_METHODS = [
   { value: 'airteltigo', label: 'AirtelTigo Money', Icon: Smartphone },
   { value: 'card', label: 'Debit / Credit Card', Icon: CreditCard },
   { value: 'pay_on_delivery', label: 'Pay on Delivery', Icon: Banknote },
-  { value: 'whatsapp', label: 'Order via WhatsApp', Icon: MessageCircle },
 ];
 
 const inputClass =
@@ -57,6 +55,7 @@ export default function Checkout() {
   const cart = useStore((s) => s.cart);
   const user = useStore((s) => s.user);
   const clearCart = useStore((s) => s.clearCart);
+  const { settings } = useSettings();
 
   const [form, setForm] = useState({
     name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : '',
@@ -80,6 +79,24 @@ export default function Checkout() {
       toast.success('Promo code applied: 10% off');
     } else {
       toast.error('Invalid promo code');
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'AlphaiStore Order',
+      text: `My order total: ${formatPrice(total)}`,
+      url: typeof window !== 'undefined' ? window.location.href : '',
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        toast.success('Link copied to clipboard!');
+      }
+    } catch {
+      // User cancelled
     }
   };
 
@@ -390,15 +407,14 @@ export default function Checkout() {
                 <Lock className="h-4 w-4" />
                 {submitting ? 'Placing order…' : `Place order — ${formatPrice(total)}`}
               </button>
-              <a
-                href={`https://wa.me/${siteConfig.whatsappNumber || ''}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-flex w-full h-11 items-center justify-center gap-2 rounded-lg border border-[#25D366] text-[#25D366] text-sm font-medium hover:bg-[#25D366] hover:text-white"
+              <button
+                type="button"
+                onClick={handleShare}
+                className="mt-2 inline-flex w-full h-11 items-center justify-center gap-2 rounded-lg border border-surface-border bg-white text-ink text-sm font-medium hover:bg-surface-muted"
               >
-                <WhatsAppIcon className="h-5 w-5 text-[#25D366]" />
-                Order via WhatsApp
-              </a>
+                <Share className="h-4 w-4" />
+                Share order
+              </button>
               <p className="mt-2 text-center text-xs text-ink-subtle">
                 Your details are secure and encrypted.
               </p>

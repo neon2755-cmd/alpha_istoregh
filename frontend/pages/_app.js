@@ -1,5 +1,5 @@
 import '../styles/globals.css';
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -10,6 +10,7 @@ import CartDrawer from '../components/cart/CartDrawer';
 import { useStore } from '../store';
 import { AuthProvider } from '../hooks/useAuth';
 import siteConfig from '../config';
+import { settingsAPI } from '../lib/api';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -45,6 +46,7 @@ class ErrorBoundary extends React.Component {
 function MyApp({ Component, pageProps }) {
   const { isCartOpen, setCartOpen, setToken, fetchUser, token, isDarkMode } = useStore();
   const router = useRouter();
+  const [favicon, setFavicon] = useState('/favicon.svg');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -54,6 +56,14 @@ function MyApp({ Component, pageProps }) {
         fetchUser();
       }
     }
+  }, []);
+
+  useEffect(() => {
+    settingsAPI.get().then(res => {
+      if (res.settings?.favicon?.url) {
+        setFavicon(res.settings.favicon.url);
+      }
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -80,7 +90,7 @@ function MyApp({ Component, pageProps }) {
         <title>{siteConfig.name}</title>
         <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
         <meta name="theme-color" content={siteConfig.themeColor} />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/svg+xml" href={favicon} />
       </Head>
       <ErrorBoundary>
         <Toaster

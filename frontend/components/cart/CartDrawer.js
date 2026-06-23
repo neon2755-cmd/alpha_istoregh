@@ -1,15 +1,34 @@
 import React from 'react';
-import { X, Minus, Plus, Trash2 } from 'lucide-react';
+import { X, Minus, Plus, Trash2, Share } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useStore } from '../../store';
 import { formatPrice } from '../../lib/utils';
-import siteConfig from '../../config';
-import WhatsAppIcon from '../ui/WhatsAppIcon';
+import { useSettings } from '../../hooks/useSettings';
+import toast from 'react-hot-toast';
 
 export default function CartDrawer({ isOpen, onClose }) {
   const { cart, removeFromCart, updateQuantity, clearCart } = useStore();
+  const { settings } = useSettings();
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'AlphaiStore Cart',
+      text: `Check out my cart on AlphaiStore — Total: ${formatPrice(subtotal)}`,
+      url: typeof window !== 'undefined' ? window.location.href : '',
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        toast.success('Link copied to clipboard!');
+      }
+    } catch {
+      // User cancelled
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -156,15 +175,14 @@ export default function CartDrawer({ isOpen, onClose }) {
               >
                 Checkout
               </Link>
-              <a
-                href={`https://wa.me/${siteConfig.whatsappNumber || ''}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-flex w-full h-11 items-center justify-center gap-2 rounded-lg border border-[#25D366] text-[#25D366] text-sm font-medium hover:bg-[#25D366] hover:text-white"
+              <button
+                type="button"
+                onClick={handleShare}
+                className="mt-2 inline-flex w-full h-11 items-center justify-center gap-2 rounded-lg border border-surface-border bg-white text-ink text-sm font-medium hover:bg-surface-muted"
               >
-                <WhatsAppIcon className="h-[18px] w-[18px] text-[#25D366]" />
-                Order via WhatsApp
-              </a>
+                <Share className="h-4 w-4" />
+                Share cart
+              </button>
               <button
                 type="button"
                 onClick={clearCart}

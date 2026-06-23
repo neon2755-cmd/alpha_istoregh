@@ -106,6 +106,24 @@ function ProductDetailPage() {
     setQuantity(1);
   };
 
+  const handleShare = async () => {
+    const shareData = {
+      title: product.name,
+      text: `Check out ${product.name} at ${formatPrice(currentPrice)}`,
+      url: typeof window !== 'undefined' ? window.location.href : '',
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        toast.success('Link copied to clipboard!');
+      }
+    } catch {
+      // User cancelled
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -369,15 +387,14 @@ function ProductDetailPage() {
                 <ShoppingCart className="h-5 w-5" />
                 Add to cart
               </button>
-              <a
-                href={waLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 inline-flex h-14 items-center justify-center gap-3 rounded-full bg-[#25D366] text-white text-base font-bold hover:bg-[#128C7E] transition-all pl-5"
+              <button
+                type="button"
+                onClick={handleShare}
+                className="flex-1 inline-flex h-14 items-center justify-center gap-2 rounded-full border border-surface-border bg-white text-ink text-base font-bold hover:bg-surface-muted transition-all"
               >
-                <WhatsAppIcon className="h-5 w-5 text-white" />
+                <Share className="h-5 w-5" />
                 Share
-              </a>
+              </button>
             </div>
 
             {/* Specifications */}
