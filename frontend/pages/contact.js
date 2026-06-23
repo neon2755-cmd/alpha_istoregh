@@ -21,6 +21,7 @@ export default function Contact() {
   const [settings, setSettings] = useState(null);
   const [form, setForm] = useState({
     name: '',
+    email: '',
     phone: '',
     subject: '',
     message: '',
@@ -86,13 +87,13 @@ export default function Contact() {
     try {
       await contactAPI.submit({
         name: form.name,
-        email: form.phone || form.email || 'no-email@provided.com',
+        email: form.email || 'no-email@provided.com',
         phone: form.phone,
         subject: form.subject,
         message: form.message,
       });
       toast.success('Message sent — we will reply shortly.');
-      setForm({ name: '', phone: '', subject: '', message: '' });
+      setForm({ name: '', email: '', phone: '', subject: '', message: '' });
     } catch {
       toast.error('Failed to send message. Please try again.');
     } finally {
@@ -164,15 +165,26 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className={labelClass}>Phone</label>
+                <label className={labelClass}>Email</label>
                 <input
                   className={inputClass}
-                  type="tel"
-                  placeholder="+233 XX XXX XXXX"
-                  value={form.phone}
-                  onChange={set('phone')}
+                  type="email"
+                  placeholder="you@example.com"
+                  value={form.email}
+                  onChange={set('email')}
                 />
               </div>
+            </div>
+
+            <div>
+              <label className={labelClass}>Phone</label>
+              <input
+                className={inputClass}
+                type="tel"
+                placeholder="+233 XX XXX XXXX"
+                value={form.phone}
+                onChange={set('phone')}
+              />
             </div>
 
             <div>

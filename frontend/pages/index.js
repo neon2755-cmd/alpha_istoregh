@@ -36,6 +36,7 @@ const ProductCardSkeleton = () => (
 function HomePage() {
   const { featuredProducts, hotDeals, loading, error } = useProducts();
   const [settings, setSettings] = useState(null);
+  const [heroLoaded, setHeroLoaded] = useState(false);
 
   useEffect(() => {
     settingsAPI.get().then(res => {
@@ -50,7 +51,7 @@ function HomePage() {
   const heroTitle = settings?.hero?.title || "The Perfect iPhone\nfor Every Lifestyle";
   const heroSubtitle = settings?.hero?.subtitle || "Discover the latest iPhone 17 Pro Max with premium features, stunning displays, and unmatched performance. Shop now for exclusive deals.";
   const heroImage = settings?.hero?.image?.url || "/images/hero-phone.png";
-  const whatsappNumber = settings?.contact?.whatsapp?.[0] || "";
+  const whatsappNumber = settings?.contact?.whatsapp?.[0] || siteConfig.whatsappNumber || "";
   const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}` : "https://wa.me/";
 
   return (
@@ -91,7 +92,7 @@ function HomePage() {
             </div>
             <div className="relative flex justify-center items-center z-0 md:h-[450px] h-[300px]">
               <div className="relative w-full h-full max-w-md animate-float">
-                {!heroImage ? (
+                {!settings ? (
                   <SkeletonLoader width="100%" height="100%" className="rounded-3xl" />
                 ) : (
                   <Image

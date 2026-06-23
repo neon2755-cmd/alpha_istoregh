@@ -14,8 +14,9 @@ import {
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import WhatsAppIcon from '../../components/ui/WhatsAppIcon';
 import { useStore } from '../../store';
-import { productsAPI } from '../../lib/api';
+import { productsAPI, settingsAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
+import siteConfig from '../../config';
 
 const renderStars = (rating) => {
   const stars = [];
@@ -42,6 +43,7 @@ function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { addToCart, user } = useStore();
+  const [settings, setSettings] = useState(null);
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
@@ -62,6 +64,12 @@ function ProductDetailPage() {
     };
     fetchProduct();
   }, [id]);
+
+  useEffect(() => {
+    settingsAPI.get().then(res => {
+      if (res.settings) setSettings(res.settings);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (product) {
@@ -169,7 +177,8 @@ function ProductDetailPage() {
   }${selectedVariant?.color ? ` ${typeof selectedVariant.color === 'object' ? selectedVariant.color.name : selectedVariant.color}` : ''} at ${formatPrice(currentPrice)}. Link: ${
     typeof window !== 'undefined' ? window.location.href : ''
   }`;
-  const waLink = `https://wa.me/?text=${encodeURIComponent(waMessage)}`;
+  const waNumber = (settings?.contact?.whatsapp?.[0] || siteConfig.whatsappNumber || '').replace(/[^0-9]/g, '');
+  const waLink = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}` : `https://wa.me/?text=${encodeURIComponent(waMessage)}`;
 
   return (
     <>
@@ -367,7 +376,7 @@ function ProductDetailPage() {
                 className="flex-1 inline-flex h-14 items-center justify-center gap-3 rounded-full bg-[#25D366] text-white text-base font-bold hover:bg-[#128C7E] transition-all pl-5"
               >
                 <WhatsAppIcon className="h-5 w-5 text-white" />
-                Order on WhatsApp
+                Share
               </a>
             </div>
 
