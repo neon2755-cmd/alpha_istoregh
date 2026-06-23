@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Facebook, Instagram, ChevronUp, ChevronDown } from 'lucide-react';
+import { Facebook, Instagram, ChevronUp, ChevronDown, Mail, Phone, MapPin } from 'lucide-react';
 import siteConfig from '../../config';
 import { settingsAPI } from '../../lib/api';
 
@@ -19,6 +19,7 @@ function Footer() {
 
   const storeName = settings?.storeName || siteConfig.name;
   const social = settings?.social || siteConfig.social;
+  const contact = settings?.contact || {};
 
   return (
     <footer className="mt-auto bg-white border-t border-surface-border">
@@ -36,7 +37,7 @@ function Footer() {
         </div>
 
         {/* Collapsible Content */}
-        <div className={`grid grid-cols-1 md:grid-cols-3 gap-8 overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[500px] opacity-100 mb-12' : 'max-h-0 opacity-0 mb-0'}`}>
+        <div className={`grid grid-cols-1 md:grid-cols-4 gap-8 overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[800px] opacity-100 mb-12' : 'max-h-0 opacity-0 mb-0'}`}>
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-ink mb-6">Shop</h3>
             <ul className="space-y-4 text-sm text-ink-muted">
@@ -55,6 +56,34 @@ function Footer() {
               <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
               <li><Link href="/about" className="hover:text-primary transition-colors">Trade-In Program</Link></li>
               <li><Link href="/about" className="hover:text-primary transition-colors">Student Discounts</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-ink mb-6">Contact</h3>
+            <ul className="space-y-4 text-sm text-ink-muted">
+              {contact.address && (
+                <li className="flex items-start gap-2">
+                  <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-ink-subtle" />
+                  {contact.address}
+                </li>
+              )}
+              {(contact.phones?.[0] || contact.phone) && (
+                <li>
+                  <a href={`tel:${contact.phones?.[0] || contact.phone}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+                    <Phone className="h-4 w-4 shrink-0 text-ink-subtle" />
+                    {contact.phones?.[0] || contact.phone}
+                  </a>
+                </li>
+              )}
+              {contact.email && (
+                <li>
+                  <a href={`mailto:${contact.email}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+                    <Mail className="h-4 w-4 shrink-0 text-ink-subtle" />
+                    {contact.email}
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
 

@@ -56,17 +56,18 @@ export default function Header() {
               ) : null}
               <span className="text-xl font-bold tracking-tight text-ink">{storeName}</span>
             </Link>
-            <div className="flex lg:hidden items-center gap-2">
+            <div className="flex lg:hidden items-center gap-1">
               <Link
                 href="/wishlist"
-                className="relative inline-flex h-10 w-10 items-center justify-center text-ink hover:text-primary"
+                className="inline-flex h-9 w-9 items-center justify-center text-ink hover:text-primary"
               >
                 <Heart className="h-5 w-5" />
               </Link>
               <button
                 type="button"
                 onClick={() => setCartOpen(true)}
-                className="relative inline-flex h-10 w-10 items-center justify-center text-ink hover:text-primary"
+                className="relative inline-flex h-9 w-9 items-center justify-center text-ink hover:text-primary"
+                aria-label="Open cart"
               >
                 <ShoppingCart className="h-5 w-5" />
                 {cartCount > 0 && (
@@ -78,7 +79,8 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setOpenMobile(!openMobile)}
-                className="inline-flex h-10 w-10 items-center justify-center text-ink hover:text-primary"
+                className="inline-flex h-9 w-9 items-center justify-center text-ink hover:text-primary"
+                aria-label="Toggle menu"
               >
                 <Menu className="h-5 w-5" />
               </button>
@@ -116,13 +118,14 @@ export default function Header() {
 
             <div className="h-6 w-px bg-surface-border hidden lg:block"></div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
               {user ? (
                 <div className="relative">
                   <button
                     onClick={() => setOpenUser(!openUser)}
-                    className="inline-flex h-10 items-center justify-center text-ink hover:text-primary"
+                    className="inline-flex h-9 items-center justify-center text-ink hover:text-primary"
                     aria-expanded={openUser}
+                    aria-label="User menu"
                   >
                     <User className="h-5 w-5" />
                   </button>
@@ -172,7 +175,8 @@ export default function Header() {
 
               <Link
                 href="/wishlist"
-                className="relative inline-flex h-10 items-center justify-center text-ink hover:text-primary"
+                className="relative inline-flex h-9 items-center justify-center text-ink hover:text-primary"
+                aria-label="Wishlist"
               >
                 <Heart className="h-5 w-5" />
               </Link>
@@ -181,7 +185,7 @@ export default function Header() {
                 type="button"
                 onClick={() => setCartOpen(true)}
                 aria-label="Open cart"
-                className="relative inline-flex h-10 items-center justify-center text-ink hover:text-primary"
+                className="relative inline-flex h-9 items-center justify-center text-ink hover:text-primary"
               >
                 <ShoppingCart className="h-5 w-5" />
                 {cartCount > 0 && (
