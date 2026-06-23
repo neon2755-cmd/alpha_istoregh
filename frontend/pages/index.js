@@ -130,7 +130,7 @@ function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {settings.promoBanners.map((promo, idx) => (
                 <div key={idx} style={{ backgroundColor: promo.color || '#EAEBED' }} className={`rounded-2xl md:rounded-3xl overflow-hidden shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between p-4 md:p-8 relative h-[180px] md:min-h-[220px] promo-pattern-${promo.pattern || 'none'}`}>
-                  <div className="relative z-10 max-w-full md:max-w-[60%] mb-2 md:mb-0">
+                  <div className="relative z-10 max-w-full md:max-w-[60%] mb-2 md:mb-0 pr-24 md:pr-0">
                     <h3 className="text-base md:text-2xl font-bold text-white mb-1 md:mb-2 leading-tight">{promo.title}</h3>
                     <p className="text-white/80 mb-3 md:mb-6 text-xs md:text-sm">{promo.subtitle}</p>
                     {promo.link && (
@@ -173,13 +173,13 @@ function HomePage() {
             </div>
             
             {loading && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="products-grid">
                 {[...Array(4)].map((_, i) => <ProductCardSkeleton key={i} />)}
               </div>
             )}
-            
+
             {!loading && !error && featuredProducts.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="products-grid">
                 {featuredProducts.slice(0, 4).map((product) => (
                   <ProductCard key={product._id || product.id} product={product} />
                 ))}
@@ -208,7 +208,7 @@ function HomePage() {
             </div>
             
             {!loading && !error && hotDeals.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="products-grid">
                 {hotDeals.slice(0, 4).map((product) => (
                   <ProductCard key={product._id || product.id} product={product} />
                 ))}
