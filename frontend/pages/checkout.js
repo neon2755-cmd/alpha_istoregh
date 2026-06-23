@@ -13,9 +13,11 @@ import {
   Lock,
   ArrowRight,
 } from 'lucide-react';
+import WhatsAppIcon from '../components/ui/WhatsAppIcon';
 import { useStore } from '../store';
 import { ordersAPI } from '../lib/api';
 import { formatPrice } from '../lib/utils';
+import siteConfig from '../config';
 
 const DELIVERY_REGIONS = [
   { region: 'Pickup at Kumasi Adum', fee: 0 },
@@ -388,6 +390,15 @@ export default function Checkout() {
                 <Lock className="h-4 w-4" />
                 {submitting ? 'Placing order…' : `Place order — ${formatPrice(total)}`}
               </button>
+              <a
+                href={`https://wa.me/${siteConfig.whatsappNumber || ''}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex w-full h-11 items-center justify-center gap-2 rounded-lg border border-[#25D366] text-[#25D366] text-sm font-medium hover:bg-[#25D366] hover:text-white"
+              >
+                <WhatsAppIcon className="h-5 w-5 text-[#25D366]" />
+                Order via WhatsApp
+              </a>
               <p className="mt-2 text-center text-xs text-ink-subtle">
                 Your details are secure and encrypted.
               </p>

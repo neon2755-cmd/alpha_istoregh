@@ -49,11 +49,12 @@ const orderSchema = new mongoose.Schema({
   notes:       String,
 }, { timestamps: true });
 
-// Auto order number
+// Auto order number - unpredictable random
 orderSchema.pre('save', async function () {
   if (!this.orderNumber) {
-    const count = await mongoose.model('Order').countDocuments();
-    this.orderNumber = `AIS-${new Date().getFullYear()}-${String(count + 1).padStart(5, '0')}`;
+    const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const ts = Date.now().toString(36).toUpperCase();
+    this.orderNumber = `AIS-${ts}-${rand}`;
   }
 });
 module.exports = mongoose.model('Order', orderSchema);

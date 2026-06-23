@@ -4,6 +4,8 @@ import { Heart, ShoppingCart } from 'lucide-react';
 import { useStore } from '../../store';
 import { formatPrice } from '../../lib/utils';
 import toast from 'react-hot-toast';
+import siteConfig from '../../config';
+import WhatsAppIcon from '../ui/WhatsAppIcon';
 
 export default function ProductCard({ product }) {
   const { addToCart, wishlist, toggleWishlist, user } = useStore();
@@ -29,6 +31,9 @@ export default function ProductCard({ product }) {
     addToCart(product, 1, product.variants?.[0] || null);
     toast.success('Added to cart!');
   };
+
+  const waMessage = encodeURIComponent(`Hi, I'm interested in ${product.name} at ${formatPrice(price)}.`);
+  const waLink = `https://wa.me/${siteConfig.whatsappNumber || ''}?text=${waMessage}`;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: '14px', overflow: 'hidden', border: '1px solid #e2e8f0', position: 'relative', height: '100%' }}>
@@ -60,6 +65,9 @@ export default function ProductCard({ product }) {
           <button onClick={handleAddToCart} style={{ background: '#006989', color: '#fff', border: 'none', borderRadius: '10px', padding: '10px 14px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap', width: '100%' }}>
             <ShoppingCart size={14} /> Add to cart
           </button>
+          <a href={waLink} target="_blank" rel="noopener noreferrer" style={{ background: '#25D366', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap', width: '100%', textDecoration: 'none' }}>
+            <WhatsAppIcon className="h-4 w-4 text-white" /> Order via WhatsApp
+          </a>
         </div>
       </div>
     </div>
