@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import toast from 'react-hot-toast';
 import {
@@ -6,43 +6,10 @@ import {
   Mail,
   MapPin,
   Send,
-  MessageCircle,
 } from 'lucide-react';
 import siteConfig from '../config';
 import WhatsAppIcon from '../components/ui/WhatsAppIcon';
-
-const CONTACTS = [
-  {
-    Icon: WhatsAppIcon,
-    label: 'WhatsApp',
-    value: (
-      <a href={`https://wa.me/${siteConfig.whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
-        <MessageCircle size={14} color="#25D366" /> {siteConfig.contact.phone}
-      </a>
-    ),
-    sub: 'Available 8am–10pm daily',
-  },
-  {
-    Icon: Phone,
-    label: 'Phone',
-    value: siteConfig.contact.phone,
-    sub: 'Mon–Sat: 9am–6pm',
-    href: `tel:${siteConfig.contact.phone.replace(/\s/g, '')}`,
-  },
-  {
-    Icon: Mail,
-    label: 'Email',
-    value: siteConfig.contact.email,
-    sub: 'Reply within 2 hours',
-    href: `mailto:${siteConfig.contact.email}`,
-  },
-  {
-    Icon: MapPin,
-    label: 'Location',
-    value: 'Accra, Ghana',
-    sub: siteConfig.contact.address,
-  },
-];
+import { settingsAPI } from '../lib/api';
 
 const inputClass =
   'w-full h-12 px-4 text-sm bg-surface-muted border border-surface-border rounded-lg text-ink placeholder:text-ink-subtle focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-colors';
@@ -51,6 +18,7 @@ const labelClass =
   'block text-sm font-semibold tracking-wide text-ink-muted mb-2';
 
 export default function Contact() {
+  const [settings, setSettings] = useState(null);
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -58,6 +26,53 @@ export default function Contact() {
     message: '',
   });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    settingsAPI.get().then(res => {
+      if (active && res.settings) setSettings(res.settings);
+    }).catch(() => {});
+    return () => { active = false };
+  }, []);
+
+  const contactPhone = settings?.contact?.phones?.[0] || settings?.contact?.phone || siteConfig.contact?.phone || '+233 575 453 086';
+  const contactEmail = settings?.contact?.email || siteConfig.contact?.email || 'info@alphaistore.com';
+  const contactAddress = settings?.contact?.address || siteConfig.contact?.address || 'Adum P.Z, Kumasi, Ghana';
+  const whatsappNumber = (settings?.contact?.whatsapp?.[0] || siteConfig.whatsappNumber || '').replace(/[^0-9]/g, '');
+
+  const CONTACTS = [
+    {
+      Icon: WhatsAppIcon,
+      label: 'WhatsApp',
+      value: whatsappNumber ? (
+        <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
+          <WhatsAppIcon className="h-4 w-4 text-[#25D366]" /> {contactPhone}
+        </a>
+      ) : contactPhone,
+      sub: 'Available 8am–10pm daily',
+      href: whatsappNumber ? `https://wa.me/${whatsappNumber}` : undefined,
+    },
+    {
+      Icon: Phone,
+      label: 'Phone',
+      value: contactPhone,
+      sub: 'Mon–Sat: 9am–6pm',
+      href: `tel:${contactPhone.replace(/\s/g, '')}`,
+    },
+    {
+      Icon: Mail,
+      label: 'Email',
+      value: contactEmail,
+      sub: 'Reply within 2 hours',
+      href: `mailto:${contactEmail}`,
+    },
+    {
+      Icon: MapPin,
+      label: 'Location',
+      value: contactAddress,
+      sub: contactAddress,
+    },
+  ];
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
@@ -180,6 +195,16 @@ export default function Contact() {
             </button>
           </form>
         </section>
+
+        {settings?.contact?.googleMapEmbedUrl && (
+          <section className="rounded-xl border border-surface-border bg-white p-2 md:p-4 mt-6">
+            <h2 className="text-base font-semibold tracking-tightish text-ink mb-4 px-2">Our Location</h2>
+            <div
+              className="w-full h-[300px] md:h-[400px] rounded-lg overflow-hidden"
+              dangerouslySetInnerHTML={{ __html: settings.contact.googleMapEmbedUrl }}
+            />
+          </section>
+        )}
       </div>
     </>
   );
