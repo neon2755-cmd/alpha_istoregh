@@ -364,7 +364,7 @@ function ProductDetailPage() {
                 href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 inline-flex h-14 items-center justify-center gap-2 rounded-full bg-[#25D366] text-white text-base font-bold hover:bg-[#128C7E] transition-all"
+                className="flex-1 inline-flex h-14 items-center justify-center gap-3 rounded-full bg-[#25D366] text-white text-base font-bold hover:bg-[#128C7E] transition-all pl-5"
               >
                 <WhatsAppIcon className="h-5 w-5 text-white" />
                 Order on WhatsApp
