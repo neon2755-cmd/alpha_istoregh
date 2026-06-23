@@ -127,6 +127,16 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
+// DELETE /api/orders/clear (admin) — delete all orders
+exports.clearAllOrders = async (req, res) => {
+  try {
+    const result = await Order.deleteMany({});
+    res.json({ success: true, message: `Deleted ${result.deletedCount} orders` });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // GET /api/orders/dashboard-stats (admin)
 exports.getDashboardStats = async (req, res) => {
   try {

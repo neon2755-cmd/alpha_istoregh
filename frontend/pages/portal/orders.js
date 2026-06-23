@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { Package, Search, ExternalLink, Edit2, Check } from 'lucide-react';
+import { Package, Search, ExternalLink, Edit2, Check, Trash2 } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
-import { ordersAPI } from '../../lib/api';
+import { ordersAPI, fetchAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import Link from 'next/link';
 
@@ -48,12 +48,33 @@ export default function AdminOrders() {
     }
   };
 
+  const handleClearAll = async () => {
+    if (!confirm('Are you sure? This will permanently delete ALL orders. This action cannot be undone.')) return;
+    try {
+      await fetchAPI('/orders/clear', 'DELETE');
+      alert('All orders deleted');
+      fetchOrders();
+    } catch (e) {
+      alert('Failed to delete orders');
+    }
+  };
+
   return (
     <>
       <Head>
         <title>Orders — Admin</title>
       </Head>
       <AdminLayout title="Orders" subtitle="Manage customer orders and updates">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-xs text-ink-subtle">{orders.length} order{orders.length !== 1 ? 's' : ''} total</p>
+          <button
+            onClick={handleClearAll}
+            className="inline-flex items-center gap-2 h-9 px-4 rounded-xl bg-red-50 text-red-600 text-xs font-bold hover:bg-red-100 transition-colors"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Delete All Orders
+          </button>
+        </div>
         <div className="rounded-3xl border border-surface-border bg-white shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-surface-border text-sm">
