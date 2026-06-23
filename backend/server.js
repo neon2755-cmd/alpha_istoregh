@@ -5,6 +5,9 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const passport = require('passport');
+require('./config/passport');
 require('dotenv').config();
 
 const app = express();
@@ -15,6 +18,16 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'alphastore_secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === 'production', httpOnly: true, maxAge: 24 * 60 * 60 * 1000 },
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
 // CORS
 app.use(cors({
@@ -50,6 +63,19 @@ app.use('/api/orders',   require('./routes/orders'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/upload',   require('./routes/upload'));
 app.use('/api/contact',  require('./routes/contact'));
+
+// Google OAuth
+app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+app.get(
+  '/api/auth/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:3000'}/auth/login?error=google_failed` }),
+  (req, res) => {
+    const token = require('../middleware/auth').generateToken(req.user._id);
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+    res.cookie('authToken', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000, secure: process.env.NODE_ENV === 'production' });
+    res.redirect(`${clientUrl}/?google_auth=success`);
+  }
+);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ success: true, message: 'AlphaiStore API is running 🚀' }));

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -14,10 +14,33 @@ export default function Login() {
   const router = useRouter();
   const setUser = useStore((s) => s.setUser);
   const setToken = useStore((s) => s.setToken);
+  const fetchUser = useStore((s) => s.fetchUser);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const { google_auth } = router.query;
+    if (google_auth === 'success') {
+      toast.success('Logged in with Google!');
+      router.replace('/');
+    }
+    if (router.query.error === 'google_failed') {
+      toast.error('Google login was cancelled or failed');
+      router.replace('/auth/login');
+    }
+  }, [router.query]);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('authToken');
+    if (storedToken) {
+      setToken(storedToken);
+      fetchUser().then(() => {
+        router.replace('/');
+      });
+    }
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -63,15 +86,15 @@ export default function Login() {
             Sign in to continue.
           </p>
 
-          <button
-            onClick={() => toast('Google sign-in coming soon!')}
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '10px', background: '#fff', cursor: 'pointer', fontSize: '14px', fontWeight: 600, marginBottom: '16px' }}
+          <a
+            href="/api/auth/google"
+            className="inline-flex w-full h-11 items-center justify-center gap-2 rounded-xl border border-surface-border bg-white text-ink text-sm font-semibold hover:bg-surface-muted transition-colors mb-5"
           >
             <img src="https://www.google.com/favicon.ico" width="18" height="18" alt="Google" />
             Continue with Google
-          </button>
+          </a>
 
-          <div className="mt-6 space-y-4">
+          <div className="mt-1 space-y-4">
             <div className="relative">
               <Mail className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-subtle pointer-events-none" />
               <input
