@@ -1,9 +1,10 @@
 import React from 'react';
-import { X, Minus, Plus, Trash2 } from 'lucide-react';
+import { X, Minus, Plus, Trash2, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useStore } from '../../store';
 import { formatPrice } from '../../lib/utils';
+import siteConfig from '../../config';
 
 export default function CartDrawer({ isOpen, onClose }) {
   const { cart, removeFromCart, updateQuantity, clearCart } = useStore();
@@ -123,10 +124,10 @@ export default function CartDrawer({ isOpen, onClose }) {
                         <button
                           type="button"
                           onClick={() => removeFromCart(item.id, item.variant)}
-                          className="inline-flex items-center gap-1 text-xs font-medium text-status-danger hover:text-red-700"
+                          className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-red-50 text-red-500 hover:bg-red-100"
+                          aria-label="Remove item"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                          Remove
                         </button>
                       </div>
                     </div>
@@ -154,10 +155,19 @@ export default function CartDrawer({ isOpen, onClose }) {
               >
                 Checkout
               </Link>
+              <a
+                href={`https://wa.me/${siteConfig.whatsappNumber || ''}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex w-full h-11 items-center justify-center gap-2 rounded-lg border border-[#25D366] text-[#25D366] text-sm font-medium hover:bg-[#25D366] hover:text-white"
+              >
+                <MessageCircle size={18} color="#25D366" style={{ display: 'inline', marginRight: '6px' }} />
+                Order via WhatsApp
+              </a>
               <button
                 type="button"
                 onClick={clearCart}
-                className="mt-2 w-full text-center text-xs font-medium text-ink-muted hover:text-status-danger"
+                className="mt-2 w-full text-center text-xs font-semibold text-red-500 border border-red-200 rounded-lg py-2 hover:bg-red-50"
               >
                 Empty cart
               </button>

@@ -53,11 +53,8 @@ export default function Header() {
             <Link href="/" className="flex items-center gap-2 shrink-0">
               {logoUrl ? (
                 <img src={logoUrl} alt={storeName} loading="eager" className="h-8 w-auto object-contain" />
-              ) : (
-                <span className="text-xl font-bold tracking-tight text-ink">
-                  {storeName}
-                </span>
-              )}
+              ) : null}
+              <span className="text-xl font-bold tracking-tight text-ink">{storeName}</span>
             </Link>
             <div className="flex lg:hidden items-center gap-2">
               <Link

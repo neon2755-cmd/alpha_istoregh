@@ -63,6 +63,14 @@ export default function Login() {
             Sign in to continue.
           </p>
 
+          <button
+            onClick={() => toast('Google sign-in coming soon!')}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '10px', background: '#fff', cursor: 'pointer', fontSize: '14px', fontWeight: 600, marginBottom: '16px' }}
+          >
+            <img src="https://www.google.com/favicon.ico" width="18" height="18" alt="Google" />
+            Continue with Google
+          </button>
+
           <div className="mt-6 space-y-4">
             <div className="relative">
               <Mail className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-subtle pointer-events-none" />
@@ -99,6 +107,15 @@ export default function Login() {
                 )}
               </button>
             </div>
+          </div>
+
+          <div className="mt-2 text-right">
+            <Link
+              href="/auth/forgot-password"
+              className="text-xs font-medium text-primary hover:text-primary-dark"
+            >
+              Forgot password?
+            </Link>
           </div>
 
           <button

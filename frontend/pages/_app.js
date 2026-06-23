@@ -80,6 +80,7 @@ function MyApp({ Component, pageProps }) {
         <title>{siteConfig.name}</title>
         <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
         <meta name="theme-color" content={siteConfig.themeColor} />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </Head>
       <ErrorBoundary>
         <Toaster

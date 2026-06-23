@@ -6,6 +6,7 @@ import {
   Mail,
   MapPin,
   Send,
+  MessageCircle,
 } from 'lucide-react';
 import siteConfig from '../config';
 import WhatsAppIcon from '../components/ui/WhatsAppIcon';
@@ -14,9 +15,12 @@ const CONTACTS = [
   {
     Icon: WhatsAppIcon,
     label: 'WhatsApp',
-    value: siteConfig.contact.phone,
+    value: (
+      <a href={`https://wa.me/${siteConfig.whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
+        <MessageCircle size={14} color="#25D366" /> {siteConfig.contact.phone}
+      </a>
+    ),
     sub: 'Available 8am–10pm daily',
-    href: `https://wa.me/${siteConfig.whatsappNumber}`,
   },
   {
     Icon: Phone,

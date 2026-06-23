@@ -1,128 +1,64 @@
 import React from 'react';
 import Link from 'next/link';
-import { Heart, ShoppingCart, Zap, Star } from 'lucide-react';
+import { Heart, ShoppingCart } from 'lucide-react';
 import { useStore } from '../../store';
 import { formatPrice } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
 export default function ProductCard({ product }) {
   const { addToCart, wishlist, toggleWishlist, user } = useStore();
-  
   if (!product) return null;
-
   const productId = product._id || product.id;
-  const isWishlisted = wishlist.includes(productId);
+  const isWishlisted = wishlist?.includes(productId);
+  const price = product.basePrice || product.variants?.[0]?.price || 0;
+  const comparePrice = product.comparePrice;
+  const hasDiscount = comparePrice && comparePrice > price;
+  const discountPct = hasDiscount ? Math.round(((comparePrice - price) / comparePrice) * 100) : 0;
 
   const handleWishlist = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    if (!user) {
-      toast('Sign in to add to wishlist', { icon: '🔒' });
-      return;
-    }
+    if (!user) { toast('Sign in to wishlist'); return; }
     toggleWishlist(productId);
   };
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    if (!user) {
-      toast('Sign in to add to cart', { icon: '🔒' });
-      return;
-    }
-    const variant = product.variants?.[0] || null;
-    const normalizedVariant = variant ? {
-      color: typeof variant.color === 'object' ? (variant.color?.name || '') : (variant.color || ''),
-      storage: variant.storage || '',
-      price: variant.price || 0,
-    } : null;
-    addToCart(product, 1, normalizedVariant);
-    toast.success('Added to cart');
+    if (!user) { toast('Sign in to add to cart'); return; }
+    addToCart(product, 1, product.variants?.[0] || null);
+    toast.success('Added to cart!');
   };
 
-  const discountPercentage = product.comparePrice && product.comparePrice > product.basePrice 
-    ? Math.round(((product.comparePrice - product.basePrice) / product.comparePrice) * 100) 
-    : 0;
-
   return (
-    <div 
-      className="group relative bg-white border border-surface-border rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300"
-      style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-    >
-      {/* Badges */}
-      <div style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        {discountPercentage > 0 && (
-          <span style={{ backgroundColor: '#EF4444', color: 'white', fontSize: '10px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '999px' }}>
-            -{discountPercentage}%
-          </span>
-        )}
-        {product.isHotDeal && (
-          <span style={{ backgroundColor: '#F59E0B', color: 'white', fontSize: '10px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '2px' }}>
-            <Zap size={10} /> Hot
-          </span>
-        )}
-        {product.isFeatured && (
-          <span style={{ backgroundColor: '#006989', color: 'white', fontSize: '10px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '2px' }}>
-            <Star size={10} /> Featured
-          </span>
-        )}
+    <div style={{ display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: '14px', overflow: 'hidden', border: '1px solid #e2e8f0', position: 'relative', height: '100%' }}>
+      
+      <div style={{ position: 'absolute', top: '8px', left: '8px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '3px' }}>
+        {hasDiscount && <span style={{ background: '#ef4444', color: '#fff', fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '999px' }}>-{discountPct}%</span>}
+        {product.isHotDeal && <span style={{ background: '#f59e0b', color: '#fff', fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '999px' }}>Hot</span>}
+        {product.isFeatured && <span style={{ background: '#006989', color: '#fff', fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '999px' }}>Featured</span>}
       </div>
 
-      <button
-        onClick={handleWishlist}
-        style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 10, backgroundColor: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
-        aria-label="Toggle wishlist"
-      >
-        <Heart size={16} fill={isWishlisted ? '#EF4444' : 'transparent'} color={isWishlisted ? '#EF4444' : '#94A3B8'} />
+      <button onClick={handleWishlist} style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10, background: '#fff', border: 'none', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
+        <Heart size={14} fill={isWishlisted ? '#ef4444' : 'none'} color={isWishlisted ? '#ef4444' : '#94a3b8'} />
       </button>
 
-      {/* Image Container */}
-      <Link href={`/product/${productId}`} style={{ display: 'block', position: 'relative', width: '100%', paddingBottom: '100%', backgroundColor: '#F8FAFC' }}>
-        <img 
-          src={product.images?.[0]?.url || '/images/placeholder-phone.jpg'} 
-          alt={product.name}
-          style={{ position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', objectFit: 'contain', padding: '20px' }}
-        />
+      <Link href={`/product/${productId}`} style={{ display: 'block', position: 'relative', paddingBottom: '90%', background: '#f8fafc', overflow: 'hidden' }}>
+        <img src={product.images?.[0]?.url || '/images/placeholder-phone.jpg'} alt={product.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: '12px' }} />
       </Link>
 
-      {/* Content Container */}
-      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flexGrow: 1, gap: '8px' }}>
-        {/* Brand & Condition */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#94A3B8', fontWeight: '600' }}>
-          <span>{product.brand}</span>
-          <span>{product.condition}</span>
-        </div>
-
-        {/* Title */}
-        <Link href={`/product/${productId}`}>
-          <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: '0', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-            {product.name}
-          </h3>
+      <div style={{ padding: '10px 12px 12px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+        <p style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 600, marginBottom: '3px' }}>{product.brand} · {product.condition}</p>
+        <Link href={`/product/${productId}`} style={{ textDecoration: 'none' }}>
+          <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', margin: 0, lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</h3>
         </Link>
-
-        <div style={{ flexGrow: 1 }} />
-
-        {/* Price & Add to Cart */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '4px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {product.comparePrice && product.comparePrice > product.basePrice && (
-              <span style={{ fontSize: '12px', color: '#94A3B8', textDecoration: 'line-through' }}>
-                {formatPrice(product.comparePrice)}
-              </span>
-            )}
-            <span style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A' }}>
-              {formatPrice(product.basePrice)}
-            </span>
+        <div style={{ marginTop: 'auto', paddingTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            {hasDiscount && <p style={{ fontSize: '11px', color: '#94a3b8', textDecoration: 'line-through', margin: 0 }}>{formatPrice(comparePrice)}</p>}
+            <p style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: 0 }}>{formatPrice(price)}</p>
           </div>
-
-          <button
-            onClick={handleAddToCart}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#006989', color: 'white', border: 'none', cursor: 'pointer', transition: 'background-color 0.2s' }}
-            aria-label="Add to cart"
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00526b'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#006989'}
-          >
-            <ShoppingCart size={16} />
+          <button onClick={handleAddToCart} style={{ background: '#006989', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 12px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+            <ShoppingCart size={13} /> Add
           </button>
         </div>
       </div>

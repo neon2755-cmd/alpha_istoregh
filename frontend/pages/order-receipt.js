@@ -16,7 +16,7 @@ export default function OrderReceipt() {
     const fetchOrder = async () => {
       try {
         const res = await ordersAPI.track(orderNum);
-        setOrder(res.data.order);
+        setOrder(res.order || res.data?.order || res);
       } catch (err) {
         console.error(err);
       } finally {
@@ -56,9 +56,9 @@ export default function OrderReceipt() {
         <div className="flex justify-between items-start border-b border-surface-border pb-8 mb-8">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-ink mb-1">{siteConfig.name}</h1>
-            <p className="text-sm text-ink-muted">{siteConfig.contact.address}</p>
-            <p className="text-sm text-ink-muted">{siteConfig.contact.phone}</p>
-            <p className="text-sm text-ink-muted">{siteConfig.contact.email}</p>
+            <p className="text-sm text-ink-muted">{siteConfig.contact?.address || 'Adum P.Z, Kumasi, Ghana'}</p>
+            <p className="text-sm text-ink-muted">{siteConfig.contact?.phone || '+233 575 453 086'}</p>
+            <p className="text-sm text-ink-muted">{siteConfig.contact?.email || 'info@alphaistore.com'}</p>
           </div>
           <div className="text-right">
             <h2 className="text-4xl font-light text-primary mb-2 tracking-tight">RECEIPT</h2>
