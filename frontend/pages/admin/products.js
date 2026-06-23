@@ -13,7 +13,6 @@ import toast from 'react-hot-toast';
 const BRANDS = ['Apple', 'Samsung', 'Tecno', 'Infinix', 'Other'];
 const CONDITIONS = ['Brand New', 'UK Used', 'Ghana Used', 'Refurbished'];
 const CATEGORIES = ['Smartphone', 'Laptop', 'Tablet', 'Smartwatch', 'Accessory', 'Earphone', 'Other'];
-const STORAGE_OPTIONS = ['32GB', '64GB', '128GB', '256GB', '512GB', '1TB'];
 
 const EMPTY_FORM = {
   name: '', brand: 'Apple', category: 'Smartphone', condition: 'Brand New',
@@ -550,14 +549,8 @@ export default function AdminProducts() {
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  <div className="relative">
-                    <select value={newVariant.storage} onChange={e => setNewVariant(v => ({ ...v, storage: e.target.value }))}
-                      className="w-full h-9 pl-2 pr-6 text-sm rounded-xl border border-surface-border bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none">
-                      <option value="">Storage</option>
-                      {STORAGE_OPTIONS.map(s => <option key={s}>{s}</option>)}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-subtle" />
-                  </div>
+                  <input type="text" placeholder="Size / Storage (e.g. 128GB)" value={newVariant.storage} onChange={e => setNewVariant(v => ({ ...v, storage: e.target.value }))}
+                    className="h-9 px-3 text-sm rounded-xl border border-surface-border bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
                   <input type="number" placeholder="Price (GHS)" value={newVariant.price} onChange={e => setNewVariant(v => ({ ...v, price: e.target.value }))}
                     className="h-9 px-3 text-sm rounded-xl border border-surface-border bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
                   <input type="number" placeholder="Stock qty" value={newVariant.stock} onChange={e => setNewVariant(v => ({ ...v, stock: e.target.value }))}
