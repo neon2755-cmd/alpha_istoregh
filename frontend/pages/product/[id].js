@@ -355,19 +355,19 @@ function ProductDetailPage() {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="inline-flex h-14 flex-1 items-center justify-center gap-3 rounded-full bg-primary text-white text-base font-bold hover:bg-primary-dark shadow-smooth transition-all"
+                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-dark shadow-smooth transition-all"
               >
-                <ShoppingCart className="h-5 w-5" />
+                <ShoppingCart className="h-4 w-4" />
                 Add to cart
               </button>
               <a
                 href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-surface-border bg-white px-6 text-sm font-semibold text-ink hover:bg-surface-muted transition-all"
+                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] text-white text-sm font-semibold hover:bg-[#128C7E] transition-all"
               >
-                <WhatsAppIcon className="h-5 w-5 text-[#25D366]" />
-                WhatsApp
+                <WhatsAppIcon className="h-5 w-5 text-white" />
+                Share on WhatsApp
               </a>
             </div>
 
