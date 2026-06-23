@@ -133,7 +133,7 @@ function HomePage() {
         <section className="bg-transparent py-6 md:py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              {settings.promoBanners.map((promo, idx) => (
+              {settings?.promoBanners?.map((promo, idx) => (
                 <div key={idx} style={{ backgroundColor: promo.color || '#EAEBED' }} className={`rounded-2xl md:rounded-3xl overflow-hidden shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between p-4 md:p-8 relative h-[180px] md:min-h-[220px] promo-pattern-${promo.pattern || 'none'}`}>
                   <div className="relative z-10 max-w-full md:max-w-[60%] mb-2 md:mb-0 pr-24 md:pr-0">
                     <h3 className="text-base md:text-2xl font-bold text-white mb-1 md:mb-2 leading-tight">{promo.title}</h3>
