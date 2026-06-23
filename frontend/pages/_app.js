@@ -15,7 +15,7 @@ import { settingsAPI } from '../lib/api';
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, error: null };
   }
   static getDerivedStateFromError() {
     return { hasError: true };
@@ -29,8 +29,9 @@ class ErrorBoundary extends React.Component {
         <div className="min-h-screen flex items-center justify-center bg-surface-muted px-4">
           <div className="text-center">
             <p className="text-sm font-medium text-ink">Something went wrong.</p>
+            <p className="text-xs text-ink-muted mt-2">{this.state.error?.message || 'Unknown error'}</p>
             <button
-              onClick={() => this.setState({ hasError: false })}
+              onClick={() => this.setState({ hasError: false, error: null })}
               className="mt-3 text-sm font-medium text-primary hover:text-primary-dark"
             >
               Try again
@@ -49,6 +50,11 @@ function MyApp({ Component, pageProps }) {
   const [favicon, setFavicon] = useState('/favicon.svg');
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.onerror = (msg, url, line, col, err) => {
+        console.error('Global error:', msg, url, line, col, err);
+      };
+    }
     if (typeof window !== 'undefined') {
       const storedToken = localStorage.getItem('authToken');
       if (storedToken && storedToken !== token) {
