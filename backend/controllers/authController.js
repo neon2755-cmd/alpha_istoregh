@@ -71,10 +71,12 @@ exports.getMe = async (req, res) => {
 // PUT /api/auth/me
 exports.updateMe = async (req, res) => {
   try {
-    const { firstName, lastName, phone } = req.body;
+    const { firstName, lastName, phone, email } = req.body;
+    const updateData = { firstName, lastName, phone };
+    if (email) updateData.email = email.toLowerCase();
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { firstName, lastName, phone },
+      updateData,
       { new: true, runValidators: true }
     );
     res.json({ success: true, user });

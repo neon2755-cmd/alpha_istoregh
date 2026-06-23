@@ -7,12 +7,23 @@ import {
   CheckCircle2,
   ArrowUpRight,
   ExternalLink,
+  BarChart3,
 } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
 import { ordersAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import Link from 'next/link';
+import { Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
 const cards = [
   { label: 'Orders', valueKey: 'orders', Icon: ShoppingCart, bg: 'bg-blue-50', text: 'text-blue-600' },
@@ -20,6 +31,8 @@ const cards = [
   { label: 'Products sold', valueKey: 'productsSold', Icon: Package, bg: 'bg-purple-50', text: 'text-purple-600' },
   { label: 'Delivered', valueKey: 'delivered', Icon: CheckCircle2, bg: 'bg-orange-50', text: 'text-orange-600' },
 ];
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -159,18 +172,67 @@ export default function AdminDashboard() {
                 <p className="text-sm font-medium text-ink-muted">No sales data yet</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {stats?.topProducts?.map((product, i) => (
-                  <div key={product._id || i} className="flex items-center justify-between p-3 lg:p-4 rounded-xl border border-surface-border">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="h-8 w-8 inline-flex items-center justify-center rounded-lg bg-primary-50 text-primary text-xs font-bold">
-                        {i + 1}
-                      </span>
-                      <p className="text-sm font-semibold text-ink truncate">{product.name}</p>
+              <div className="space-y-4">
+                <div className="h-64">
+                  <Bar
+                    data={{
+                      labels: stats.topProducts.map(p => p.name.length > 20 ? p.name.substring(0, 20) + '...' : p.name),
+                      datasets: [
+                        {
+                          label: 'Units Sold',
+                          data: stats.topProducts.map(p => p.sold),
+                          backgroundColor: [
+                            'rgba(0, 105, 137, 0.8)',
+                            'rgba(0, 105, 137, 0.65)',
+                            'rgba(0, 105, 137, 0.5)',
+                            'rgba(0, 105, 137, 0.35)',
+                            'rgba(0, 105, 137, 0.2)',
+                          ],
+                          borderRadius: 8,
+                          borderSkipped: false,
+                        },
+                      ],
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                          backgroundColor: '#0F172A',
+                          cornerRadius: 8,
+                          padding: 12,
+                          titleFont: { size: 13, weight: '600' },
+                          bodyFont: { size: 12 },
+                        },
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          ticks: { stepSize: 1, font: { size: 11 }, color: '#94A3B8' },
+                          grid: { color: '#F1F5F9' },
+                        },
+                        x: {
+                          ticks: { font: { size: 10 }, color: '#64748B', maxRotation: 45 },
+                          grid: { display: false },
+                        },
+                      },
+                    }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  {stats.topProducts.map((product, i) => (
+                    <div key={product._id || i} className="flex items-center justify-between p-3 rounded-xl border border-surface-border">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="h-7 w-7 inline-flex items-center justify-center rounded-lg bg-primary-50 text-primary text-xs font-bold">
+                          {i + 1}
+                        </span>
+                        <p className="text-sm font-semibold text-ink truncate">{product.name}</p>
+                      </div>
+                      <span className="text-xs font-bold text-ink-muted">{product.sold} sold</span>
                     </div>
-                    <span className="text-xs font-bold text-ink-muted ml-2">{product.sold} sold</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
           </section>

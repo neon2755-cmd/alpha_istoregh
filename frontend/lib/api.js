@@ -72,6 +72,8 @@ export const registerUser = (userData) => apiClient.post('/auth/register', userD
 export const loginUser = (credentials) => apiClient.post('/auth/login', credentials);
 export const logoutUser = () => apiClient.post('/auth/logout');
 export const getMe = () => apiClient.get('/auth/me');
+export const updateProfile = (data) => apiClient.put('/auth/me', data);
+export const changePassword = (newPassword) => apiClient.put('/auth/password', { newPassword });
 export const forgotPassword = (email) => apiClient.post('/auth/forgot-password', { email });
 export const resetPassword = (token, password) => apiClient.post(`/auth/reset-password/${token}`, { password });
 

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Save, Store, MapPin, Image as ImageIcon, CreditCard, Plus, Trash2, Link as LinkIcon, UploadCloud } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
-import { settingsAPI, uploadAPI } from '../../lib/api';
+import { settingsAPI, uploadAPI, authAPI } from '../../lib/api';
+import toast from 'react-hot-toast';
 
 const inputClass =
   'w-full h-11 px-4 text-sm bg-surface-muted border border-transparent rounded-xl text-ink placeholder:text-ink-subtle focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all';
@@ -26,6 +27,8 @@ export default function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState('');
+  const [credForm, setCredForm] = useState({ email: '', newPassword: '', confirmPassword: '' });
+  const [credSaving, setCredSaving] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -140,6 +143,33 @@ export default function AdminSettings() {
       alert('Failed to save settings.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleChangeCredentials = async (e) => {
+    e.preventDefault();
+    if (credForm.newPassword && credForm.newPassword !== credForm.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    if (credForm.newPassword && credForm.newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    setCredSaving(true);
+    try {
+      if (credForm.newPassword) {
+        await authAPI.changePassword(credForm.newPassword);
+      }
+      if (credForm.email) {
+        await authAPI.updateProfile({ email: credForm.email });
+      }
+      toast.success('Credentials updated! Please log in again if email changed.');
+      setCredForm({ email: '', newPassword: '', confirmPassword: '' });
+    } catch {
+      toast.error('Failed to update credentials.');
+    } finally {
+      setCredSaving(false);
     }
   };
 
@@ -389,6 +419,35 @@ export default function AdminSettings() {
                     <input type="checkbox" checked={!!value} onChange={(e) => handleChange('payment', key, e.target.checked)} className="w-5 h-5 rounded border-surface-border text-primary focus:ring-primary" />
                   </label>
                 ))}
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-surface-border">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="h-10 w-10 flex items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4-4a9 9 0 11-18 0 9 9 0 0118 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m3-4a9 9 0 010 4.5M9 17a4 4 0 01-4-4m8 4a4 4 0 01-4 4" /></svg>
+                  </span>
+                  <div>
+                    <h2 className="text-xl font-bold tracking-tight text-ink">Change Admin Credentials</h2>
+                    <p className="text-xs text-ink-subtle">Update your login email and password</p>
+                  </div>
+                </div>
+                <form onSubmit={handleChangeCredentials} className="space-y-4">
+                  <div>
+                    <label className={labelClass}>New Email (optional)</label>
+                    <input type="email" value={credForm.email} onChange={(e) => setCredForm(f => ({ ...f, email: e.target.value }))} className={inputClass} placeholder="new-email@example.com" />
+                  </div>
+                  <div>
+                    <label className={labelClass}>New Password (optional)</label>
+                    <input type="password" value={credForm.newPassword} onChange={(e) => setCredForm(f => ({ ...f, newPassword: e.target.value }))} className={inputClass} placeholder="Min. 6 characters" minLength={6} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Confirm New Password</label>
+                    <input type="password" value={credForm.confirmPassword} onChange={(e) => setCredForm(f => ({ ...f, confirmPassword: e.target.value }))} className={inputClass} placeholder="Re-enter password" />
+                  </div>
+                  <button type="submit" disabled={credSaving} className="w-full inline-flex h-11 items-center justify-center gap-2 rounded-full bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-all shadow-sm disabled:opacity-60">
+                    {credSaving ? 'Updating...' : 'Update Credentials'}
+                  </button>
+                </form>
               </div>
 
               <div className="mt-8 pt-6 border-t border-surface-border">
