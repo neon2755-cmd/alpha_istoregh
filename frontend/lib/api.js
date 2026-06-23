@@ -70,8 +70,10 @@ apiClient.interceptors.response.use(
 // Authentication
 export const registerUser = (userData) => apiClient.post('/auth/register', userData);
 export const loginUser = (credentials) => apiClient.post('/auth/login', credentials);
-export const logoutUser = () => apiClient.post('/auth/logout'); // Usually a POST to invalidate token server-side
-export const getMe = () => apiClient.get('/auth/me'); // Get logged-in user info
+export const logoutUser = () => apiClient.post('/auth/logout');
+export const getMe = () => apiClient.get('/auth/me');
+export const forgotPassword = (email) => apiClient.post('/auth/forgot-password', { email });
+export const resetPassword = (token, password) => apiClient.post(`/auth/reset-password/${token}`, { password });
 
 // Products
 export const getProducts = (params) => apiClient.get('/products', { params });
