@@ -44,6 +44,14 @@ const settingsSchema = new mongoose.Schema({
     image:    { url: String, public_id: String },
     link:     String,
   }],
+  promoCodes: [{
+    code:       { type: String, required: true, unique: true, uppercase: true },
+    discount:   { type: Number, required: true, min: 1, max: 100 },
+    isActive:   { type: Boolean, default: true },
+    expiresAt:  Date,
+    usageLimit: { type: Number, min: 1 },
+    usedCount:  { type: Number, default: 0, min: 0 },
+  }],
 }, { timestamps: true });
 
 module.exports = mongoose.model('Settings', settingsSchema);

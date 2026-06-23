@@ -13,9 +13,8 @@ import {
   Share,
 } from 'lucide-react';
 import { useStore } from '../store';
-import { ordersAPI, settingsAPI } from '../lib/api';
+import { ordersAPI, validatePromoCode } from '../lib/api';
 import { formatPrice } from '../lib/utils';
-import { useSettings } from '../hooks/useSettings';
 import toast from 'react-hot-toast';
 
 const DELIVERY_REGIONS = [
@@ -55,7 +54,6 @@ export default function Checkout() {
   const cart = useStore((s) => s.cart);
   const user = useStore((s) => s.user);
   const clearCart = useStore((s) => s.clearCart);
-  const { settings } = useSettings();
 
   const [form, setForm] = useState({
     name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : '',
@@ -73,11 +71,17 @@ export default function Checkout() {
   const subtotal = cart.reduce((s, item) => s + item.price * item.quantity, 0);
   const total = Math.max(0, subtotal + region.fee - discount);
 
-  const handlePromo = () => {
-    if (promo.toUpperCase() === 'ALPHA10') {
-      setDiscount(Math.round(subtotal * 0.1));
-      toast.success('Promo code applied: 10% off');
-    } else {
+  const handlePromo = async () => {
+    if (!promo.trim()) {
+      toast.error('Please enter a promo code');
+      return;
+    }
+    try {
+      const res = await validatePromoCode(promo);
+      const discountAmount = Math.round(subtotal * (res.promo.discount / 100));
+      setDiscount(discountAmount);
+      toast.success(`Promo code applied: ${res.promo.discount}% off!`);
+    } catch {
       toast.error('Invalid promo code');
     }
   };

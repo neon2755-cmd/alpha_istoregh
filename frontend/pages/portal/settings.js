@@ -29,6 +29,8 @@ export default function AdminSettings() {
   const [uploading, setUploading] = useState('');
   const [credForm, setCredForm] = useState({ email: '', newPassword: '', confirmPassword: '' });
   const [credSaving, setCredSaving] = useState(false);
+  const [newPromoCode, setNewPromoCode] = useState('');
+  const [newPromoDiscount, setNewPromoDiscount] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -419,6 +421,68 @@ export default function AdminSettings() {
                     <input type="checkbox" checked={!!value} onChange={(e) => handleChange('payment', key, e.target.checked)} className="w-5 h-5 rounded border-surface-border text-primary focus:ring-primary" />
                   </label>
                 ))}
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-surface-border">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="h-10 w-10 flex items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" /></svg>
+                  </span>
+                  <div>
+                    <h2 className="text-xl font-bold tracking-tight text-ink">Promo Codes</h2>
+                    <p className="text-xs text-ink-subtle">Create discount codes for customers</p>
+                  </div>
+                </div>
+
+                {/* Add new promo code */}
+                <div className="flex gap-2 mb-4">
+                  <input type="text" value={newPromoCode} onChange={(e) => setNewPromoCode(e.target.value.toUpperCase())} className={inputClass} placeholder="CODE (e.g. SAVE20)" />
+                  <input type="number" value={newPromoDiscount} onChange={(e) => setNewPromoDiscount(e.target.value)} className={inputClass} placeholder="%" min="1" max="100" style={{ width: '80px' }} />
+                  <button type="button" onClick={() => {
+                    if (!newPromoCode.trim() || !newPromoDiscount) return;
+                    const code = { code: newPromoCode.toUpperCase().trim(), discount: Number(newPromoDiscount), isActive: true };
+                    setSettings(prev => ({ ...prev, promoCodes: [...(prev.promoCodes || []), code] }));
+                    setNewPromoCode('');
+                    setNewPromoDiscount('');
+                  }} className="h-11 px-4 rounded-xl bg-amber-500 text-white text-sm font-bold hover:bg-amber-600 transition-colors whitespace-nowrap">Add</button>
+                </div>
+
+                {/* List promo codes */}
+                <div className="space-y-2">
+                  {(settings.promoCodes || []).map((promo, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 rounded-xl border border-surface-border">
+                      <div className="flex items-center gap-3">
+                        <span className={`h-8 w-8 inline-flex items-center justify-center rounded-lg text-xs font-bold ${promo.isActive ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                          {promo.discount}%
+                        </span>
+                        <div>
+                          <p className="text-sm font-bold text-ink">{promo.code}</p>
+                          <p className="text-xs text-ink-subtle">
+                            {promo.isActive ? 'Active' : 'Inactive'} · Used {promo.usedCount || 0}{promo.usageLimit ? ` / ${promo.usageLimit}` : ''} times
+                            {promo.expiresAt ? ` · Expires ${new Date(promo.expiresAt).toLocaleDateString()}` : ''}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button type="button" onClick={() => {
+                          const updated = [...settings.promoCodes];
+                          updated[idx] = { ...updated[idx], isActive: !updated[idx].isActive };
+                          setSettings(prev => ({ ...prev, promoCodes: updated }));
+                        }} className={`h-8 px-3 rounded-lg text-xs font-bold transition-colors ${promo.isActive ? 'bg-amber-50 text-amber-600' : 'bg-green-50 text-green-600'}`}>
+                          {promo.isActive ? 'Disable' : 'Enable'}
+                        </button>
+                        <button type="button" onClick={() => {
+                          setSettings(prev => ({ ...prev, promoCodes: prev.promoCodes.filter((_, i) => i !== idx) }));
+                        }} className="h-8 w-8 inline-flex items-center justify-center rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {(!settings.promoCodes || settings.promoCodes.length === 0) && (
+                    <p className="text-xs text-ink-subtle text-center py-4">No promo codes created yet.</p>
+                  )}
+                </div>
               </div>
 
               <div className="mt-8 pt-6 border-t border-surface-border">

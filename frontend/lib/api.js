@@ -97,6 +97,7 @@ export const getDashboardStats = () => apiClient.get('/orders/dashboard-stats');
 // Settings
 export const getSettings = () => apiClient.get('/settings');
 export const updateSettings = (settingsData) => apiClient.put('/settings', settingsData);
+export const validatePromoCode = (code) => apiClient.get(`/settings/promo/${code}`);
 
 // Generic fetch - can be used if specific functions aren't listed
 export const fetchAPI = (endpoint, method = 'GET', data = null, params = null) => {
