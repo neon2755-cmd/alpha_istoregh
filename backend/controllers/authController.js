@@ -164,12 +164,9 @@ exports.forgotPassword = async (req, res) => {
     });
 
     res.json({ success: true, message: 'Password reset email sent' });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// POST /api/auth/reset-password
+ } catch (err) {
+    console.error('FORGOT PASSWORD ERROR:', err.message, err.stack);
+    res.status(500).json({ success: false,
 exports.resetPassword = async (req, res) => {
   try {
     const { token, email, password } = req.body;
