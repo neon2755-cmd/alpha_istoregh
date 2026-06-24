@@ -77,7 +77,6 @@ function MyApp({ Component, pageProps }) {
         <title>{siteConfig.name}</title>
         <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
         <meta name="theme-color" content={siteConfig.themeColor} />
-        <meta name="google-site-verification" content="jpC0jfsDLxjDF1jrW1MUn2ZXB11sMHO5R8lRJB-Vjyw" />
         <link rel="icon" type="image/svg+xml" href={favicon} />
       </Head>
       <ErrorBoundary>
