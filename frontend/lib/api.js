@@ -1,7 +1,6 @@
 // frontend/lib/api.js
 import axios from 'axios';
 import siteConfig from '../config';
-import { useAuth } from '@clerk/nextjs';
 
 // Create an Axios instance
 const apiClient = axios.create({
@@ -11,23 +10,6 @@ const apiClient = axios.create({
   },
   withCredentials: true,
 });
-
-// Add a request interceptor to include Clerk token if available
-apiClient.interceptors.request.use(
-  async (config) => {
-    if (typeof window !== 'undefined') {
-      try {
-        const { getToken } = useAuth.getContext?.() || {};
-        // Note: useAuth context may not be available in interceptors
-        // Clerk's useClerk() or __clerk_token is typically handled by the client
-      } catch {
-        // ignore
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 // Add a response interceptor for handling global errors
 apiClient.interceptors.response.use(
