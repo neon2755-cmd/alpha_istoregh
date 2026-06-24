@@ -6,7 +6,7 @@ import { formatPrice } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
 export default function ProductCard({ product }) {
-  const { addToCart, wishlist, toggleWishlist, user } = useStore();
+  const { addToCart, wishlist, toggleWishlist } = useStore();
   if (!product) return null;
   const productId = product._id || product.id;
   const isWishlisted = wishlist?.includes(productId);
@@ -18,14 +18,12 @@ export default function ProductCard({ product }) {
   const handleWishlist = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    if (!user) { toast('Sign in to wishlist'); return; }
     toggleWishlist(productId);
   };
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    if (!user) { toast('Sign in to add to cart'); return; }
     addToCart(product, 1, product.variants?.[0] || null);
     toast.success('Added to cart!');
   };

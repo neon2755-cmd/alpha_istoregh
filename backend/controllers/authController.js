@@ -1,17 +1,13 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const { generateToken, setTokenCookie } = require('../middleware/auth');
 const { sendWelcomeEmail } = require('../utils/mailer');
 const sendEmail = require('../utils/sendEmail');
 const generateResetToken = require('../utils/generateResetToken');
 
 const sendAuth = (res, user, statusCode = 200) => {
-  const token = generateToken(user._id);
-  setTokenCookie(res, token);
   res.status(statusCode).json({
     success: true,
-    token,
     user: {
       _id: user._id,
       firstName: user.firstName,
@@ -51,17 +47,6 @@ exports.login = async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
     if (!user || !(await user.comparePassword(password))) {
-      const adminEmail = (process.env.ADMIN_EMAIL || process.env.SMTP_EMAIL || '').toLowerCase();
-      const adminPassword = process.env.ADMIN_PASSWORD || process.env.SMTP_PASSWORD;
-      if (email.toLowerCase() === adminEmail && password === adminPassword && adminEmail && adminPassword) {
-        const hashed = await bcrypt.hash(adminPassword, 12);
-        const admin = await User.findOneAndUpdate(
-          { email: adminEmail },
-          { password: hashed, role: 'admin' },
-          { upsert: true, new: true, select: '-password' }
-        );
-        return sendAuth(res, admin);
-      }
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
@@ -73,7 +58,6 @@ exports.login = async (req, res) => {
 
 // POST /api/auth/logout
 exports.logout = (req, res) => {
-  res.clearCookie('token');
   res.json({ success: true, message: 'Logged out successfully' });
 };
 

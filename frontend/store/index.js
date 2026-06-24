@@ -1,62 +1,13 @@
 // frontend/store/index.js
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { authAPI } from '../lib/api';
 
 export const useStore = create(
   persist(
     (set, get) => ({
-      user: null,
-      token: null,
-      isLoadingAuth: false,
       cart: [],
       isCartOpen: false,
-      orders: [],
       wishlist: [],
-
-      setUser: (user) => set({ user }),
-      setToken: (token) => {
-        if (typeof window !== 'undefined') {
-          if (token) localStorage.setItem('authToken', token);
-          else localStorage.removeItem('authToken');
-        }
-        set({ token });
-      },
-      fetchUser: async () => {
-        const token =
-          typeof window !== 'undefined'
-            ? localStorage.getItem('authToken')
-            : null;
-        if (!token) {
-          set({ user: null, token: null, isLoadingAuth: false });
-          return;
-        }
-        set({ isLoadingAuth: true });
-        try {
-          const res = await authAPI.getMe();
-          set({ user: res.user, isLoadingAuth: false });
-        } catch {
-          localStorage.removeItem('authToken');
-          set({ user: null, token: null, isLoadingAuth: false });
-        }
-      },
-      login: async (credentials) => {
-        const res = await authAPI.login(credentials);
-        get().setToken(res.token);
-        get().setUser(res.user);
-        return res;
-      },
-      register: async (data) => {
-        const res = await authAPI.register(data);
-        get().setToken(res.token);
-        get().setUser(res.user);
-        return res;
-      },
-      logout: () => {
-        get().setToken(null);
-        get().setUser(null);
-        get().setCartOpen(false);
-      },
 
       setCartOpen: (open) => set({ isCartOpen: open }),
       addToCart: (product, qty = 1, variant = null) => {
@@ -105,7 +56,18 @@ export const useStore = create(
       },
       clearCart: () => set({ cart: [] }),
 
-      setOrders: (orders) => set({ orders }),
+      toggleWishlist: (productId) => {
+        set((state) => {
+          const idx = state.wishlist.indexOf(productId);
+          let updatedWishlist;
+          if (idx > -1) {
+            updatedWishlist = state.wishlist.filter((id) => id !== productId);
+          } else {
+            updatedWishlist = [...state.wishlist, productId];
+          }
+          return { wishlist: updatedWishlist };
+        });
+      },
 
       isDarkMode: false,
       toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
@@ -113,11 +75,8 @@ export const useStore = create(
     {
       name: 'alphai-store-storage',
       partialize: (state) => ({
-        user: state.user,
-        token: state.token,
         cart: state.cart,
         wishlist: state.wishlist,
-        orders: state.orders,
         isDarkMode: state.isDarkMode,
       }),
     }
@@ -126,4 +85,3 @@ export const useStore = create(
 
 export default useStore;
 export const useCartStore = () => useStore();
-export const useAuthStore = () => useStore();

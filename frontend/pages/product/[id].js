@@ -92,11 +92,6 @@ function ProductDetailPage() {
   }, [product]);
 
   const handleAddToCart = () => {
-    if (!user) {
-      toast('Sign in to add items to cart.', { icon: '🔒' });
-      router.push('/auth/login');
-      return;
-    }
     if (!selectedVariant) {
       toast.error('Please select product options.');
       return;

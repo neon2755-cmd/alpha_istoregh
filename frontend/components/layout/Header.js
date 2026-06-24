@@ -14,12 +14,14 @@ import {
   Moon,
   Sun,
 } from 'lucide-react';
+import { useUser, SignOutButton } from '@clerk/nextjs';
 import useStore from '../../store';
 import { settingsAPI } from '../../lib/api';
 
 export default function Header() {
   const router = useRouter();
-  const { user, cart, logout, setCartOpen, isDarkMode, toggleDarkMode } = useStore();
+  const { user } = useUser();
+  const { cart, setCartOpen, isDarkMode, toggleDarkMode } = useStore();
   const [openUser, setOpenUser] = useState(false);
   const [openMobile, setOpenMobile] = useState(false);
   const [settings, setSettings] = useState(null);
@@ -138,7 +140,7 @@ export default function Header() {
                             : 'My account'}
                         </p>
                         <p className="text-xs text-ink-subtle truncate">
-                          {user.email}
+                          {user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress}
                         </p>
                       </div>
                       <div className="py-2">
@@ -150,24 +152,22 @@ export default function Header() {
                           <Package className="h-4 w-4 text-ink-subtle" />
                           My orders
                         </Link>
-                        <button
-                          onClick={() => {
-                            setOpenUser(false);
-                            logout();
-                          }}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
-                        >
-                          <LogOut className="h-4 w-4" />
-                          Sign out
-                        </button>
+                        <div className="px-4 py-2.5">
+                          <SignOutButton signOutCallback={() => setOpenUser(false)}>
+                            <button className="w-full flex items-center gap-3 text-sm font-medium text-red-600 hover:bg-red-50">
+                              <LogOut className="h-4 w-4" />
+                              Sign out
+                            </button>
+                          </SignOutButton>
+                        </div>
                       </div>
                     </div>
                   )}
                 </div>
               ) : (
                 <Link
-                  href="/auth/login"
-                  className="text-sm font-semibold text-ink hover:text-primary transition-colors"
+                  href="/sign-in"
+                  style={{ fontSize: '14px', fontWeight: 600, color: '#006989' }}
                 >
                   Sign in
                 </Link>
@@ -248,7 +248,7 @@ export default function Header() {
 
               {!user && (
                 <Link
-                  href="/auth/login"
+                  href="/sign-in"
                   onClick={() => setOpenMobile(false)}
                   className="block px-3 py-2 rounded-xl text-sm font-semibold text-primary hover:bg-primary-50"
                 >

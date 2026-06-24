@@ -9,7 +9,7 @@ const navItems = [
   { href: '/shop', label: 'Shop', Icon: ShoppingBag },
   { href: '/cart', label: 'Cart', Icon: ShoppingCart },
   { href: '/orders', label: 'Orders', Icon: Package },
-  { href: '/auth/login', label: 'Account', Icon: User },
+  { href: '/sign-in', label: 'Account', Icon: User },
 ];
 
 export default function Navbar() {

@@ -147,10 +147,10 @@ function CartPage() {
                 </dl>
 
                 <Link
-                  href={user ? '/checkout' : '/auth/login'}
+                  href="/checkout"
                   className="mt-6 inline-flex w-full h-12 items-center justify-center gap-2 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-dark shadow-smooth"
                 >
-                  {user ? 'Proceed to checkout' : 'Sign in to checkout'}
+                  Proceed to checkout
                   <ArrowRight className="h-4 w-4" />
                 </Link>
 
