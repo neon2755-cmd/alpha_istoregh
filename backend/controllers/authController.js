@@ -164,13 +164,17 @@ exports.forgotPassword = async (req, res) => {
     });
 
     res.json({ success: true, message: 'Password reset email sent' });
- } catch (err) {
-    console.error('FORGOT PASSWORD ERROR:', err.message, err.stack);
-    res.status(500).json({ success: false,
+  } catch (err) {
+    console.error('FORGOT PASSWORD ERROR:', err.message);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// POST /api/auth/reset-password
 exports.resetPassword = async (req, res) => {
   try {
     const { token, email, password } = req.body;
-    const hashed = require('crypto').createHash('sha256').update(token).digest('hex');
+    const hashed = crypto.createHash('sha256').update(token).digest('hex');
     const user = await User.findOne({
       email: email.toLowerCase(),
       resetPasswordToken: hashed,
