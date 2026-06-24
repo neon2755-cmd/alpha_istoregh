@@ -1,16 +1,24 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_EMAIL,
+    pass: process.env.BREVO_SMTP_KEY,
+  },
+});
 
 const sendEmail = async ({ to, subject, html }) => {
-  console.log('Sending email to:', to, '| API Key set:', !!process.env.RESEND_API_KEY);
-  const result = await resend.emails.send({
-    from: 'Alpha iStore <onboarding@resend.dev>',
+  console.log('Sending email to:', to);
+  const result = await transporter.sendMail({
+    from: `"Alpha iStore" <${process.env.BREVO_EMAIL}>`,
     to,
     subject,
     html,
   });
-  console.log('Resend result:', JSON.stringify(result));
+  console.log('Email sent:', result.messageId);
   return result;
 };
 
