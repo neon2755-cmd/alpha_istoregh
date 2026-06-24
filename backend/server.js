@@ -64,18 +64,7 @@ app.use('/api/settings', require('./routes/settings'));
 app.use('/api/upload',   require('./routes/upload'));
 app.use('/api/contact',  require('./routes/contact'));
 
-// Google OAuth
-app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-app.get(
-  '/api/auth/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:3000'}/auth/login?error=google_failed` }),
-  (req, res) => {
-    const token = require('../middleware/auth').generateToken(req.user._id);
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
-    res.cookie('authToken', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000, secure: process.env.NODE_ENV === 'production' });
-    res.redirect(`${clientUrl}/?google_auth=success`);
-  }
-);
+
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ success: true, message: 'AlphaiStore API is running 🚀' }));

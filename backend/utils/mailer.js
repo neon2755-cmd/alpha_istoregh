@@ -98,7 +98,7 @@ const sendAdminNotification = async (order, adminEmail) => {
           </thead>
           <tbody>${itemsList}</tbody>
         </table>
-        <p style="margin-top: 20px;"><a href="${process.env.CLIENT_URL || 'http://localhost:3000'}/admin/orders" style="color: #006989;">View in Admin Panel</a></p>
+        <p style="margin-top: 20px;"><a href="${process.env.CLIENT_URL || 'http://localhost:3000'}/portal/orders" style="color: #006989;">View in Admin Panel</a></p>
       </div>
     `,
   };
