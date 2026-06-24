@@ -2,7 +2,9 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const { generateToken, setTokenCookie } = require('../middleware/auth');
-const { sendResetPasswordEmail, sendWelcomeEmail } = require('../utils/mailer');
+const { sendWelcomeEmail } = require('../utils/mailer');
+const sendEmail = require('../utils/sendEmail');
+const generateResetToken = require('../utils/generateResetToken');
 
 const sendAuth = (res, user, statusCode = 200) => {
   const token = generateToken(user._id);
@@ -131,24 +133,35 @@ exports.toggleWishlist = async (req, res) => {
   }
 };
 
-// POST /api/auth/forgot-password (public)
+// POST /api/auth/forgot-password
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ success: false, message: 'Email is required' });
 
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) return res.status(404).json({ success: false, message: 'No account with that email found' });
+    if (!user) return res.status(404).json({ success: false, message: 'No account with that email' });
 
-    const resetToken = crypto.randomBytes(20).toString('hex');
-    const resetExpire = Date.now() + 3600000; // 1 hour
-
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpire = resetExpire;
+    const { token, hashed, expire } = generateResetToken();
+    user.resetPasswordToken = hashed;
+    user.resetPasswordExpire = expire;
     await user.save();
 
-    const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}/auth/reset-password/${resetToken}`;
-    await sendResetPasswordEmail(user, resetUrl);
+    const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}/auth/reset-password?token=${token}&email=${email}`;
+
+    await sendEmail({
+      to: email,
+      subject: 'Reset your Alpha iStore password',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 16px;">
+          <h2 style="color: #006989; margin-bottom: 8px;">Alpha iStore</h2>
+          <h3 style="color: #0f172a;">Password Reset Request</h3>
+          <p style="color: #475569;">Click the button below to reset your password. This link expires in 30 minutes.</p>
+          <a href="${resetUrl}" style="display: inline-block; margin: 24px 0; padding: 12px 28px; background: #006989; color: #fff; border-radius: 8px; text-decoration: none; font-weight: bold;">Reset Password</a>
+          <p style="color: #94a3b8; font-size: 12px;">If you did not request this, ignore this email.</p>
+        </div>
+      `,
+    });
 
     res.json({ success: true, message: 'Password reset email sent' });
   } catch (err) {
@@ -156,18 +169,17 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// POST /api/auth/reset-password/:token (public)
+// POST /api/auth/reset-password
 exports.resetPassword = async (req, res) => {
   try {
-    const { password } = req.body;
-    const { token } = req.params;
-
+    const { token, email, password } = req.body;
+    const hashed = require('crypto').createHash('sha256').update(token).digest('hex');
     const user = await User.findOne({
-      resetPasswordToken: token,
+      email: email.toLowerCase(),
+      resetPasswordToken: hashed,
       resetPasswordExpire: { $gt: Date.now() },
-    }).select('+resetPasswordToken +resetPasswordExpire');
-
-    if (!user) return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
+    });
+    if (!user) return res.status(400).json({ success: false, message: 'Invalid or expired token' });
 
     user.password = password;
     user.resetPasswordToken = undefined;

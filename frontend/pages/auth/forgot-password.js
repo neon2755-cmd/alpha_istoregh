@@ -1,32 +1,23 @@
 import { useState } from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { Mail } from 'lucide-react';
 import { authAPI } from '../../lib/api';
 
-const inputClass =
-  'w-full h-11 pl-10 pr-3 text-sm bg-white border border-surface-border rounded-xl text-ink placeholder:text-ink-subtle focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-shadow';
-
 export default function ForgotPassword() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email.trim()) {
-      toast.error('Please enter your email');
-      return;
-    }
     setLoading(true);
     try {
       await authAPI.forgotPassword(email);
-      toast.success('Password reset link sent to your email!');
-      setTimeout(() => router.push('/auth/login'), 1500);
-    } catch {
-      toast.error('Failed to send reset link. Please try again.');
+      setSent(true);
+      toast.success('Reset link sent! Check your email.');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to send reset email');
     } finally {
       setLoading(false);
     }
@@ -34,57 +25,39 @@ export default function ForgotPassword() {
 
   return (
     <>
-      <Head>
-        <title>Forgot password — AlphaiStore</title>
-      </Head>
-
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-surface-muted px-4 py-12">
-        <form
-          onSubmit={handleSubmit}
-          className="w-full max-w-sm rounded-2xl border border-surface-border bg-white p-8"
-        >
-          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary-50 text-primary mx-auto mb-4">
-            <Mail className="h-5 w-5" />
-          </div>
-          <h1 className="text-xl font-semibold tracking-tightish text-ink text-center">
-            Reset your password
-          </h1>
-          <p className="mt-1 text-sm text-ink-muted text-center">
-            Enter your email and we'll send you a reset link.
-          </p>
-
-          <div className="mt-6 space-y-4">
-            <div className="relative">
-              <Mail className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-subtle pointer-events-none" />
+      <Head><title>Forgot Password — Alpha iStore</title></Head>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', background: '#f8fafc' }}>
+        <div style={{ width: '100%', maxWidth: '400px', background: '#fff', borderRadius: '20px', padding: '40px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>Forgot Password</h1>
+          {sent ? (
+            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+              <p style={{ color: '#16a34a', fontWeight: 600, marginBottom: '16px' }}>Reset link sent to {email}</p>
+              <p style={{ color: '#64748b', fontSize: '14px' }}>Check your inbox and click the link to reset your password.</p>
+              <Link href="/auth/login" style={{ display: 'inline-block', marginTop: '24px', color: '#006989', fontWeight: 600 }}>Back to Login</Link>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>Enter your email and we will send you a reset link.</p>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '6px' }}>Email Address</label>
               <input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="you@example.com"
-                className={inputClass}
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@email.com"
+                style={{ width: '100%', height: '44px', padding: '0 14px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', marginBottom: '16px', boxSizing: 'border-box' }}
               />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-6 w-full h-11 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark disabled:opacity-60 shadow-smooth"
-          >
-            {loading ? 'Sending…' : 'Send reset link'}
-          </button>
-
-          <p className="mt-6 text-center text-sm text-ink-muted">
-            Remember your password?{' '}
-            <Link
-              href="/auth/login"
-              className="font-medium text-primary hover:text-primary-dark"
-            >
-              Sign in
-            </Link>
-          </p>
-        </form>
+              <button
+                type="submit"
+                disabled={loading}
+                style={{ width: '100%', height: '44px', background: '#006989', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
+              >
+                {loading ? 'Sending...' : 'Send Reset Link'}
+              </button>
+              <Link href="/auth/login" style={{ display: 'block', textAlign: 'center', marginTop: '16px', color: '#006989', fontSize: '13px', fontWeight: 600 }}>Back to Login</Link>
+            </form>
+          )}
+        </div>
       </div>
     </>
   );

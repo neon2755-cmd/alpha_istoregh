@@ -74,8 +74,8 @@ export const logoutUser = () => apiClient.post('/auth/logout');
 export const getMe = () => apiClient.get('/auth/me');
 export const updateProfile = (data) => apiClient.put('/auth/me', data);
 export const changePassword = (newPassword) => apiClient.put('/auth/password', { newPassword });
-export const forgotPassword = (email) => apiClient.post('/auth/forgot-password', { email });
-export const resetPassword = (token, password) => apiClient.post(`/auth/reset-password/${token}`, { password });
+export const forgotPasswordAPI = (email) => apiClient.post('/auth/forgot-password', { email });
+export const resetPasswordAPI = (data) => apiClient.post('/auth/reset-password', data);
 
 // Products
 export const getProducts = (params) => apiClient.get('/products', { params });
@@ -136,6 +136,8 @@ export const authAPI = {
   register: registerUser,
   logout: logoutUser,
   getMe,
+  forgotPassword: forgotPasswordAPI,
+  resetPassword: resetPasswordAPI,
 };
 
 export const ordersAPI = {
