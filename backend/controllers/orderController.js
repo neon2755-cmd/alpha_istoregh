@@ -12,33 +12,41 @@ exports.createOrder = async (req, res, next) => {
     // Calculate subtotal from DB prices (never trust client)
     let subtotal = 0;
     const enrichedItems = [];
-    for (const item of items) {
-      const product = await Product.findById(item.product);
-      if (!product) return res.status(404).json({ success: false, message: `Product not found: ${item.product}` });
+    
+    // Fetch all products in parallel
+    const productDocs = await Promise.all(
+      items.map(item => Product.findById(item.product))
+    );
+
+    for (let i = 0; i < items.length; i++) {
+      const product = productDocs[i];
+      if (!product) return res.status(404).json({ success: false, message: `Product not found: ${items[i].product}` });
 
       const variant = product.variants.find(v =>
-        v.storage === item.variant?.storage && v.color?.name === item.variant?.color
+        v.storage === items[i].variant?.storage && v.color?.name === items[i].variant?.color
       ) || product.variants[0];
 
       const price = variant?.price || product.basePrice;
-      subtotal += price * item.quantity;
+      subtotal += price * items[i].quantity;
 
       enrichedItems.push({
         product: product._id,
         name: product.name,
         image: product.images[0]?.url,
         price,
-        quantity: item.quantity,
-        variant: item.variant,
+        quantity: items[i].quantity,
+        variant: items[i].variant,
       });
 
       // Decrement stock
       if (variant) {
-        variant.stock = Math.max(0, variant.stock - item.quantity);
+        variant.stock = Math.max(0, variant.stock - items[i].quantity);
       }
-      product.totalSold += item.quantity;
-      await product.save();
+      product.totalSold += items[i].quantity;
     }
+
+    // Save all products in parallel
+    await Promise.all(productDocs.filter(Boolean).map(p => p.save()));
 
     const total = subtotal + (delivery?.fee || 0) - (discount || 0);
 
@@ -57,59 +65,68 @@ exports.createOrder = async (req, res, next) => {
 
     const customerEmail = req.user?.email || guestInfo?.email;
 
-    try {
-      const itemsList = order.items.map(item =>
-        `<tr>
-          <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${item.name}</td>
-          <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: center;">${item.quantity}</td>
-          <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;">GHS ${item.price * item.quantity}</td>
-        </tr>`
-      ).join('');
+    // Send emails in background (non-blocking)
+    if (customerEmail) {
+      (async () => {
+        try {
+          const itemsList = order.items.map(item =>
+            `<tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${item.name}</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: center;">${item.quantity}</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;">GHS ${item.price * item.quantity}</td>
+            </tr>`
+          ).join('');
 
-      if (customerEmail) {
-        await sendEmail({
-          to: customerEmail,
-          subject: `Order Confirmed — #${order.orderNumber}`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 16px;">
-              <h2 style="color: #006989;">Alpha iStore</h2>
-              <h3 style="color: #0f172a;">Your order is confirmed!</h3>
-              <p style="color: #475569;">Thank you for your order. We will contact you shortly to confirm delivery.</p>
-              <p><strong>Order Number:</strong> #${order.orderNumber}</p>
-              <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
-                <thead>
-                  <tr style="background: #f1f5f9;">
-                    <th style="padding: 8px; text-align: left;">Item</th>
-                    <th style="padding: 8px; text-align: center;">Qty</th>
-                    <th style="padding: 8px; text-align: right;">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>${itemsList}</tbody>
-              </table>
-              <p style="font-size: 18px; font-weight: bold; color: #006989;">Total: GHS ${order.total}</p>
-              <p style="color: #94a3b8; font-size: 12px;">Alpha iStore · Adum P.Z, Kumasi, Ghana</p>
-            </div>
-          `,
-        });
-      }
+          await sendEmail({
+            to: customerEmail,
+            subject: `Order Confirmed — #${order.orderNumber}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 16px;">
+                <h2 style="color: #006989;">Alpha iStore</h2>
+                <h3 style="color: #0f172a;">Your order is confirmed!</h3>
+                <p style="color: #475569;">Thank you for your order. We will contact you shortly to confirm delivery.</p>
+                <p><strong>Order Number:</strong> #${order.orderNumber}</p>
+                <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+                  <thead>
+                    <tr style="background: #f1f5f9;">
+                      <th style="padding: 8px; text-align: left;">Item</th>
+                      <th style="padding: 8px; text-align: center;">Qty</th>
+                      <th style="padding: 8px; text-align: right;">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>${itemsList}</tbody>
+                </table>
+                <p style="font-size: 18px; font-weight: bold; color: #006989;">Total: GHS ${order.total}</p>
+                <p style="color: #94a3b8; font-size: 12px;">Alpha iStore · Adum P.Z, Kumasi, Ghana</p>
+              </div>
+            `,
+          });
+        } catch (emailErr) {
+          console.error('Customer email notification failed:', emailErr.message);
+        }
+      })();
 
-      await sendEmail({
-        to: process.env.ADMIN_EMAIL,
-        subject: `New Order #${order.orderNumber}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 16px;">
-            <h2 style="color: #006989;">New Order Received</h2>
-            <p><strong>Order:</strong> #${order.orderNumber}</p>
-            <p><strong>Customer:</strong> ${order.user?.firstName || order.guestInfo?.firstName || 'Guest'} — ${customerEmail || 'No email'}</p>
-            <p><strong>Total:</strong> GHS ${order.total}</p>
-            <p><strong>Payment:</strong> ${order.paymentMethod}</p>
-            <p><strong>Delivery:</strong> ${order.delivery?.method} — ${order.delivery?.region || ''}</p>
-            <p style="color: #94a3b8; font-size: 12px;">Log in to admin panel to manage this order.</p>
-          </div>
-        `,
-      });
-    } catch (emailErr) {
-      console.error('Email notification failed:', emailErr.message);
+      (async () => {
+        try {
+          await sendEmail({
+            to: process.env.ADMIN_EMAIL,
+            subject: `New Order #${order.orderNumber}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 16px;">
+                <h2 style="color: #006989;">New Order Received</h2>
+                <p><strong>Order:</strong> #${order.orderNumber}</p>
+                <p><strong>Customer:</strong> ${order.user?.firstName || order.guestInfo?.firstName || 'Guest'} — ${customerEmail || 'No email'}</p>
+                <p><strong>Total:</strong> GHS ${order.total}</p>
+                <p><strong>Payment:</strong> ${order.paymentMethod}</p>
+                <p><strong>Delivery:</strong> ${order.delivery?.method} — ${order.delivery?.region || ''}</p>
+                <p style="color: #94a3b8; font-size: 12px;">Log in to admin panel to manage this order.</p>
+              </div>
+            `,
+          });
+        } catch (emailErr) {
+          console.error('Admin email notification failed:', emailErr.message);
+        }
+      })();
     }
 
     res.status(201).json({ success: true, order });
