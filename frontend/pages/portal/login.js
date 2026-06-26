@@ -21,17 +21,37 @@ export default function AdminLogin() {
     setLoading(true);
     setError('');
 
-    // Simple client-side authentication check
-    if (email === siteConfig.admin.email && password === siteConfig.admin.password) {
-      login({ email, name: 'Administrator' });
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.message || 'Invalid credentials');
+        toast.error('Invalid credentials');
+        setLoading(false);
+        return;
+      }
+
+      if (data.user.role !== 'admin') {
+        setError('Access denied. Admin only.');
+        toast.error('Access denied');
+        setLoading(false);
+        return;
+      }
+
+      login({ email: data.user.email, name: 'Administrator' });
       toast.success('Welcome back, Admin!');
       router.push('/portal');
-    } else {
-      setError('Invalid email or password');
-      toast.error('Invalid credentials');
+    } catch (err) {
+      setError('Login failed. Please try again.');
+      toast.error('Login failed');
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

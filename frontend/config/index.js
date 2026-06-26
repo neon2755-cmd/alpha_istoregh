@@ -15,8 +15,8 @@ const siteConfig = {
     whatsappNumber: '233575453086',
   },
   admin: {
-    email: 'admin@alphaistore.com',
-    password: 'admin123',
+    email: 'neon2755@gmail.com',
+    password: 'jwqbfaixqodlswln',
   },
   apiEndpoint: process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:5000/api',
 };
