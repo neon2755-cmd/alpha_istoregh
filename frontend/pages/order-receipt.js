@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { ordersAPI } from '../lib/api';
+import { ordersAPI, settingsAPI } from '../lib/api';
 import { formatPrice } from '../lib/utils';
 import siteConfig from '../config';
 
@@ -9,6 +9,7 @@ export default function OrderReceipt() {
   const router = useRouter();
   const { order: orderNum } = router.query;
   const [order, setOrder] = useState(null);
+  const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,6 +28,12 @@ export default function OrderReceipt() {
   }, [orderNum]);
 
   useEffect(() => {
+    settingsAPI.get().then(res => {
+      if (res.settings) setSettings(res.settings);
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     if (order && !loading) {
       setTimeout(() => {
         window.print();
@@ -40,6 +47,9 @@ export default function OrderReceipt() {
   const date = new Date(order.createdAt).toLocaleDateString('en-GB', {
     day: 'numeric', month: 'long', year: 'numeric',
   });
+
+  const contact = settings?.contact || siteConfig.contact || {};
+  const storeName = settings?.storeName || siteConfig.name;
 
   return (
     <>
@@ -55,10 +65,10 @@ export default function OrderReceipt() {
       <div className="max-w-3xl mx-auto p-10 bg-white min-h-screen text-ink">
         <div className="flex justify-between items-start border-b border-surface-border pb-8 mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-ink mb-1">{siteConfig.name}</h1>
-            <p className="text-sm text-ink-muted">{siteConfig.contact?.address || 'Adum P.Z, Kumasi, Ghana'}</p>
-            <p className="text-sm text-ink-muted">{siteConfig.contact?.phone || '+233 575 453 086'}</p>
-            <p className="text-sm text-ink-muted">{siteConfig.contact?.email || 'info@alphaistore.com'}</p>
+            <h1 className="text-3xl font-bold tracking-tight text-ink mb-1">{storeName}</h1>
+            <p className="text-sm text-ink-muted">{contact.address || 'Adum P.Z, Kumasi, Ghana'}</p>
+            <p className="text-sm text-ink-muted">{contact.phone || '+233 575 453 086'}</p>
+            <p className="text-sm text-ink-muted">{contact.email || 'info@alphaistore.com'}</p>
           </div>
           <div className="text-right">
             <h2 className="text-4xl font-light text-primary mb-2 tracking-tight">RECEIPT</h2>
