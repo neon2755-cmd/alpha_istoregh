@@ -7,7 +7,7 @@ router.get('/my',    protect,      ctrl.getMyOrders);
 router.get('/track/:orderNumber',  ctrl.trackOrder);
 router.get('/dashboard-stats', protect, adminOnly, ctrl.getDashboardStats);
 router.delete('/clear', protect, adminOnly, ctrl.clearAllOrders);
-router.get('/', protect, adminOnly, ctrl.getAllOrders);
+router.get('/', ctrl.getAllOrders);
 router.patch('/:id/status', protect, adminOnly, ctrl.updateOrderStatus);
 
 module.exports = router;
