@@ -123,7 +123,19 @@ const AdminLayout = ({ children, title, subtitle, hideSidebar = false }) => {
           <Menu className="h-5 w-5" />
         </button>
         <span className="text-base font-bold text-ink">Admin Panel</span>
-        <div className="w-10" />
+        <div className="flex items-center gap-2">
+          <Link href="/portal/orders" className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink hover:bg-surface-muted" aria-label="Orders">
+            <ClipboardList className="h-5 w-5" />
+          </Link>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 hover:bg-red-50"
+            aria-label="Sign out"
+          >
+            <LogOut className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {/* Mobile Sidebar Overlay */}

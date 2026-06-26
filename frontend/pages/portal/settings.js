@@ -23,7 +23,10 @@ function AdminSettings() {
     contact: { whatsapp: [''], phones: [''], email: '', address: '', googleMapEmbedUrl: '' },
     payment: { mtnMomo: true, telecel: true, airteltigo: false, card: false, payOnDelivery: true },
     social: { facebook: '', instagram: '', twitter: '', tiktok: '' },
-    promoBanners: []
+    promoBanners: [],
+    brands: ['Apple', 'Samsung', 'Tecno', 'Infinix', 'Other'],
+    categories: ['Smartphone', 'Laptop', 'Tablet', 'Smartwatch', 'Accessory', 'Earphone', 'Other'],
+    ourStory: '',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -487,6 +490,103 @@ function AdminSettings() {
               </div>
             </div>
           </aside>
+
+          {/* Save Button */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 space-y-4">
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving}
+                className="w-full h-12 rounded-xl bg-primary text-white font-bold hover:bg-primary-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-smooth flex items-center justify-center gap-2"
+              >
+                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                {saving ? 'Saving...' : 'Save Settings'}
+              </button>
+
+              {/* Credentials */}
+              <section className={cardClass}>
+                <h3 className="text-lg font-bold text-ink mb-4">Change Credentials</h3>
+                <form onSubmit={handleChangeCredentials} className="space-y-3">
+                  <div>
+                    <label className={labelClass}>New Email</label>
+                    <input type="email" value={credForm.email} onChange={(e) => setCredForm(f => ({ ...f, email: e.target.value }))} className={inputClass} placeholder="new@email.com" />
+                  </div>
+                  <div>
+                    <label className={labelClass}>New Password</label>
+                    <input type="password" value={credForm.newPassword} onChange={(e) => setCredForm(f => ({ ...f, newPassword: e.target.value }))} className={inputClass} placeholder="Min 6 characters" />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Confirm Password</label>
+                    <input type="password" value={credForm.confirmPassword} onChange={(e) => setCredForm(f => ({ ...f, confirmPassword: e.target.value }))} className={inputClass} placeholder="Re-enter password" />
+                  </div>
+                  <button type="submit" disabled={credSaving} className="w-full h-10 rounded-xl bg-surface-muted text-ink font-bold hover:bg-surface-border transition-colors disabled:opacity-60">
+                    {credSaving ? 'Updating...' : 'Update Credentials'}
+                  </button>
+                </form>
+              </section>
+
+              {/* Brands */}
+              <section className={cardClass}>
+                <h3 className="text-lg font-bold text-ink mb-4">Brands</h3>
+                <div className="flex gap-2 mb-3">
+                  <input type="text" id="newBrand" className={inputClass} placeholder="New brand name" />
+                  <button type="button" onClick={() => {
+                    const input = document.getElementById('newBrand');
+                    const val = input.value.trim();
+                    if (!val) return;
+                    if (settings.brands?.includes(val)) return;
+                    setSettings(prev => ({ ...prev, brands: [...(prev.brands || []), val] }));
+                    input.value = '';
+                  }} className="h-10 px-3 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary-dark">Add</button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(settings.brands || []).map((brand, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-muted text-sm font-medium text-ink">
+                      {brand}
+                      <button type="button" onClick={() => setSettings(prev => ({ ...prev, brands: prev.brands.filter((_, idx) => idx !== i) }))} className="text-ink-subtle hover:text-red-500">&times;</button>
+                    </span>
+                  ))}
+                </div>
+              </section>
+
+              {/* Categories */}
+              <section className={cardClass}>
+                <h3 className="text-lg font-bold text-ink mb-4">Categories</h3>
+                <div className="flex gap-2 mb-3">
+                  <input type="text" id="newCategory" className={inputClass} placeholder="New category name" />
+                  <button type="button" onClick={() => {
+                    const input = document.getElementById('newCategory');
+                    const val = input.value.trim();
+                    if (!val) return;
+                    if (settings.categories?.includes(val)) return;
+                    setSettings(prev => ({ ...prev, categories: [...(prev.categories || []), val] }));
+                    input.value = '';
+                  }} className="h-10 px-3 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary-dark">Add</button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(settings.categories || []).map((cat, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-muted text-sm font-medium text-ink">
+                      {cat}
+                      <button type="button" onClick={() => setSettings(prev => ({ ...prev, categories: prev.categories.filter((_, idx) => idx !== i) }))} className="text-ink-subtle hover:text-red-500">&times;</button>
+                    </span>
+                  ))}
+                </div>
+              </section>
+
+              {/* Our Story */}
+              <section className={cardClass}>
+                <h3 className="text-lg font-bold text-ink mb-4">Our Story</h3>
+                <textarea
+                  value={settings.ourStory || ''}
+                  onChange={(e) => setSettings(prev => ({ ...prev, ourStory: e.target.value }))}
+                  className={textareaClass}
+                  rows={6}
+                  placeholder="Tell your customers your story..."
+                />
+              </section>
+            </div>
+          </div>
         </div>
       </AdminLayout>
     </>

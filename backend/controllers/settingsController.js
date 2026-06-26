@@ -42,6 +42,9 @@ const updateSettings = async (req, res) => {
         }));
       }
       if (req.body.delivery) settings.delivery = { ...settings.delivery, ...req.body.delivery };
+      if (req.body.brands) settings.brands = req.body.brands;
+      if (req.body.categories) settings.categories = req.body.categories;
+      if (req.body.ourStory) settings.ourStory = req.body.ourStory;
       await settings.save();
     }
     res.json({ success: true, settings });

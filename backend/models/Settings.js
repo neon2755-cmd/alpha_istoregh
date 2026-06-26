@@ -52,6 +52,9 @@ const settingsSchema = new mongoose.Schema({
     usageLimit: { type: Number, min: 1 },
     usedCount:  { type: Number, default: 0, min: 0 },
   }],
+  brands: [{ type: String }],
+  categories: [{ type: String }],
+  ourStory: { type: String },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Settings', settingsSchema);
