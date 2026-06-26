@@ -10,6 +10,7 @@ import {
   BarChart3,
 } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
+import withAdminAuth from '../../components/portal/withAdminAuth';
 import { ordersAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
@@ -34,7 +35,7 @@ const cards = [
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export default function AdminDashboard() {
+function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -241,3 +242,5 @@ export default function AdminDashboard() {
     </>
   );
 }
+
+export default withAdminAuth(AdminDashboard);

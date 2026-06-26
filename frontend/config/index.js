@@ -14,6 +14,10 @@ const siteConfig = {
     email: 'info@alphaistore.com',
     whatsappNumber: '233575453086',
   },
+  admin: {
+    email: 'admin@alphaistore.com',
+    password: 'admin123',
+  },
 };
 
 export default siteConfig;

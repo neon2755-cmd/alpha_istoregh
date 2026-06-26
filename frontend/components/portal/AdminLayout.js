@@ -10,7 +10,10 @@ import {
   Menu,
   X,
   Mail,
+  LogOut,
+  ShieldCheck,
 } from 'lucide-react';
+import { useAdminAuthStore } from '../../store/adminAuth';
 
 const adminNavItems = [
   { href: '/portal', label: 'Dashboard', Icon: LayoutDashboard, exact: true },
@@ -23,6 +26,13 @@ const adminNavItems = [
 const AdminLayout = ({ children, title, subtitle }) => {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isAuthenticated = useAdminAuthStore((s) => s.isAuthenticated);
+  const logout = useAdminAuthStore((s) => s.logout);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/portal/login');
+  };
 
   const isActive = (item) =>
     item.exact
@@ -61,7 +71,16 @@ const AdminLayout = ({ children, title, subtitle }) => {
           })}
         </ul>
       </nav>
-      <div className="p-4 border-t border-surface-border">
+      <div className="p-4 border-t border-surface-border space-y-2">
+        {isAuthenticated && (
+          <button
+            onClick={handleLogout}
+            className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-100 transition-colors w-full"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </button>
+        )}
         <Link
           href="/"
           onClick={() => setSidebarOpen(false)}
@@ -135,6 +154,12 @@ const AdminLayout = ({ children, title, subtitle }) => {
               <p className="text-sm text-ink-muted mt-1">{subtitle}</p>
             )}
           </div>
+          {isAuthenticated && (
+            <div className="flex items-center gap-2 text-sm font-medium text-ink-muted">
+              <ShieldCheck className="h-4 w-4 text-green-500" />
+              Admin
+            </div>
+          )}
         </header>
         {/* Mobile title bar */}
         <div className="lg:hidden bg-white border-b border-surface-border px-4 py-3">

@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Mail, MessageSquare, Trash2, Check, CheckCheck } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
+import withAdminAuth from '../../components/portal/withAdminAuth';
 import { contactAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
-export default function AdminMessages() {
+function AdminMessages() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
@@ -152,3 +153,5 @@ export default function AdminMessages() {
     </>
   );
 }
+
+export default withAdminAuth(AdminMessages);

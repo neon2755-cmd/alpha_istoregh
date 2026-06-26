@@ -6,6 +6,7 @@ import {
   PackageCheck, Eye, EyeOff,
 } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
+import withAdminAuth from '../../components/portal/withAdminAuth';
 import { productsAPI, uploadAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import toast from 'react-hot-toast';
@@ -72,7 +73,7 @@ function Toggle({ label, checked, onChange, icon: Icon, color = 'bg-primary' }) 
   );
 }
 
-export default function AdminProducts() {
+function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -602,3 +603,5 @@ export default function AdminProducts() {
     </>
   );
 }
+
+export default withAdminAuth(AdminProducts);

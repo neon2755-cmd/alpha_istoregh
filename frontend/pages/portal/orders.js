@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Package, Search, ExternalLink, Edit2, Check, Trash2 } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
+import withAdminAuth from '../../components/portal/withAdminAuth';
 import { ordersAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import Link from 'next/link';
@@ -16,7 +17,7 @@ const STATUS_STYLES = {
 
 const STATUS_OPTIONS = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
 
-export default function AdminOrders() {
+function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
@@ -148,3 +149,5 @@ export default function AdminOrders() {
     </>
   );
 }
+
+export default withAdminAuth(AdminOrders);
