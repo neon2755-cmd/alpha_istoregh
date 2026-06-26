@@ -35,7 +35,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <AdminLayout title="Admin Login" subtitle="Sign in to access the admin panel">
+    <AdminLayout title="Admin Login" subtitle="Sign in to access the admin panel" hideSidebar>
       <div className="max-w-md mx-auto">
         <div className="rounded-3xl border border-surface-border bg-white p-8 shadow-sm">
           <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 text-primary mx-auto mb-6">

@@ -23,7 +23,7 @@ const adminNavItems = [
   { href: '/portal/settings', label: 'Settings', Icon: Settings },
 ];
 
-const AdminLayout = ({ children, title, subtitle }) => {
+const AdminLayout = ({ children, title, subtitle, hideSidebar = false }) => {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isAuthenticated = useAdminAuthStore((s) => s.isAuthenticated);
@@ -33,6 +33,22 @@ const AdminLayout = ({ children, title, subtitle }) => {
     logout();
     router.push('/portal/login');
   };
+
+  if (!isAuthenticated || hideSidebar) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-7xl">
+          {title && (
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold tracking-tight text-ink">{title}</h1>
+              {subtitle && <p className="text-sm text-ink-muted mt-1">{subtitle}</p>}
+            </div>
+          )}
+          {children}
+        </div>
+      </div>
+    );
+  }
 
   const isActive = (item) =>
     item.exact
