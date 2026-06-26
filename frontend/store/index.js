@@ -56,14 +56,26 @@ export const useStore = create(
       },
       clearCart: () => set({ cart: [] }),
 
-      toggleWishlist: (productId) => {
+      toggleWishlist: (product) => {
         set((state) => {
-          const idx = state.wishlist.indexOf(productId);
+          const productId = typeof product === 'object' ? (product._id || product.id) : product;
+          const idx = state.wishlist.findIndex(w => typeof w === 'object' ? (w._id || w.id) === productId : w === productId);
           let updatedWishlist;
           if (idx > -1) {
-            updatedWishlist = state.wishlist.filter((id) => id !== productId);
+            updatedWishlist = state.wishlist.filter((_, i) => i !== idx);
           } else {
-            updatedWishlist = [...state.wishlist, productId];
+            if (typeof product === 'object') {
+              updatedWishlist = [...state.wishlist, {
+                _id: product._id || product.id,
+                id: product.id || product._id,
+                name: product.name,
+                price: product.price || product.basePrice || 0,
+                imageUrl: product.images?.[0]?.url || '/images/placeholder-phone.jpg',
+                brand: product.brand || '',
+              }];
+            } else {
+              updatedWishlist = [...state.wishlist, productId];
+            }
           }
           return { wishlist: updatedWishlist };
         });

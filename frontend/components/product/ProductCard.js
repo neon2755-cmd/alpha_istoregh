@@ -18,7 +18,7 @@ export default function ProductCard({ product }) {
   const handleWishlist = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    toggleWishlist(productId);
+    toggleWishlist(product);
   };
 
   const handleAddToCart = (e) => {
