@@ -1,15 +1,28 @@
-module.exports = {
-  reactStrictMode: true,
-  // swcMinify removed due to Turbopack warning
-  images: {
-    // Next.js image usage disabled in favor of plain img for iOS, but allowing cloudinary in case it's used
-    remotePatterns: [
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: false,
+  images: { unoptimized: true },
+  async headers() {
+    return [
       {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
       },
-    ],
+    ];
   },
-  env: {},
-  async rewrites(){return [];},
+  async rewrites() {
+    const backendUrl = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:5000';
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
+      },
+    ];
+  },
 };
+
+module.exports = nextConfig;

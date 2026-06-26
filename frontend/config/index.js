@@ -18,6 +18,7 @@ const siteConfig = {
     email: 'admin@alphaistore.com',
     password: 'admin123',
   },
+  apiEndpoint: process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:5000/api',
 };
 
 export default siteConfig;
