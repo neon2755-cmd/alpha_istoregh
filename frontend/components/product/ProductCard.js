@@ -9,7 +9,7 @@ export default function ProductCard({ product }) {
   const { addToCart, wishlist, toggleWishlist } = useStore();
   if (!product) return null;
   const productId = product._id || product.id;
-  const isWishlisted = wishlist?.some(w => 
+  const isWishlisted = wishlist?.some(w => (w._id || w.id) === productId);
   const price = product.basePrice || product.variants?.[0]?.price || 0;
   const comparePrice = product.comparePrice;
   const hasDiscount = comparePrice && comparePrice > price;
@@ -30,7 +30,6 @@ export default function ProductCard({ product }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: '14px', overflow: 'hidden', border: '1px solid #e2e8f0', position: 'relative', height: '100%' }}>
-      
       <div style={{ position: 'absolute', top: '8px', left: '8px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '3px' }}>
         {hasDiscount && <span style={{ background: '#ef4444', color: '#fff', fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '999px' }}>-{discountPct}%</span>}
         {product.isHotDeal && <span style={{ background: '#f59e0b', color: '#fff', fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '999px' }}>Hot</span>}

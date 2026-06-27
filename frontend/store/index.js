@@ -1,57 +1,61 @@
-// frontend/store/index.js
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export const useStore = create(
   persist(
     (set, get) => ({
+      user: null,
+      token: null,
       cart: [],
       isCartOpen: false,
       wishlist: [],
+      isDarkMode: false,
+
+      setUser: (user) => set({ user }),
+      setToken: (token) => {
+        if (typeof window !== 'undefined') {
+          if (token) localStorage.setItem('authToken', token);
+          else localStorage.removeItem('authToken');
+        }
+        set({ token });
+      },
+      login: (user, token) => {
+        if (typeof window !== 'undefined') localStorage.setItem('authToken', token);
+        set({ user, token });
+      },
+      logout: () => {
+        if (typeof window !== 'undefined') localStorage.removeItem('authToken');
+        set({ user: null, token: null });
+      },
 
       setCartOpen: (open) => set({ isCartOpen: open }),
       addToCart: (product, qty = 1, variant = null) => {
         set((state) => {
-          const normalizedVariant = variant ? {
-            color: typeof variant.color === 'object' ? (variant.color?.name || variant.color?.hex || '') : (variant.color || ''),
-            storage: variant.storage || '',
-            price: variant.price || 0,
-          } : null;
-          const existingIndex = state.cart.findIndex(
-            (item) => item.id === product.id && JSON.stringify(item.variant || {}) === JSON.stringify(normalizedVariant || {})
-          );
+          const productId = product._id || product.id;
+          const existingIndex = state.cart.findIndex(item => item.id === productId);
           let updatedCart;
           if (existingIndex > -1) {
             updatedCart = [...state.cart];
             updatedCart[existingIndex].quantity += qty;
           } else {
-            const newItem = {
-              id: product.id || product._id,
+            updatedCart = [...state.cart, {
+              id: productId,
               name: product.name,
-              price: normalizedVariant?.price || product.basePrice || product.price || 0,
+              price: variant?.price || product.basePrice || 0,
               quantity: qty,
               imageUrl: product.images?.[0]?.url || '/images/placeholder-phone.jpg',
-              variant: normalizedVariant,
-            };
-            updatedCart = [...state.cart, newItem];
+              variant,
+            }];
           }
           return { cart: updatedCart, isCartOpen: true };
         });
       },
-      removeFromCart: (productId, variant = null) => {
-        set((state) => ({
-          cart: state.cart.filter(
-            (item) => !(item.id === productId && JSON.stringify(item.variant || {}) === JSON.stringify(variant || {}))
-          ),
-        }));
+      removeFromCart: (productId) => {
+        set((state) => ({ cart: state.cart.filter(item => item.id !== productId) }));
       },
-      updateQuantity: (productId, quantity, variant = null) => {
+      updateQuantity: (productId, quantity) => {
         set((state) => ({
-          cart: state.cart.map((item) =>
-            item.id === productId && JSON.stringify(item.variant || {}) === JSON.stringify(variant || {})
-              ? { ...item, quantity }
-              : item
-          ),
+          cart: state.cart.map(item => item.id === productId ? { ...item, quantity } : item),
         }));
       },
       clearCart: () => set({ cart: [] }),
@@ -59,34 +63,28 @@ export const useStore = create(
       toggleWishlist: (product) => {
         set((state) => {
           const productId = typeof product === 'object' ? (product._id || product.id) : product;
-          const idx = state.wishlist.findIndex(w => typeof w === 'object' ? (w._id || w.id) === productId : w === productId);
-          let updatedWishlist;
-          if (idx > -1) {
-            updatedWishlist = state.wishlist.filter((_, i) => i !== idx);
+          const exists = state.wishlist.some(w => {
+            const wId = typeof w === 'object' ? (w._id || w.id) : w;
+            return wId === productId;
+          });
+          if (exists) {
+            return { wishlist: state.wishlist.filter(w => {
+              const wId = typeof w === 'object' ? (w._id || w.id) : w;
+              return wId !== productId;
+            })};
           } else {
-            if (typeof product === 'object') {
-              updatedWishlist = [...state.wishlist, {
-                _id: product._id || product.id,
-                id: product.id || product._id,
-                name: product.name,
-                price: product.price || product.basePrice || 0,
-                imageUrl: product.images?.[0]?.url || '/images/placeholder-phone.jpg',
-                brand: product.brand || '',
-              }];
-            } else {
-              updatedWishlist = [...state.wishlist, productId];
-            }
+            return { wishlist: [...state.wishlist, typeof product === 'object' ? product : productId] };
           }
-          return { wishlist: updatedWishlist };
         });
       },
 
-      isDarkMode: false,
       toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
     }),
     {
       name: 'alphai-store-storage',
       partialize: (state) => ({
+        user: state.user,
+        token: state.token,
         cart: state.cart,
         wishlist: state.wishlist,
         isDarkMode: state.isDarkMode,

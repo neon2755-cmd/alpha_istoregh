@@ -3,10 +3,10 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Package, ShoppingBag, Repeat, MapPin, Smartphone } from 'lucide-react';
-import { useUser } from '@clerk/nextjs';
 import SkeletonLoader from '../components/ui/SkeletonLoader';
 import { ordersAPI } from '../lib/api';
 import { formatPrice } from '../lib/utils';
+import { useStore } from '../store';
 
 const STATUS_STYLES = {
   pending: 'bg-amber-50 text-status-warning',
@@ -18,12 +18,15 @@ const STATUS_STYLES = {
 
 export default function Orders() {
   const router = useRouter();
-  const { user, isLoaded } = useUser();
+  const { user, token } = useStore();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!token) {
+      router.push('/auth/login');
+      return;
+    }
     (async () => {
       try {
         const res = await ordersAPI.myOrders();
@@ -34,7 +37,7 @@ export default function Orders() {
         setLoading(false);
       }
     })();
-  }, [isLoaded]);
+  }, [token, router]);
 
   return (
     <>

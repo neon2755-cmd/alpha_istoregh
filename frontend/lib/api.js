@@ -65,7 +65,12 @@ export const fetchAPI = (endpoint, method = 'GET', data = null, params = null) =
   });
 };
 
-export const authAPI = {};
+export const authAPI = {
+  login: (credentials) => apiClient.post('/auth/login', credentials),
+  register: (data) => apiClient.post('/auth/register', data),
+  logout: () => apiClient.post('/auth/logout'),
+  getMe: () => apiClient.get('/auth/me'),
+};
 
 export const ordersAPI = {
   create: createOrder,
