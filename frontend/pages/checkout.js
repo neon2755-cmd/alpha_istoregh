@@ -130,15 +130,17 @@ export default function Checkout() {
         })),
         delivery: {
           method: isPickup ? 'pickup' : 'delivery',
+          region: region.region,
           address: deliveryAddress,
           fee: region.fee,
+          notes: notes || undefined,
         },
         payment: { method: payment },
         guestInfo: !user
           ? { name: form.name, email: form.email, phone: form.phone }
           : undefined,
-        promoCode: promo || '',
-        discount,
+        promoCode: promo || undefined,
+        discount: discount || 0,
       });
       clearCart();
       const orderNumber = res?.order?.orderNumber || res?.data?.order?.orderNumber;

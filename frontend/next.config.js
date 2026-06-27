@@ -15,11 +15,12 @@ const nextConfig = {
     ];
   },
   async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:5000';
+    const raw = (process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:5000').replace(/\/+$/, '');
+    const backendBase = raw.replace(/\/api$/, '');
     return [
       {
         source: '/api/:path*',
-        destination: `${backendUrl}/api/:path*`,
+        destination: `${backendBase}/api/:path*`,
       },
     ];
   },
