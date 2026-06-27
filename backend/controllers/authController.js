@@ -4,10 +4,14 @@ const crypto = require('crypto');
 const { sendWelcomeEmail } = require('../utils/mailer');
 const sendEmail = require('../utils/sendEmail');
 const generateResetToken = require('../utils/generateResetToken');
+const { generateToken, setTokenCookie } = require('../middleware/auth');
 
 const sendAuth = (res, user, statusCode = 200) => {
+  const token = generateToken(user._id);
+  setTokenCookie(res, token);
   res.status(statusCode).json({
     success: true,
+    token,
     user: {
       _id: user._id,
       firstName: user.firstName,

@@ -43,7 +43,7 @@ export default function AdminLogin() {
         return;
       }
 
-      login({ email: data.user.email, name: 'Administrator' });
+      login({ email: data.user.email, name: 'Administrator', token: data.token });
       toast.success('Welcome back, Admin!');
       router.push('/portal');
     } catch (err) {

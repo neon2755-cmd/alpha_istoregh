@@ -16,7 +16,7 @@ const siteConfig = {
   },
   admin: {
     email: 'neon2755@gmail.com',
-    password: 'jwqbfaixqodlswln',
+    password: 'admin123',
   },
   apiEndpoint: process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:5000/api',
 };

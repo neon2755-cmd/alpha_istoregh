@@ -224,7 +224,7 @@ export default function Contact() {
             <h2 className="text-base font-semibold tracking-tightish text-ink mb-4 px-2">Our Location</h2>
             <div
               className="w-full h-[300px] md:h-[400px] rounded-lg overflow-hidden"
-              dangerouslySetInnerHTML={{ __html: settings.contact.googleMapEmbedUrl }}
+              dangerouslySetInnerHTML={{ __html: typeof settings.contact.googleMapEmbedUrl === 'string' ? settings.contact.googleMapEmbedUrl : '' }}
             />
           </section>
         )}
