@@ -15,12 +15,16 @@ const nextConfig = {
     ];
   },
   async rewrites() {
-    const raw = (process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:5000').replace(/\/+$/, '');
-    const backendBase = raw.replace(/\/api$/, '');
+    const apiPath = (process.env.NEXT_PUBLIC_API_ENDPOINT || '/api').replace(/\/+$/, '');
+    const backendUrl = (process.env.BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
+    const destination =
+      apiPath === '/api'
+        ? `${backendUrl}/api/:path*`
+        : `${apiPath}/:path*`;
     return [
       {
         source: '/api/:path*',
-        destination: `${backendBase}/api/:path*`,
+        destination,
       },
     ];
   },

@@ -105,25 +105,34 @@ export default function Checkout() {
   };
 
   const handleSubmit = async () => {
+    console.log('handleSubmit called');
     if (!form.name || !form.phone) {
+      console.log('Validation failed: name or phone missing');
       toast.error('Please fill your name and phone number');
       return;
     }
-    if (!address && !region.region.startsWith('Pickup')) {
+    if (!address && !region?.region?.startsWith('Pickup')) {
+      console.log('Validation failed: address missing for non-pickup');
       toast.error('Please enter your delivery address');
       return;
     }
-    if (!cart.length) {
+    const safeCart = Array.isArray(cart) ? cart.filter(Boolean) : [];
+    console.log('Cart items:', safeCart.length, safeCart);
+    if (!safeCart.length) {
       toast.error('Your cart is empty');
+      return;
+    }
+    const invalidItem = safeCart.find((item) => !(item.id || item._id));
+    if (invalidItem) {
+      toast.error('Your cart contains an invalid item. Please remove it and try again.');
       return;
     }
     setSubmitting(true);
     try {
-      const isPickup = region.region.startsWith('Pickup');
+      const isPickup = region?.region?.startsWith('Pickup');
       const deliveryAddress = isPickup ? region.region : address;
-
-      const res = await ordersAPI.create({
-        items: cart.map((item) => ({
+      const payload = {
+        items: safeCart.map((item) => ({
           product: item.id || item._id,
           quantity: item.quantity,
           variant: item.variant || null,
@@ -141,45 +150,28 @@ export default function Checkout() {
           : undefined,
         promoCode: promo || undefined,
         discount: discount || 0,
-      });
+      };
+      console.log('Checkout payload:', payload);
+      const res = await ordersAPI.create(payload);
+      console.log('Checkout response:', res);
       clearCart();
       const orderNumber = res?.order?.orderNumber || res?.data?.order?.orderNumber;
+      if (!orderNumber) {
+        throw new Error('Order created but order number was missing');
+      }
       router.push(`/order-confirm?order=${orderNumber}`);
     } catch (e) {
-      toast.error(
+      console.error('Checkout error:', e);
+      const msg =
         e?.response?.data?.message ||
-          'Failed to place order. Please try again.'
-      );
+        e?.response?.data?.error ||
+        e?.message ||
+        'Failed to place order. Please try again.';
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
   };
-
-  if (!cart.length) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="mx-auto max-w-md rounded-2xl border border-surface-border bg-white p-12 text-center">
-          <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-primary">
-            <ShoppingBag className="h-5 w-5" />
-          </span>
-          <h2 className="mt-4 text-lg font-semibold tracking-tightish text-ink">
-            Your cart is empty
-          </h2>
-          <p className="mt-1 text-sm text-ink-muted">
-            Add some phones before checking out.
-          </p>
-          <button
-            type="button"
-            onClick={() => router.push('/shop')}
-            className="mt-6 inline-flex h-11 items-center gap-2 px-5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark shadow-smooth"
-          >
-            Browse shop
-            <ArrowRight className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>

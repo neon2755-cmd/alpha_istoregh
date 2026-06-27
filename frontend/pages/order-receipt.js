@@ -105,7 +105,7 @@ export default function OrderReceipt() {
               <tr key={i}>
                 <td className="py-4">
                   <p className="font-medium text-ink">{item.name}</p>
-                  <p className="text-xs text-ink-muted mt-0.5">{item.variant?.storage || item.variant?.color}</p>
+                   <p className="text-xs text-ink-muted mt-0.5">{item.variant?.storage || (typeof item.variant?.color === 'object' ? item.variant?.color?.name : item.variant?.color) || ''}</p>
                 </td>
                 <td className="py-4 text-center text-ink-muted">{item.quantity}</td>
                 <td className="py-4 text-right font-medium text-ink">{formatPrice(item.price * item.quantity)}</td>

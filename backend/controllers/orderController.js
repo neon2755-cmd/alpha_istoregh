@@ -32,7 +32,7 @@ exports.createOrder = async (req, res, next) => {
       enrichedItems.push({
         product: product._id,
         name: product.name,
-        image: product.images[0]?.url,
+        image: product.images?.[0]?.url,
         price,
         quantity: items[i].quantity,
         variant: items[i].variant,
@@ -117,7 +117,7 @@ exports.createOrder = async (req, res, next) => {
                 <p><strong>Order:</strong> #${order.orderNumber}</p>
                 <p><strong>Customer:</strong> ${order.user?.firstName || order.guestInfo?.firstName || 'Guest'} — ${customerEmail || 'No email'}</p>
                 <p><strong>Total:</strong> GHS ${order.total}</p>
-                <p><strong>Payment:</strong> ${order.paymentMethod}</p>
+                  <p><strong>Payment:</strong> ${order.payment?.method}</p>
                 <p><strong>Delivery:</strong> ${order.delivery?.method} — ${order.delivery?.region || ''}</p>
                 <p style="color: #94a3b8; font-size: 12px;">Log in to admin panel to manage this order.</p>
               </div>

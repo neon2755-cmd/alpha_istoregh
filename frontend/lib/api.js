@@ -22,7 +22,7 @@ apiClient.interceptors.response.use(
     } else {
       console.error('API Error:', error.response?.data?.message || error.message || 'Unknown error');
     }
-    return Promise.reject(error.response?.data || error.message || 'An unexpected error occurred');
+    return Promise.reject(error);
   }
 );
 

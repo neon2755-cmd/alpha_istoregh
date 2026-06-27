@@ -30,7 +30,7 @@ export default function Orders() {
     (async () => {
       try {
         const res = await ordersAPI.myOrders();
-        setOrders(res.data.orders || []);
+        setOrders(res.orders || []);
       } catch (e) {
         console.error(e);
       } finally {
