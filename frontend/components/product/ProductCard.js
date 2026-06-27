@@ -9,7 +9,7 @@ export default function ProductCard({ product }) {
   const { addToCart, wishlist, toggleWishlist } = useStore();
   if (!product) return null;
   const productId = product._id || product.id;
-  const isWishlisted = wishlist?.includes(productId);
+  const isWishlisted = wishlist?.some(w => 
   const price = product.basePrice || product.variants?.[0]?.price || 0;
   const comparePrice = product.comparePrice;
   const hasDiscount = comparePrice && comparePrice > price;
