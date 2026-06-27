@@ -301,7 +301,7 @@ function ProductDetailPage() {
                     const active = (typeof selectedVariant?.color === 'object' ? selectedVariant?.color?.name : selectedVariant?.color) === (typeof v.color === 'object' ? v.color?.name : v.color);
                     return (
                       <button
-                        key={typeof v.color === 'object' ? v.color?.name : v.color}
+                        key={`${typeof v.color === 'object' ? v.color?.name : v.color}-${v.storage || ''}`}
                         type="button"
                         onClick={() => setSelectedVariant(v)}
                         aria-label={typeof v.color === 'object' ? v.color?.name : v.color}
