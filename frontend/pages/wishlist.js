@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Heart, ShoppingCart, Trash2, ArrowRight } from 'lucide-react';
@@ -8,8 +8,40 @@ import useStore from '../store';
 export default function WishlistPage() {
   const { wishlist, toggleWishlist, addToCart } = useStore();
 
-  const handleRemove = (id) => {
-    toggleWishlist({ _id: id, id });
+  const getItemImage = (item) => {
+    if (typeof item === 'object') {
+      return item.images?.[0]?.url || item.imageUrl || '/images/placeholder-phone.jpg';
+    }
+    return '/images/placeholder-phone.jpg';
+  };
+
+  const getItemName = (item) => {
+    if (typeof item === 'object') return item.name;
+    return 'Product';
+  };
+
+  const getItemPrice = (item) => {
+    if (typeof item === 'object') return item.price || item.basePrice || 0;
+    return 0;
+  };
+
+  const getItemId = (item) => {
+    if (typeof item === 'object') return item._id || item.id;
+    return item;
+  };
+
+  const handleRemove = (item) => {
+    toggleWishlist(item);
+  };
+
+  const handleAddToCart = (item) => {
+    const product = {
+      id: getItemId(item),
+      name: getItemName(item),
+      basePrice: getItemPrice(item),
+      images: [{ url: getItemImage(item) }],
+    };
+    addToCart(product, 1, null);
   };
 
   return (
@@ -44,56 +76,62 @@ export default function WishlistPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {wishlist.map((item) => (
-              <article
-                key={item._id || item.id}
-                className="group flex flex-col bg-white rounded-3xl overflow-hidden hover:-translate-y-2 hover:shadow-smooth-lg transition-all duration-300"
-              >
-                <Link
-                  href={`/product/${item._id || item.id}`}
-                  className="relative aspect-square bg-white overflow-hidden p-6"
+            {wishlist.map((item, idx) => {
+              const id = getItemId(item);
+              const name = getItemName(item);
+              const price = getItemPrice(item);
+              const image = getItemImage(item);
+
+              return (
+                <article
+                  key={id || idx}
+                  className="group flex flex-col bg-white rounded-3xl overflow-hidden hover:-translate-y-2 hover:shadow-smooth-lg transition-all duration-300"
                 >
-                  <img
-                    src={item.imageUrl || '/images/placeholder-phone.jpg'}
-                    alt={item.name}
-                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                  />
-                </Link>
-
-                <div className="flex flex-col flex-1 p-6">
                   <Link
-                    href={`/product/${item._id || item.id}`}
-                    className="text-base font-bold text-ink hover:text-primary line-clamp-1"
+                    href={`/product/${id}`}
+                    className="relative aspect-square bg-white overflow-hidden p-6"
                   >
-                    {item.name}
+                    <img
+                      src={image}
+                      alt={name}
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                    />
                   </Link>
-                  <p className="mt-1 text-sm text-ink-muted">{item.brand || ''}</p>
 
-                  <div className="mt-4 flex items-baseline gap-2">
-                    <span className="text-xl font-bold text-ink">{formatPrice(item.price)}</span>
-                  </div>
+                  <div className="flex flex-col flex-1 p-6">
+                    <Link
+                      href={`/product/${id}`}
+                      className="text-base font-bold text-ink hover:text-primary line-clamp-1"
+                    >
+                      {name}
+                    </Link>
 
-                  <div className="mt-5 flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => addToCart({ id: item._id || item.id, name: item.name, basePrice: item.price, images: [{ url: item.imageUrl }] }, 1, null)}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors"
-                    >
-                      <ShoppingCart className="h-4 w-4" />
-                      Add to Cart
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleRemove(item._id || item.id)}
-                      className="inline-flex items-center justify-center h-11 w-11 rounded-full bg-background text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
-                      aria-label="Remove from wishlist"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <div className="mt-4 flex items-baseline gap-2">
+                      <span className="text-xl font-bold text-ink">{formatPrice(price)}</span>
+                    </div>
+
+                    <div className="mt-5 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleAddToCart(item)}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors"
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                        Add to Cart
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRemove(item)}
+                        className="inline-flex items-center justify-center h-11 w-11 rounded-full bg-background text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                        aria-label="Remove from wishlist"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         )}
       </div>
