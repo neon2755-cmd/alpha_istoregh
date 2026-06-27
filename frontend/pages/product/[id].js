@@ -307,12 +307,15 @@ function ProductDetailPage() {
                         aria-label={typeof v.color === 'object' ? v.color?.name : v.color}
                         aria-pressed={active}
                         title={typeof v.color === 'object' ? v.color?.name : v.color}
-                        className={`h-10 w-10 rounded-full border-2 transition-all ${
-                          active
-                            ? 'ring-2 ring-primary ring-offset-2 border-white'
-                            : 'border-transparent hover:border-ink-subtle'
-                        }`}
-                        style={{ backgroundColor: v.colorHex || (typeof v.color === 'object' ? v.color?.hex : v.color) || '#ccc' }}
+                         className={`h-10 w-10 rounded-full border transition-all ${
+                           active
+                             ? 'ring-2 ring-primary ring-offset-2 border-white'
+                             : 'border-ink-subtle/30 hover:border-ink-subtle'
+                         }`}
+                         style={{
+                           backgroundColor: v.colorHex || (typeof v.color === 'object' ? v.color?.hex : v.color) || '#ccc',
+                           boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.15), inset 0 -1px 2px rgba(0,0,0,0.10)',
+                         }}
                       />
                     );
                   })}

@@ -17,9 +17,9 @@ const cardClass = 'rounded-3xl border border-surface-border bg-white p-8 shadow-
 function AdminSettings() {
   const [settings, setSettings] = useState({
     storeName: 'AlphaiStore',
-    logo: { url: '' },
-    favicon: { url: '' },
-    hero: { title: '', subtitle: '', image: { url: '' } },
+    logo: { url: '', public_id: '' },
+    favicon: { url: '', public_id: '' },
+    hero: { title: '', subtitle: '', image: { url: '', public_id: '' } },
     contact: { whatsapp: [''], phones: [''], email: '', address: '', googleMapEmbedUrl: '' },
     payment: { mtnMomo: true, telecel: true, airteltigo: false, card: false, payOnDelivery: true },
     social: { facebook: '', instagram: '', twitter: '', tiktok: '' },
@@ -144,9 +144,11 @@ function AdminSettings() {
     setSaving(true);
     try {
       await settingsAPI.update(settings);
-      alert('Settings saved successfully!');
+      toast.success('Settings saved successfully!');
     } catch (e) {
-      alert('Failed to save settings.');
+      const msg = e?.response?.data?.message || e?.message || 'Failed to save settings.';
+      toast.error(msg);
+      console.error('Settings save error:', e);
     } finally {
       setSaving(false);
     }

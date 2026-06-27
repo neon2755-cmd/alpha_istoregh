@@ -23,15 +23,15 @@ const updateSettings = async (req, res) => {
     if (!settings) {
       settings = await Settings.create(req.body);
     } else {
-      if (req.body.storeName) settings.storeName = req.body.storeName;
-      if (req.body.logo) settings.logo = { ...settings.logo, ...req.body.logo };
-      if (req.body.favicon) settings.favicon = { ...settings.favicon, ...req.body.favicon };
-      if (req.body.hero) settings.hero = { ...settings.hero, ...req.body.hero };
-      if (req.body.contact) settings.contact = { ...settings.contact, ...req.body.contact };
-      if (req.body.social) settings.social = { ...settings.social, ...req.body.social };
-      if (req.body.payment) settings.payment = { ...settings.payment, ...req.body.payment };
-      if (req.body.promoBanners) settings.promoBanners = req.body.promoBanners;
-      if (req.body.promoCodes) {
+      if (req.body.storeName !== undefined) settings.storeName = req.body.storeName;
+      if (req.body.logo !== undefined) settings.logo = { ...(settings.logo || {}), ...req.body.logo };
+      if (req.body.favicon !== undefined) settings.favicon = { ...(settings.favicon || {}), ...req.body.favicon };
+      if (req.body.hero !== undefined) settings.hero = { ...(settings.hero || {}), ...req.body.hero };
+      if (req.body.contact !== undefined) settings.contact = { ...(settings.contact || {}), ...req.body.contact };
+      if (req.body.social !== undefined) settings.social = { ...(settings.social || {}), ...req.body.social };
+      if (req.body.payment !== undefined) settings.payment = { ...(settings.payment || {}), ...req.body.payment };
+      if (req.body.promoBanners !== undefined) settings.promoBanners = req.body.promoBanners;
+      if (req.body.promoCodes !== undefined) {
         settings.promoCodes = req.body.promoCodes.map(code => ({
           code: code.code?.toUpperCase().trim(),
           discount: code.discount,
@@ -41,10 +41,10 @@ const updateSettings = async (req, res) => {
           usedCount: code.usedCount || 0,
         }));
       }
-      if (req.body.delivery) settings.delivery = { ...settings.delivery, ...req.body.delivery };
-      if (req.body.brands) settings.brands = req.body.brands;
-      if (req.body.categories) settings.categories = req.body.categories;
-      if (req.body.ourStory) settings.ourStory = req.body.ourStory;
+      if (req.body.delivery !== undefined) settings.delivery = { ...(settings.delivery || {}), ...req.body.delivery };
+      if (req.body.brands !== undefined) settings.brands = req.body.brands;
+      if (req.body.categories !== undefined) settings.categories = req.body.categories;
+      if (req.body.ourStory !== undefined) settings.ourStory = req.body.ourStory;
       await settings.save();
     }
     res.json({ success: true, settings });

@@ -522,7 +522,14 @@ function AdminProducts() {
                       <div key={idx} className="flex items-center justify-between bg-surface-muted rounded-xl px-4 py-2.5 text-sm">
                         <div className="flex items-center gap-3">
                           {v.color?.hex && (
-                            <span className="h-5 w-5 rounded-full border border-surface-border shrink-0" style={{ backgroundColor: v.color.hex }} />
+                            <span
+                              className="h-5 w-5 rounded-full shrink-0"
+                              style={{
+                                backgroundColor: v.color.hex,
+                                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.15), inset 0 -1px 2px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.12)',
+                                border: '1px solid rgba(0,0,0,0.12)',
+                              }}
+                            />
                           )}
                           <span className="font-medium text-ink">{v.color?.name || 'No color'} — {v.storage || 'No storage'}</span>
                         </div>
