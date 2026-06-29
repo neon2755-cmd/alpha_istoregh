@@ -264,73 +264,27 @@ function AdminDashboard() {
                   <SkeletonLoader key={i} height="48px" className="rounded-xl" />
                 ))}
               </div>
-            ) : stats?.topProducts?.length === 0 ? (
+            ) : !stats?.topProducts?.length ? (
               <div className="py-10 text-center border-2 border-dashed border-surface-border rounded-2xl">
                 <Package className="h-8 w-8 text-ink-subtle mx-auto mb-3" />
                 <p className="text-sm font-medium text-ink-muted">No sales data yet</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                <div className="h-64">
-                  <Bar
-                    data={{
-                      labels: stats?.topProducts?.map(p => p.name.length > 20 ? p.name.substring(0, 20) + '...' : p.name) || [],
-                      datasets: [
-                        {
-                          label: 'Units Sold',
-                          data: stats?.topProducts?.map(p => p.sold) || [],
-                          backgroundColor: [
-                            'rgba(0, 105, 137, 0.8)',
-                            'rgba(0, 105, 137, 0.65)',
-                            'rgba(0, 105, 137, 0.5)',
-                            'rgba(0, 105, 137, 0.35)',
-                            'rgba(0, 105, 137, 0.2)',
-                          ],
-                          borderRadius: 8,
-                          borderSkipped: false,
-                        },
-                      ],
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                          backgroundColor: '#0F172A',
-                          cornerRadius: 8,
-                          padding: 12,
-                          titleFont: { size: 13, weight: '600' },
-                          bodyFont: { size: 12 },
-                        },
-                      },
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                          ticks: { stepSize: 1, font: { size: 11 }, color: '#94A3B8' },
-                          grid: { color: '#F1F5F9' },
-                        },
-                        x: {
-                          ticks: { font: { size: 10 }, color: '#64748B', maxRotation: 45 },
-                          grid: { display: false },
-                        },
-                      },
-                    }}
-                  />
-                </div>
-                <div className="space-y-2">
-                  {stats?.topProducts?.length > 0 && stats.topProducts.map((product, i) => (
-                    <div key={product._id || i} className="flex items-center justify-between p-3 rounded-xl border border-surface-border">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="h-7 w-7 inline-flex items-center justify-center rounded-lg bg-primary-50 text-primary text-xs font-bold">
-                          {i + 1}
-                        </span>
+              <div className="space-y-2">
+                {stats.topProducts.map((product, i) => (
+                  <div key={product._id || i} className="flex items-center justify-between p-3 rounded-xl border border-surface-border">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="h-7 w-7 inline-flex items-center justify-center rounded-lg bg-primary-50 text-primary text-xs font-bold">
+                        {i + 1}
+                      </span>
+                      <div className="min-w-0">
                         <p className="text-sm font-semibold text-ink truncate">{product.name}</p>
+                        <p className="text-xs text-ink-subtle">{product.sold} sold</p>
                       </div>
-                      <span className="text-xs font-bold text-ink-muted">{product.sold} sold</span>
                     </div>
-                  ))}
-                </div>
+                    <span className="text-xs font-bold text-ink-muted">{product.sold} sold</span>
+                  </div>
+                ))}
               </div>
             )}
           </section>
