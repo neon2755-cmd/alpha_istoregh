@@ -1,3 +1,4 @@
+import { useAdminAuthStore } from '../../store/adminAuth';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Save, Store, MapPin, Image as ImageIcon, CreditCard, Plus, Trash2, Link as LinkIcon, UploadCloud, Loader2 } from 'lucide-react';
@@ -143,7 +144,7 @@ function AdminSettings() {
   const handleSave = async (section) => {
     setSaving(true);
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('authToken') || useAdminAuthStore.getState().token;
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/settings`, {
         method: 'PUT',
         headers: {
