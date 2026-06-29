@@ -79,18 +79,41 @@ export default function Contact() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.message) {
-      toast.error('Please fill your name and message');
+    const name = form.name.trim();
+    const email = form.email.trim().toLowerCase();
+    const phone = form.phone.trim();
+    const subject = form.subject.trim();
+    const message = form.message.trim();
+
+    if (!name || name.length < 2) {
+      toast.error('Please enter your name');
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    if (!/^\+?[0-9\s-]{8,15}$/.test(phone)) {
+      toast.error('Please enter a valid phone number');
+      return;
+    }
+    if (!subject || subject.length < 3) {
+      toast.error('Please add a subject for your message');
+      return;
+    }
+    if (!message || message.length < 10) {
+      toast.error('Please share a little more detail in your message');
+      return;
+    }
+
     setLoading(true);
     try {
       await contactAPI.submit({
-        name: form.name,
-        email: form.email || 'no-email@provided.com',
-        phone: form.phone,
-        subject: form.subject,
-        message: form.message,
+        name,
+        email,
+        phone,
+        subject,
+        message,
       });
       toast.success('Message sent — we will reply shortly.');
       setForm({ name: '', email: '', phone: '', subject: '', message: '' });

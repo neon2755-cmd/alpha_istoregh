@@ -66,6 +66,16 @@ function AdminOrders() {
     }
   };
 
+  const getCustomerName = (order) => {
+    const user = order.user || {};
+    const guest = order.guestInfo || {};
+    return order.customer?.name || [user.firstName, user.lastName].filter(Boolean).join(' ') || [guest.firstName, guest.lastName].filter(Boolean).join(' ') || 'Guest';
+  };
+
+  const getCustomerEmail = (order) => order.customer?.email || order.user?.email || order.guestInfo?.email || '';
+  const getCustomerPhone = (order) => order.customer?.phone || order.user?.phone || order.guestInfo?.phone || '';
+  const getDeliverySummary = (order) => [order.delivery?.address || order.deliveryAddress || '', order.delivery?.region || ''].filter(Boolean).join(' • ');
+
   return (
     <>
       <Head>
@@ -90,6 +100,7 @@ function AdminOrders() {
                   <th className="px-6 py-4">Order #</th>
                   <th className="px-6 py-4">Date</th>
                   <th className="px-6 py-4">Customer</th>
+                  <th className="px-6 py-4">Delivery</th>
                   <th className="px-6 py-4">Total</th>
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4">Action</th>
@@ -97,9 +108,9 @@ function AdminOrders() {
               </thead>
               <tbody className="divide-y divide-surface-border">
                 {loading ? (
-                  <tr><td colSpan={6} className="px-6 py-8 text-center text-ink-subtle animate-pulse">Loading orders...</td></tr>
+                  <tr><td colSpan={7} className="px-6 py-8 text-center text-ink-subtle animate-pulse">Loading orders...</td></tr>
                 ) : orders.length === 0 ? (
-                  <tr><td colSpan={6} className="px-6 py-12 text-center text-ink-subtle">No orders found.</td></tr>
+                  <tr><td colSpan={7} className="px-6 py-12 text-center text-ink-subtle">No orders found.</td></tr>
                 ) : (
                   orders.map(order => (
                     <tr key={order._id} className="hover:bg-surface-muted/30 transition-colors">
@@ -114,16 +125,21 @@ function AdminOrders() {
                       </td>
                       <td className="px-6 py-4">
                         <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
-                          {order.customer?.name || order.user?.firstName + ' ' + order.user?.lastName || order.guestInfo?.firstName + ' ' + order.guestInfo?.lastName || 'Guest'}
+                          {getCustomerName(order)}
                         </div>
                         <div style={{ fontSize: '12px', color: '#64748b' }}>
-                          {order.customer?.email || order.user?.email || order.guestInfo?.email || ''}
+                          {getCustomerEmail(order)}
                         </div>
                         <div style={{ fontSize: '12px', color: '#64748b' }}>
-                          {order.customer?.phone || order.user?.phone || order.guestInfo?.phone || ''}
+                          {getCustomerPhone(order)}
                         </div>
-                        <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
-                          {order.deliveryAddress || order.delivery?.address || ''}
+                      </td>
+                      <td className="px-6 py-4 text-ink-muted">
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>
+                          {order.delivery?.method || 'delivery'}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+                          {getDeliverySummary(order) || '—'}
                         </div>
                       </td>
                       <td className="px-6 py-4 font-semibold text-ink">

@@ -1,11 +1,31 @@
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import { CheckCircle2, Package, ShoppingBag } from 'lucide-react';
+import { CheckCircle2, Package, ShoppingBag, Receipt } from 'lucide-react';
+import { ordersAPI } from '../lib/api';
 
 export default function OrderConfirm() {
   const router = useRouter();
   const { order } = router.query;
+  const [orderDetails, setOrderDetails] = useState(null);
+  const [loading, setLoading] = useState(Boolean(order));
+
+  useEffect(() => {
+    if (!order) return;
+    const fetchOrder = async () => {
+      try {
+        setLoading(true);
+        const res = await ordersAPI.track(order);
+        setOrderDetails(res.order || res.data?.order || res);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrder();
+  }, [order]);
 
   return (
     <>
@@ -37,6 +57,30 @@ export default function OrderConfirm() {
             </div>
           )}
 
+          {orderDetails && (
+            <div className="mt-6 rounded-2xl border border-surface-border bg-surface-muted/40 px-6 py-5 text-left">
+              <p className="text-xs font-semibold uppercase tracking-wider text-ink-subtle">Customer details</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 text-sm text-ink">
+                <div>
+                  <p className="text-ink-subtle">Name</p>
+                  <p className="font-medium">{orderDetails.customer?.name || orderDetails.user?.firstName + ' ' + orderDetails.user?.lastName || orderDetails.guestInfo?.name || 'Guest'}</p>
+                </div>
+                <div>
+                  <p className="text-ink-subtle">Contact</p>
+                  <p className="font-medium">{orderDetails.customer?.phone || orderDetails.user?.phone || orderDetails.guestInfo?.phone || '—'}</p>
+                </div>
+                <div>
+                  <p className="text-ink-subtle">Email</p>
+                  <p className="font-medium">{orderDetails.customer?.email || orderDetails.user?.email || orderDetails.guestInfo?.email || '—'}</p>
+                </div>
+                <div>
+                  <p className="text-ink-subtle">Delivery</p>
+                  <p className="font-medium">{orderDetails.delivery?.address || orderDetails.deliveryAddress || '—'}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             {order && (
               <>
@@ -47,13 +91,13 @@ export default function OrderConfirm() {
                   <Package className="h-4 w-4" />
                   Track my order
                 </Link>
-                <button
-                  type="button"
-                  onClick={() => window.open(`/order-receipt?order=${order}`, '_blank')}
+                <Link
+                  href={`/order-receipt?order=${order}`}
                   className="inline-flex h-11 items-center justify-center gap-2 px-5 rounded-xl border border-primary text-primary text-sm font-medium hover:bg-primary-50"
                 >
-                  Download receipt
-                </button>
+                  <Receipt className="h-4 w-4" />
+                  {loading ? 'Loading receipt…' : 'View receipt'}
+                </Link>
               </>
             )}
             <Link

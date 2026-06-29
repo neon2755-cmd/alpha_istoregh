@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import {
@@ -71,6 +71,13 @@ export default function Checkout() {
   const subtotal = cart.reduce((s, item) => s + item.price * item.quantity, 0);
   const total = Math.max(0, subtotal + region.fee - discount);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (cart.length > 0 && !user && router.pathname !== '/auth/login') {
+      router.replace(`/auth/login?redirect=${encodeURIComponent(router.asPath)}`);
+    }
+  }, [cart.length, user, router]);
+
   const handlePromo = async () => {
     if (!promo.trim()) {
       toast.error('Please enter a promo code');
@@ -105,14 +112,24 @@ export default function Checkout() {
   };
 
   const handleSubmit = async () => {
-    console.log('handleSubmit called');
-    if (!form.name || !form.phone) {
-      console.log('Validation failed: name or phone missing');
-      toast.error('Please fill your name and phone number');
+    const fullName = form.name.trim();
+    const phone = form.phone.trim();
+    const email = form.email.trim().toLowerCase();
+    const deliveryAddress = address.trim();
+
+    if (!fullName || fullName.length < 2) {
+      toast.error('Please enter your full name');
       return;
     }
-    if (!address && !region?.region?.startsWith('Pickup')) {
-      console.log('Validation failed: address missing for non-pickup');
+    if (!/^\+?[0-9\s-]{8,15}$/.test(phone)) {
+      toast.error('Please enter a valid phone number');
+      return;
+    }
+    if (!user && (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    if (!region?.region?.startsWith('Pickup') && deliveryAddress.length < 5) {
       toast.error('Please enter your delivery address');
       return;
     }
@@ -146,7 +163,7 @@ export default function Checkout() {
         },
         payment: { method: payment },
         guestInfo: !user
-          ? { name: form.name, email: form.email, phone: form.phone }
+          ? { name: fullName, email, phone }
           : undefined,
         promoCode: promo || undefined,
         discount: discount || 0,

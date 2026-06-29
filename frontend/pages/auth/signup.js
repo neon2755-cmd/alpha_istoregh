@@ -15,12 +15,36 @@ export default function SignupPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const firstName = form.firstName.trim();
+    const lastName = form.lastName.trim();
+    const email = form.email.trim().toLowerCase();
+    const phone = form.phone.trim();
+    const password = form.password.trim();
+
+    if (firstName.length < 2 || lastName.length < 2) {
+      toast.error('Please enter your first and last name');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    if (phone && !/^\+?[0-9\s-]{8,15}$/.test(phone)) {
+      toast.error('Please enter a valid phone number');
+      return;
+    }
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await authAPI.register(form);
+      const res = await authAPI.register({ ...form, firstName, lastName, email, phone, password });
       login(res.user, res.token);
       toast.success('Account created!');
-      router.push('/');
+      const redirectTo = typeof router.query.redirect === 'string' ? router.query.redirect : '/';
+      router.push(redirectTo);
     } catch (err) {
       toast.error(err?.message || 'Registration failed');
     } finally {

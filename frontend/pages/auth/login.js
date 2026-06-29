@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -14,14 +14,28 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    if (password.trim().length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
     setLoading(true);
     try {
-      const res = await authAPI.login({ email, password });
+      const res = await authAPI.login({ email: normalizedEmail, password: password.trim() });
       login(res.user, res.token);
       toast.success('Welcome back!');
-      router.push('/');
+      const redirectTo = typeof router.query.redirect === 'string' ? router.query.redirect : '/';
+      router.push(redirectTo);
     } catch (err) {
       toast.error(err?.message || 'Invalid email or password');
     } finally {
