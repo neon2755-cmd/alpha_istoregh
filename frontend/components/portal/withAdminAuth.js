@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useAdminAuthStore } from '../../store/adminAuth';
 
 export default function withAdminAuth(Component) {
-  return function AdminAuthWrapper(props) {
+  function AdminAuthWrapper(props) {
     const router = useRouter();
     const isAuthenticated = useAdminAuthStore((s) => s.isAuthenticated);
 
@@ -19,5 +19,10 @@ export default function withAdminAuth(Component) {
     }
 
     return <Component {...props} />;
-  };
+  }
+
+  AdminAuthWrapper.getLayout = Component.getLayout;
+  AdminAuthWrapper.displayName = `withAdminAuth(${Component.displayName || Component.name || 'Component'})`;
+
+  return AdminAuthWrapper;
 }

@@ -51,7 +51,7 @@ function AdminDashboard() {
         setOrders(ordersList);
         
         const totalRevenue = ordersList.reduce((sum, o) => sum + (o.total || o.totalGHS || 0), 0);
-        const totalSold = orders.reduce((sum, o) => 
+        const totalSold = ordersList.reduce((sum, o) => 
           sum + (o.items || []).reduce((s, i) => s + (i.quantity || 1), 0), 0
         );
         const delivered = ordersList.filter(o => 
