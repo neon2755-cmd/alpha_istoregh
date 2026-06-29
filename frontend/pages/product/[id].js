@@ -307,16 +307,24 @@ function ProductDetailPage() {
                         aria-label={typeof v.color === 'object' ? v.color?.name : v.color}
                         aria-pressed={active}
                         title={typeof v.color === 'object' ? v.color?.name : v.color}
-                         className={`h-10 w-10 rounded-full border transition-all ${
-                           active
-                             ? 'ring-2 ring-primary ring-offset-2 border-white'
-                             : 'border-ink-subtle/30 hover:border-ink-subtle'
-                         }`}
-                         style={{
-                           backgroundColor: v.colorHex || (typeof v.color === 'object' ? v.color?.hex : v.color) || '#ccc',
-                           boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.15), inset 0 -1px 2px rgba(0,0,0,0.10)',
-                         }}
-                      />
+                        style={{
+                          width: '48px', height: '48px',
+                          borderRadius: '50%',
+                          background: v.colorHex || (typeof v.color === 'object' ? v.color?.hex : v.color) || '#ccc',
+                          border: active ? '3px solid #006989' : '3px solid #e2e8f0',
+                          boxShadow: active ? '0 0 0 3px rgba(0,105,137,0.25)' : 'none',
+                          cursor: 'pointer',
+                          position: 'relative',
+                          transition: 'all 0.2s',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}
+                      >
+                        {active && (
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        )}
+                      </button>
                     );
                   })}
                 </div>

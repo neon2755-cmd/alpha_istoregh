@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import { useStore } from '../../store';
 import { authAPI } from '../../lib/api';
+import PasswordInput from '../../components/ui/PasswordInput';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -45,7 +46,7 @@ export default function LoginPage() {
             </div>
             <div style={{ marginBottom: '8px' }}>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '5px' }}>Password</label>
-              <input type="password" required value={password} onChange={e => setPassword(e.target.value)} placeholder="Your password"
+              <PasswordInput value={password} onChange={e => setPassword(e.target.value)} placeholder="Your password"
                 style={{ width: '100%', height: '44px', padding: '0 14px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
             </div>
             <div style={{ textAlign: 'right', marginBottom: '20px' }}>

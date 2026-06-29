@@ -6,6 +6,7 @@ import AdminLayout from '../../components/portal/AdminLayout';
 import withAdminAuth from '../../components/portal/withAdminAuth';
 import { settingsAPI, uploadAPI, authAPI } from '../../lib/api';
 import toast from 'react-hot-toast';
+import PasswordInput from '../../components/ui/PasswordInput';
 
 const inputClass =
   'w-full h-11 px-4 text-sm bg-surface-muted border border-transparent rounded-xl text-ink placeholder:text-ink-subtle focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all';
@@ -530,11 +531,11 @@ function AdminSettings() {
                   </div>
                   <div>
                     <label className={labelClass}>New Password</label>
-                    <input type="password" value={credForm.newPassword} onChange={(e) => setCredForm(f => ({ ...f, newPassword: e.target.value }))} className={inputClass} placeholder="Min 6 characters" />
+                    <PasswordInput value={credForm.newPassword} onChange={(e) => setCredForm(f => ({ ...f, newPassword: e.target.value }))} className={inputClass} placeholder="Min 6 characters" />
                   </div>
                   <div>
                     <label className={labelClass}>Confirm Password</label>
-                    <input type="password" value={credForm.confirmPassword} onChange={(e) => setCredForm(f => ({ ...f, confirmPassword: e.target.value }))} className={inputClass} placeholder="Re-enter password" />
+                    <PasswordInput value={credForm.confirmPassword} onChange={(e) => setCredForm(f => ({ ...f, confirmPassword: e.target.value }))} className={inputClass} placeholder="Re-enter password" />
                   </div>
                   <button type="submit" disabled={credSaving} className="w-full h-10 rounded-xl bg-surface-muted text-ink font-bold hover:bg-surface-border transition-colors disabled:opacity-60">
                     {credSaving ? 'Updating...' : 'Update Credentials'}

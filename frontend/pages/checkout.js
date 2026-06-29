@@ -32,12 +32,12 @@ const DELIVERY_REGIONS = [
   { region: 'Pickup (Accra)', fee: 0 },
 ];
 
-const PAYMENT_METHODS = [
-  { value: 'mtn_momo', label: 'MTN MoMo', Icon: Smartphone },
-  { value: 'telecel', label: 'Telecel Cash', Icon: Smartphone },
-  { value: 'airteltigo', label: 'AirtelTigo Money', Icon: Smartphone },
-  { value: 'card', label: 'Debit / Credit Card', Icon: CreditCard },
-  { value: 'pay_on_delivery', label: 'Pay on Delivery', Icon: Banknote },
+const PAYMENT_OPTIONS = [
+  { id: 'mtn_momo', label: 'MTN Mobile Money', color: '#FFC107', icon: '📱' },
+  { id: 'telecel', label: 'Telecel Cash', color: '#E53935', icon: '📱' },
+  { id: 'airteltigo', label: 'AirtelTigo Money', color: '#FF5722', icon: '📱' },
+  { id: 'card', label: 'Credit/Debit Card', color: '#1976D2', icon: '💳' },
+  { id: 'pay_on_delivery', label: 'Pay on Delivery', color: '#388E3C', icon: '🚚' },
 ];
 
 const inputClass =
@@ -299,26 +299,23 @@ export default function Checkout() {
                   Payment method
                 </h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {PAYMENT_METHODS.map(({ value, label, Icon }) => {
-                  const active = payment === value;
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setPayment(value)}
-                      aria-pressed={active}
-                      className={`flex items-center gap-3 h-12 px-4 rounded-2xl border text-sm font-semibold text-left transition-all ${
-                        active
-                          ? 'border-primary bg-primary/5 text-primary shadow-ring'
-                          : 'border-surface-border bg-surface-muted text-ink-muted hover:border-primary hover:text-primary hover:bg-white'
-                      }`}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      {label}
-                    </button>
-                  );
-                })}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px' }}>
+                {PAYMENT_OPTIONS.map(method => (
+                  <label key={method.id} style={{
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '12px', borderRadius: '12px', cursor: 'pointer',
+                    border: payment === method.id ? '2px solid #006989' : '2px solid #e2e8f0',
+                    background: payment === method.id ? '#f0f9ff' : '#fff',
+                    transition: 'all 0.15s',
+                  }}>
+                    <input type="radio" name="payment" value={method.id}
+                      checked={payment === method.id}
+                      onChange={() => setPayment(method.id)}
+                      style={{ display: 'none' }} />
+                    <span style={{ fontSize: '20px' }}>{method.icon}</span>
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{method.label}</span>
+                  </label>
+                ))}
               </div>
             </section>
           </div>

@@ -7,7 +7,6 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import WhatsAppFloat from '../components/ui/WhatsAppFloat';
 import CartDrawer from '../components/cart/CartDrawer';
-import BackToTop from '../components/ui/BackToTop';
 import { useStore } from '../store';
 import siteConfig from '../config';
 import { settingsAPI } from '../lib/api';
@@ -48,38 +47,43 @@ function MyApp({ Component, pageProps }) {
     }).catch(() => {});
   }, []);
 
-  const getLayout = Component.getLayout || ((page) => page);
+  const getLayout = Component.getLayout;
 
+  // If page has its own layout (admin pages), use it directly
+  if (getLayout) {
+    return (
+      <>
+        <Head>
+          <title>Admin — Alpha iStore</title>
+          <meta name="viewport" content="width=device-width,initial-scale=1" />
+          <link rel="icon" type="image/svg+xml" href={favicon} />
+        </Head>
+        {getLayout(<Component {...pageProps} />)}
+        <Toaster position="top-right" toastOptions={{ duration: 3000, style: { background: '#0F172A', color: '#fff', borderRadius: '12px', padding: '12px 16px', fontSize: '14px', fontWeight: 500 }, success: { iconTheme: { primary: '#006989', secondary: '#fff' } }, error: { iconTheme: { primary: '#EF4444', secondary: '#fff' } } }} />
+      </>
+    );
+  }
+
+  // Regular pages get Header/Footer
   return (
     <>
       <Head>
-        <title>{siteConfig.name}</title>
+        <title>Alpha iStore</title>
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="icon" type="image/svg+xml" href={favicon} />
       </Head>
       <ErrorBoundary>
-        {getLayout(
-          <>
-            <Header />
-            <CartDrawer isOpen={isCartOpen} onClose={() => setCartOpen(false)} />
-            <WhatsAppFloat />
-            <BackToTop />
-            <main style={{ minHeight: '100vh' }}>
-              <Component {...pageProps} />
-            </main>
-            <Footer />
-          </>
-        )}
+        <>
+          <Header />
+          <CartDrawer isOpen={isCartOpen} onClose={() => setCartOpen(false)} />
+          <WhatsAppFloat />
+          <main style={{ minHeight: '100vh' }}>
+            <Component {...pageProps} />
+          </main>
+          <Footer />
+        </>
       </ErrorBoundary>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-          style: { background: '#0F172A', color: '#fff', borderRadius: '12px', padding: '12px 16px', fontSize: '14px', fontWeight: 500 },
-          success: { iconTheme: { primary: '#006989', secondary: '#fff' } },
-          error: { iconTheme: { primary: '#EF4444', secondary: '#fff' } },
-        }}
-      />
+      <Toaster position="top-right" toastOptions={{ duration: 3000, style: { background: '#0F172A', color: '#fff', borderRadius: '12px', padding: '12px 16px', fontSize: '14px', fontWeight: 500 }, success: { iconTheme: { primary: '#006989', secondary: '#fff' } }, error: { iconTheme: { primary: '#EF4444', secondary: '#fff' } } }} />
     </>
   );
 }

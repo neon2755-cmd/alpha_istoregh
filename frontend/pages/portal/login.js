@@ -7,6 +7,7 @@ import AdminLayout from '../../components/portal/AdminLayout';
 import siteConfig from '../../config';
 import { useAdminAuthStore } from '../../store/adminAuth';
 import toast from 'react-hot-toast';
+import PasswordInput from '../../components/ui/PasswordInput';
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -94,8 +95,7 @@ export default function AdminLogin() {
               <label className="block text-xs font-bold uppercase tracking-wider text-ink-subtle mb-2">Password</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-ink-muted" />
-                <input
-                  type="password"
+                <PasswordInput
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full h-12 pl-12 pr-4 rounded-xl bg-surface-muted border border-transparent text-ink placeholder:text-ink-subtle focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all"

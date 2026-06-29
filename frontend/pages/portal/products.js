@@ -519,27 +519,24 @@ function AdminProducts() {
                 {form.variants.length > 0 && (
                   <div className="space-y-2">
                     {form.variants.map((v, idx) => (
-                      <div key={idx} className="flex items-center justify-between bg-surface-muted rounded-xl px-4 py-2.5 text-sm">
-                        <div className="flex items-center gap-3">
-                          {v.color?.hex && (
-                            <span
-                              className="h-5 w-5 rounded-full shrink-0"
-                              style={{
-                                backgroundColor: v.color.hex,
-                                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.15), inset 0 -1px 2px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.12)',
-                                border: '1px solid rgba(0,0,0,0.12)',
-                              }}
-                            />
-                          )}
-                          <span className="font-medium text-ink">{v.color?.name || 'No color'} — {v.storage || 'No storage'}</span>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <span className="text-ink-muted">{formatPrice(v.price)}</span>
-                          <span className="text-ink-subtle text-xs">Stock: {v.stock}</span>
-                          <button type="button" onClick={() => removeVariant(idx)} className="text-red-400 hover:text-red-600 transition-colors">
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '8px' }}>
+                        {v.color?.hex && <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: v.color.hex, border: '2px solid #e2e8f0', flexShrink: 0 }} />}
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', flex: 1 }}>{v.color?.name || 'No color'} — {v.storage || 'No storage'} — GHS {v.price}</span>
+                        <label style={{ fontSize: '12px', color: '#64748b' }}>Stock:</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={v.stock || 0}
+                          onChange={e => {
+                            const updated = [...form.variants];
+                            updated[idx] = { ...updated[idx], stock: Number(e.target.value) };
+                            setField('variants', updated);
+                          }}
+                          style={{ width: '70px', height: '32px', padding: '0 8px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', textAlign: 'center' }}
+                        />
+                        <button type="button" onClick={() => removeVariant(idx)} style={{ background: '#fef2f2', border: 'none', borderRadius: '8px', padding: '6px', cursor: 'pointer', color: '#ef4444' }}>
+                          ✕
+                        </button>
                       </div>
                     ))}
                   </div>

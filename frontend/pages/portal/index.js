@@ -14,16 +14,6 @@ import AdminLayout from '../../components/portal/AdminLayout';
 import withAdminAuth from '../../components/portal/withAdminAuth';
 import { formatPrice } from '../../lib/utils';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
-import { Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
 
 const cards = [
   { label: 'Orders', valueKey: 'totalOrders', Icon: ShoppingCart, bg: 'bg-blue-50', text: 'text-blue-600' },
@@ -33,10 +23,11 @@ const cards = [
   { label: 'Total Products', valueKey: 'totalProducts', Icon: Package, bg: 'bg-teal-50', text: 'text-teal-600' },
 ];
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+const STATUS_OPTIONS = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
 
 function AdminDashboard() {
   const [stats, setStats] = useState(null);
+  const [orders, setOrders] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ordersLoading, setOrdersLoading] = useState(true);
@@ -55,19 +46,20 @@ function AdminDashboard() {
         const ordersData = await ordersRes.json();
         const productsData = await productsRes.json();
         
-        const orders = ordersData.orders || [];
+        const ordersList = ordersData.orders || [];
         const products = productsData.products || [];
+        setOrders(ordersList);
         
-        const totalRevenue = orders.reduce((sum, o) => sum + (o.total || o.totalGHS || 0), 0);
+        const totalRevenue = ordersList.reduce((sum, o) => sum + (o.total || o.totalGHS || 0), 0);
         const totalSold = orders.reduce((sum, o) => 
           sum + (o.items || []).reduce((s, i) => s + (i.quantity || 1), 0), 0
         );
-        const delivered = orders.filter(o => 
+        const delivered = ordersList.filter(o => 
           o.status === 'delivered' || o.deliveryStatus === 'delivered'
         ).length;
         
         setStats({
-          totalOrders: orders.length,
+          totalOrders: ordersList.length,
           totalProducts: products.length,
           totalSold,
           delivered,
@@ -100,6 +92,26 @@ function AdminDashboard() {
     return () => { cancelled = true };
   }, []);
 
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return d.toLocaleDateString('en-GB');
+  });
+
+  const revenueByDay = last7Days.map(day => ({
+    label: day,
+    value: orders.filter(o => new Date(o.createdAt).toLocaleDateString('en-GB') === day)
+      .reduce((s, o) => s + (o.total || o.totalGHS || 0), 0),
+  }));
+
+  const statusCounts = STATUS_OPTIONS.reduce((acc, s) => {
+    acc[s] = orders.filter(o => o.status === s).length;
+    return acc;
+  }, {});
+
+  const maxRevenue = Math.max(...revenueByDay.map(d => d.value), 1);
+  const totalStatus = Object.values(statusCounts).reduce((s, v) => s + v, 0) || 1;
+
   return (
     <>
       <Head>
@@ -131,6 +143,62 @@ function AdminDashboard() {
               )}
             </div>
           ))}
+        </div>
+
+        <div className="mt-6 lg:mt-8 grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+          <section className="rounded-2xl border border-surface-border bg-white p-5 lg:p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="text-base lg:text-lg font-bold tracking-tight text-ink">Revenue over last 7 days</h2>
+                <p className="text-sm text-ink-subtle">Daily sales performance</p>
+              </div>
+              <div className="rounded-full bg-primary/10 p-2 text-primary">
+                <BarChart3 className="h-4 w-4" />
+              </div>
+            </div>
+            <div className="flex items-end gap-2 h-56 pt-4">
+              {revenueByDay.map(item => (
+                <div key={item.label} className="flex-1 flex flex-col items-center gap-2 min-w-0">
+                  <div className="w-full flex items-end justify-center" style={{ height: '180px' }}>
+                    <div
+                      title={`${item.label}: GHS ${item.value.toFixed(2)}`}
+                      style={{ width: '100%', maxWidth: '34px', height: `${Math.max((item.value / maxRevenue) * 160, 6)}px`, background: 'linear-gradient(180deg, #006989, #0891b2)', borderRadius: '8px 8px 0 0' }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-ink-subtle text-center leading-tight">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-surface-border bg-white p-5 lg:p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="text-base lg:text-lg font-bold tracking-tight text-ink">Orders by status</h2>
+                <p className="text-sm text-ink-subtle">Current order distribution</p>
+              </div>
+              <div className="rounded-full bg-amber-50 p-2 text-amber-600">
+                <ShoppingCart className="h-4 w-4" />
+              </div>
+            </div>
+            <div className="space-y-3">
+              {STATUS_OPTIONS.map(status => {
+                const count = statusCounts[status] || 0;
+                const width = Math.max((count / totalStatus) * 100, 4);
+                return (
+                  <div key={status}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-semibold capitalize text-ink">{status}</span>
+                      <span className="text-sm font-bold text-ink-muted">{count}</span>
+                    </div>
+                    <div className="h-2.5 rounded-full bg-surface-muted overflow-hidden">
+                      <div style={{ width: `${width}%`, height: '100%', borderRadius: '999px', background: status === 'delivered' ? '#16a34a' : status === 'cancelled' ? '#ef4444' : status === 'shipped' ? '#006989' : '#f59e0b' }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
         </div>
 
         <div className="mt-6 lg:mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">

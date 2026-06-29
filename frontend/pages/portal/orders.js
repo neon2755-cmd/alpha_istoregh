@@ -113,11 +113,17 @@ function AdminOrders() {
                         {new Date(order.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="font-medium text-ink">
-                          {order.user ? `${order.user.firstName} ${order.user.lastName}` : (order.guestInfo?.firstName ? `${order.guestInfo.firstName} ${order.guestInfo.lastName}` : 'Guest')}
+                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                          {order.customer?.name || order.user?.firstName + ' ' + order.user?.lastName || order.guestInfo?.firstName + ' ' + order.guestInfo?.lastName || 'Guest'}
                         </div>
-                        <div className="text-xs text-ink-subtle">
-                          {order.user?.email || order.guestInfo?.email}
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>
+                          {order.customer?.email || order.user?.email || order.guestInfo?.email || ''}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>
+                          {order.customer?.phone || order.user?.phone || order.guestInfo?.phone || ''}
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                          {order.deliveryAddress || order.delivery?.address || ''}
                         </div>
                       </td>
                       <td className="px-6 py-4 font-semibold text-ink">

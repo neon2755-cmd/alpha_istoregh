@@ -10,12 +10,14 @@ import {
   X,
   LogOut,
   Store,
+  BarChart2,
 } from 'lucide-react';
 
 const NAV = [
   { href: '/portal', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/portal/products', label: 'Products', icon: Package },
   { href: '/portal/orders', label: 'Orders', icon: ShoppingBag },
+  { href: '/portal/reports', label: 'Reports', icon: BarChart2 },
   { href: '/portal/settings', label: 'Settings', icon: Settings },
 ];
 
