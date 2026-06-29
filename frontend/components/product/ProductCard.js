@@ -14,6 +14,7 @@ export default function ProductCard({ product }) {
   const comparePrice = product.comparePrice;
   const hasDiscount = comparePrice && comparePrice > price;
   const discountPct = hasDiscount ? Math.round(((comparePrice - price) / comparePrice) * 100) : 0;
+  const totalStock = product.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) ?? 0;
 
   const handleWishlist = (e) => {
     e.stopPropagation();
@@ -57,6 +58,11 @@ export default function ProductCard({ product }) {
           <button onClick={handleAddToCart} style={{ background: '#006989', color: '#fff', border: 'none', borderRadius: '10px', padding: '10px 14px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap', width: '100%' }}>
             <ShoppingCart size={14} /> Add to cart
           </button>
+          {product.variants?.length > 0 && (
+            <p style={{ fontSize: '10px', color: totalStock > 0 ? '#16a34a' : '#ef4444', fontWeight: 600, margin: '2px 0 0' }}>
+              {totalStock > 0 ? `${totalStock} in stock` : 'Out of stock'}
+            </p>
+          )}
         </div>
       </div>
     </div>

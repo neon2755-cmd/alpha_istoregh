@@ -45,6 +45,7 @@ export default function AdminLogin() {
       }
 
       login({ email: data.user.email, name: 'Administrator', token: data.token });
+      localStorage.setItem('authToken', data.token);
       toast.success('Welcome back, Admin!');
       router.push('/portal');
     } catch (err) {

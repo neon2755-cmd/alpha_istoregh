@@ -37,12 +37,23 @@ function HomePage() {
   const { featuredProducts, hotDeals, loading, error } = useProducts();
   const [settings, setSettings] = useState(null);
   const [heroLoaded, setHeroLoaded] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     settingsAPI.get().then(res => {
       if (res.success) setSettings(res.settings);
     }).catch(console.error);
   }, []);
+
+  const heroImages = settings?.heroImages || (settings?.hero?.image?.url ? [settings.hero.image] : []);
+
+  useEffect(() => {
+    if (heroImages.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % heroImages.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [heroImages.length]);
 
   // Mocking extra product arrays for "Latest Arrivals" and "Best Sellers" since they aren't provided by the hook directly
   const latestArrivals = featuredProducts ? [...featuredProducts].reverse() : [];
@@ -67,10 +78,10 @@ function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="z-10">
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-ink leading-tight mb-6 whitespace-pre-line">
-                {heroTitle}
+                {settings?.hero?.title || "The Perfect iPhone\nfor Every Lifestyle"}
               </h1>
               <p className="text-lg text-ink-muted leading-relaxed max-w-lg mb-10">
-                {heroSubtitle}
+                {settings?.hero?.subtitle || "Discover the latest iPhone 17 Pro Max with premium features, stunning displays, and unmatched performance. Shop now for exclusive deals."}
               </p>
               <div className="flex flex-wrap items-center gap-4">
                 <Link
@@ -91,20 +102,27 @@ function HomePage() {
               </div>
             </div>
             <div className="relative flex justify-center items-center z-0 md:h-[450px] h-[300px]">
-              <div className="relative w-full h-full max-w-md animate-float">
-                {!settings ? (
-                  <SkeletonLoader width="100%" height="100%" className="rounded-3xl" />
+              <div className="relative w-full h-full max-w-md">
+                {heroImages.length > 0 ? (
+                  heroImages.map((img, i) => (
+                    <div key={i} style={{ position: 'absolute', inset: 0, display: i === currentSlide ? 'block' : 'none', transition: 'opacity 0.5s' }}>
+                      <img
+                        src={typeof img === 'string' ? img : img.url}
+                        alt={`Hero slide ${i + 1}`}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#f8fafc', borderRadius: '1rem' }}
+                      />
+                    </div>
+                  ))
                 ) : (
-                  <Image
-                    src={heroImage}
-                    alt={heroTitle}
-                    fill
-                    priority
-                    loading="eager"
-                    fetchPriority="high"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-contain drop-shadow-2xl bg-surface-muted/20"
-                  />
+                  <SkeletonLoader width="100%" height="100%" className="rounded-3xl" />
+                )}
+                {heroImages.length > 1 && (
+                  <div style={{ position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px' }}>
+                    {heroImages.map((_, i) => (
+                      <button key={i} onClick={() => setCurrentSlide(i)}
+                        style={{ width: i === currentSlide ? '24px' : '8px', height: '8px', borderRadius: '999px', background: i === currentSlide ? '#006989' : 'rgba(255,255,255,0.6)', border: 'none', cursor: 'pointer', transition: 'all 0.3s' }} />
+                    ))}
+                  </div>
                 )}
               </div>
             </div>

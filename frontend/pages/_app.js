@@ -7,6 +7,7 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import WhatsAppFloat from '../components/ui/WhatsAppFloat';
 import CartDrawer from '../components/cart/CartDrawer';
+import BackToTop from '../components/ui/BackToTop';
 import { useStore } from '../store';
 import siteConfig from '../config';
 import { settingsAPI } from '../lib/api';
@@ -62,6 +63,7 @@ function MyApp({ Component, pageProps }) {
             <Header />
             <CartDrawer isOpen={isCartOpen} onClose={() => setCartOpen(false)} />
             <WhatsAppFloat />
+            <BackToTop />
             <main style={{ minHeight: '100vh' }}>
               <Component {...pageProps} />
             </main>

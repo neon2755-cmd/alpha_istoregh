@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import {
   Package,
   ShoppingCart,
@@ -11,10 +12,8 @@ import {
 } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
 import withAdminAuth from '../../components/portal/withAdminAuth';
-import { ordersAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
-import Link from 'next/link';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -27,10 +26,11 @@ import {
 } from 'chart.js';
 
 const cards = [
-  { label: 'Orders', valueKey: 'orders', Icon: ShoppingCart, bg: 'bg-blue-50', text: 'text-blue-600' },
-  { label: 'Revenue', valueKey: 'revenue', Icon: Wallet, isPrice: true, bg: 'bg-green-50', text: 'text-green-600' },
-  { label: 'Products sold', valueKey: 'productsSold', Icon: Package, bg: 'bg-purple-50', text: 'text-purple-600' },
+  { label: 'Orders', valueKey: 'totalOrders', Icon: ShoppingCart, bg: 'bg-blue-50', text: 'text-blue-600' },
+  { label: 'Revenue', valueKey: 'totalRevenue', Icon: Wallet, isPrice: true, bg: 'bg-green-50', text: 'text-green-600' },
+  { label: 'Products sold', valueKey: 'totalSold', Icon: Package, bg: 'bg-purple-50', text: 'text-purple-600' },
   { label: 'Delivered', valueKey: 'delivered', Icon: CheckCircle2, bg: 'bg-orange-50', text: 'text-orange-600' },
+  { label: 'Total Products', valueKey: 'totalProducts', Icon: Package, bg: 'bg-teal-50', text: 'text-teal-600' },
 ];
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -42,26 +42,55 @@ function AdminDashboard() {
   const [ordersLoading, setOrdersLoading] = useState(true);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
+    const fetchStats = async () => {
       try {
-        const res = await ordersAPI.getStats();
-        if (!cancelled) setStats(res.data?.stats || res.stats || {});
-      } catch {
-        if (!cancelled) setStats({});
+        const token = localStorage.getItem('authToken');
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        const [ordersRes, productsRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/orders?limit=1000`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/products?limit=1000`, { headers }),
+        ]);
+        
+        const ordersData = await ordersRes.json();
+        const productsData = await productsRes.json();
+        
+        const orders = ordersData.orders || [];
+        const products = productsData.products || [];
+        
+        const totalRevenue = orders.reduce((sum, o) => sum + (o.total || o.totalGHS || 0), 0);
+        const totalSold = orders.reduce((sum, o) => 
+          sum + (o.items || []).reduce((s, i) => s + (i.quantity || 1), 0), 0
+        );
+        const delivered = orders.filter(o => 
+          o.status === 'delivered' || o.deliveryStatus === 'delivered'
+        ).length;
+        
+        setStats({
+          totalOrders: orders.length,
+          totalProducts: products.length,
+          totalSold,
+          delivered,
+          totalRevenue,
+        });
+      } catch (err) {
+        console.error('Stats fetch error:', err);
       } finally {
-        if (!cancelled) setLoading(false);
+        setLoading(false);
       }
-    })();
-    return () => { cancelled = true };
+    };
+    fetchStats();
   }, []);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await ordersAPI.getAll({ limit: 5 });
-        if (!cancelled) setRecentOrders(res.orders || []);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/orders?limit=5`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+        });
+        const data = await res.json();
+        if (!cancelled) setRecentOrders(data.orders || []);
       } catch {
         if (!cancelled) setRecentOrders([]);
       } finally {
@@ -242,5 +271,7 @@ function AdminDashboard() {
     </>
   );
 }
+
+AdminDashboard.getLayout = (page) => page;
 
 export default withAdminAuth(AdminDashboard);

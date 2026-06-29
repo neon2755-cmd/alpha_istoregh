@@ -152,10 +152,19 @@ export default function Checkout() {
         discount: discount || 0,
       };
       console.log('Checkout payload:', payload);
-      const res = await ordersAPI.create(payload);
-      console.log('Checkout response:', res);
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (!data.success) throw new Error(data.message || 'Failed to place order');
       clearCart();
-      const orderNumber = res?.order?.orderNumber || res?.data?.order?.orderNumber;
+      const orderNumber = data?.order?.orderNumber || data?.data?.order?.orderNumber;
       if (!orderNumber) {
         throw new Error('Order created but order number was missing');
       }

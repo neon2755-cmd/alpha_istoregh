@@ -612,3 +612,5 @@ function AdminProducts() {
 }
 
 export default withAdminAuth(AdminProducts);
+
+AdminProducts.getLayout = (page) => page;

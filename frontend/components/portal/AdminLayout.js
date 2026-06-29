@@ -3,105 +3,34 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
   LayoutDashboard,
-  Smartphone,
-  ClipboardList,
+  Package,
+  ShoppingBag,
   Settings,
-  Store,
   Menu,
   X,
-  Mail,
   LogOut,
-  ShieldCheck,
+  Store,
 } from 'lucide-react';
-import { useAdminAuthStore } from '../../store/adminAuth';
 
-const adminNavItems = [
-  { href: '/portal', label: 'Dashboard', Icon: LayoutDashboard, exact: true },
-  { href: '/portal/products', label: 'Products', Icon: Smartphone },
-  { href: '/portal/orders', label: 'Orders', Icon: ClipboardList },
-  { href: '/portal/messages', label: 'Messages', Icon: Mail },
-  { href: '/portal/settings', label: 'Settings', Icon: Settings },
+const NAV = [
+  { href: '/portal', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/portal/products', label: 'Products', icon: Package },
+  { href: '/portal/orders', label: 'Orders', icon: ShoppingBag },
+  { href: '/portal/settings', label: 'Settings', icon: Settings },
 ];
 
-const AdminLayout = ({ children, title, subtitle, hideSidebar = false }) => {
+export default function AdminLayout({ children, title, subtitle, hideSidebar = false }) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const isAuthenticated = useAdminAuthStore((s) => s.isAuthenticated);
-  const logout = useAdminAuthStore((s) => s.logout);
 
-  const handleLogout = () => {
-    logout();
-    router.push('/portal/login');
-  };
-
-  const isActive = (item) =>
-    item.exact
-      ? router.pathname === item.href
-      : router.pathname === item.href ||
-        router.pathname.startsWith(`${item.href}/`);
-
-  const NavContent = () => (
-    <>
-      <div className="h-16 flex items-center gap-3 px-6 border-b border-surface-border">
-        <span className="text-xl font-bold tracking-tight text-ink">
-          Alpha iStore
-        </span>
-        <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-          Admin
-        </span>
-      </div>
-      <nav className="flex-1 px-4 py-6 overflow-y-auto">
-        <ul className="space-y-2">
-          {adminNavItems.map(({ href, label, Icon }) => {
-            const active = isActive({ href, exact: href === '/portal' });
-            return (
-              <li key={href}>
-                <Link
-                  href={href}
-                  aria-current={active ? 'page' : undefined}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 h-12 px-4 rounded-xl text-sm font-semibold transition-all ${
-                    active
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'text-ink-muted hover:bg-surface-muted hover:text-ink'
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                  {label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-      <div className="p-4 border-t border-surface-border">
-        <button
-          onClick={handleLogout}
-          className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-100 transition-colors w-full"
-        >
-          <LogOut className="h-4 w-4" />
-          Sign Out
-        </button>
-        <Link
-          href="/"
-          onClick={() => setSidebarOpen(false)}
-          className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl bg-surface-muted text-ink text-sm font-semibold hover:bg-surface-border transition-colors mt-2"
-        >
-          <Store className="h-4 w-4" />
-          Back to Store
-        </Link>
-      </div>
-    </>
-  );
-
-  if (!isAuthenticated || hideSidebar) {
+  if (hideSidebar) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-7xl">
+      <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: 'Inter, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+        <div style={{ width: '100%', maxWidth: '1200px' }}>
           {title && (
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold tracking-tight text-ink">{title}</h1>
-              {subtitle && <p className="text-sm text-ink-muted mt-1">{subtitle}</p>}
+            <div style={{ marginBottom: '24px' }}>
+              <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: 0 }}>{title}</h1>
+              {subtitle && <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>{subtitle}</p>}
             </div>
           )}
           {children}
@@ -111,75 +40,85 @@ const AdminLayout = ({ children, title, subtitle, hideSidebar = false }) => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-surface-border h-14 flex items-center justify-between px-4">
-        <button
-          type="button"
-          onClick={() => setSidebarOpen(true)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-ink hover:bg-surface-muted"
-          aria-label="Open menu"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-        <span className="text-base font-bold text-ink">Admin Panel</span>
-        <div className="flex items-center gap-2">
-          <Link href="/portal/orders" className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink hover:bg-surface-muted" aria-label="Orders">
-            <ClipboardList className="h-5 w-5" />
-          </Link>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 hover:bg-red-50"
-            aria-label="Sign out"
-          >
-            <LogOut className="h-5 w-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
-        <div
-          className="lg:hidden fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc', fontFamily: 'Inter, sans-serif' }}>
+      
       {/* Sidebar */}
-      <aside className={`
-        fixed lg:sticky top-0 left-0 z-50 lg:z-10
-        h-screen
-        w-72 bg-white lg:rounded-r-3xl lg:border-r lg:border-surface-border lg:shadow-smooth
-        transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        flex flex-col
-      `}>
-        {/* Mobile close button */}
-        <div className="lg:hidden flex items-center justify-between px-6 py-4 border-b border-surface-border">
-          <span className="text-lg font-bold text-ink">Menu</span>
-          <button
-            type="button"
-            onClick={() => setSidebarOpen(false)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink-muted hover:bg-surface-muted"
-            aria-label="Close menu"
-          >
-            <X className="h-5 w-5" />
-          </button>
+      <aside style={{
+        width: '240px', background: '#0f172a', color: '#fff',
+        display: 'flex', flexDirection: 'column',
+        position: 'fixed', top: 0, left: sidebarOpen ? 0 : '-240px',
+        height: '100vh', zIndex: 50, transition: 'left 0.25s',
+      }}
+        className="lg-sidebar"
+      >
+        <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '36px', height: '36px', background: '#006989', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Store size={20} color="#fff" />
+            </div>
+            <div>
+              <p style={{ fontWeight: 800, fontSize: '15px', margin: 0 }}>Alpha iStore</p>
+              <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>Admin Panel</p>
+            </div>
+          </div>
         </div>
-        <NavContent />
+        <nav style={{ flex: 1, padding: '16px 12px' }}>
+          {NAV.map(({ href, label, icon: Icon }) => {
+            const active = router.pathname === href;
+            return (
+              <Link key={href} href={href} style={{
+                display: 'flex', alignItems: 'center', gap: '12px',
+                padding: '10px 12px', borderRadius: '10px', marginBottom: '4px',
+                background: active ? '#006989' : 'transparent',
+                color: active ? '#fff' : '#94a3b8',
+                textDecoration: 'none', fontSize: '14px', fontWeight: 600,
+                transition: 'all 0.15s',
+              }}>
+                <Icon size={18} />
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
+        <div style={{ padding: '16px 12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#94a3b8', fontSize: '13px', textDecoration: 'none' }}>
+            <LogOut size={16} /> Back to Store
+          </Link>
+        </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 pt-14 lg:pt-0">
-        <main className="flex-1 p-4 lg:p-8">
-          <div className="max-w-7xl mx-auto">
-            {children}
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div onClick={() => setSidebarOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 40 }} />
+      )}
+
+      {/* Main content */}
+      <div style={{ flex: 1, marginLeft: '0', display: 'flex', flexDirection: 'column' }} className="admin-main">
+        {/* Top bar */}
+        <header style={{ background: '#fff', borderBottom: '1px solid #e2e8f0', padding: '0 24px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 30 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px' }}>
+              {sidebarOpen ? <X size={22} color="#0f172a" /> : <Menu size={22} color="#0f172a" />}
+            </button>
+            <div>
+              <h1 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>{title}</h1>
+              {subtitle && <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>{subtitle}</p>}
+            </div>
           </div>
+        </header>
+
+        <main style={{ flex: 1, padding: '24px', maxWidth: '1200px', width: '100%', margin: '0 auto' }}>
+          {children}
         </main>
       </div>
+
+      <style>{`
+        @media (min-width: 1024px) {
+          .lg-sidebar { left: 0 !important; }
+          .admin-main { margin-left: 240px !important; }
+        }
+      `}</style>
     </div>
   );
-};
-
-export default AdminLayout;
+}

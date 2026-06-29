@@ -24,8 +24,12 @@ function AdminOrders() {
 
   const fetchOrders = async () => {
     try {
-      const res = await ordersAPI.getAll();
-      setOrders(res.orders || res.data?.orders || []);
+      const token = localStorage.getItem('authToken');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/orders`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setOrders(data.orders || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -151,3 +155,5 @@ function AdminOrders() {
 }
 
 export default withAdminAuth(AdminOrders);
+
+AdminOrders.getLayout = (page) => page;

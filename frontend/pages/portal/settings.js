@@ -140,15 +140,28 @@ function AdminSettings() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (section) => {
     setSaving(true);
     try {
-      await settingsAPI.update(settings);
-      toast.success('Settings saved successfully!');
-    } catch (e) {
-      const msg = e?.response?.data?.message || e?.message || 'Failed to save settings.';
-      toast.error(msg);
-      console.error('Settings save error:', e);
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(settings),
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success('Settings saved!');
+        if (settings.storeName) localStorage.setItem('storeName', settings.storeName);
+        if (settings.logo?.url) localStorage.setItem('storeLogo', settings.logo.url);
+      } else {
+        toast.error(data.message || 'Failed to save');
+      }
+    } catch (err) {
+      toast.error('Failed to save settings');
     } finally {
       setSaving(false);
     }
@@ -596,3 +609,5 @@ function AdminSettings() {
 }
 
 export default withAdminAuth(AdminSettings);
+
+AdminSettings.getLayout = (page) => page;
