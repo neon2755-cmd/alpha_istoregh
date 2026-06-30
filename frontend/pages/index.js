@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   ShieldCheck,
   Truck,
   PackageCheck,
   HeadphonesIcon,
   ArrowRight,
-  ChevronRight,
-  ChevronLeft,
 } from 'lucide-react';
 import WhatsAppIcon from '../components/ui/WhatsAppIcon';
 import useProducts from '../hooks/useProducts';
@@ -37,8 +34,6 @@ const ProductCardSkeleton = () => (
 function HomePage() {
   const { featuredProducts, hotDeals, loading, error } = useProducts();
   const [settings, setSettings] = useState(null);
-  const [heroLoaded, setHeroLoaded] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     settingsAPI.get().then(res => {
@@ -46,17 +41,7 @@ function HomePage() {
     }).catch(console.error);
   }, []);
 
-  const heroImages = Array.isArray(settings?.heroImages) && settings.heroImages.length > 0
-    ? settings.heroImages.map(img => (typeof img === 'string' ? { url: img } : img))
-    : [{ url: settings?.hero?.image?.url || '/images/hero-phone.png' }];
-
-  useEffect(() => {
-    if (heroImages.length <= 1) return;
-    const timer = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % heroImages.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [heroImages.length]);
+  const heroImage = settings?.hero?.image?.url || '/images/hero-phone.png';
 
   // Mocking extra product arrays for "Latest Arrivals" and "Best Sellers" since they aren't provided by the hook directly
   const latestArrivals = featuredProducts ? [...featuredProducts].reverse() : [];
@@ -105,51 +90,12 @@ function HomePage() {
             </div>
             <div className="relative flex justify-center items-center z-0 md:h-[450px] h-[300px]">
               <div className="relative w-full h-full max-w-md">
-                {heroImages.length > 0 ? (
-                  heroImages.map((img, i) => (
-                    <div key={i} style={{ position: 'absolute', inset: 0, display: i === currentSlide ? 'block' : 'none', transition: 'opacity 0.5s' }}>
-                      <img
-                        src={typeof img === 'string' ? img : img.url}
-                        alt={`Hero slide ${i + 1}`}
-                        style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#f8fafc', borderRadius: '1rem' }}
-                      />
-                    </div>
-                  ))
-                ) : (
-                  <SkeletonLoader width="100%" height="100%" className="rounded-3xl" />
-                )}
-                
-                {heroImages.length > 1 && (
-                  <>
-                    {/* Previous Button */}
-                    <button
-                      onClick={() => setCurrentSlide(prev => (prev - 1 + heroImages.length) % heroImages.length)}
-                      className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 md:-translate-x-6 h-10 w-10 rounded-full bg-white shadow-md hover:shadow-lg hover:bg-surface-muted transition-all flex items-center justify-center text-ink z-10"
-                      aria-label="Previous slide"
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </button>
-
-                    {/* Next Button */}
-                    <button
-                      onClick={() => setCurrentSlide(prev => (prev + 1) % heroImages.length)}
-                      className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 md:translate-x-6 h-10 w-10 rounded-full bg-white shadow-md hover:shadow-lg hover:bg-surface-muted transition-all flex items-center justify-center text-ink z-10"
-                      aria-label="Next slide"
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </button>
-
-                    {/* Dots Navigation */}
-                    <div style={{ position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px' }}>
-                      {heroImages.map((_, i) => (
-                        <button key={i} onClick={() => setCurrentSlide(i)}
-                          style={{ width: i === currentSlide ? '24px' : '8px', height: '8px', borderRadius: '999px', background: i === currentSlide ? '#006989' : 'rgba(255,255,255,0.6)', border: 'none', cursor: 'pointer', transition: 'all 0.3s' }} 
-                          aria-label={`Go to slide ${i + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
+                <img
+                  src={heroImage}
+                  alt="Hero image"
+                  className="w-full h-full object-contain rounded-[1rem]"
+                  style={{ background: '#f8fafc' }}
+                />
               </div>
             </div>
           </div>
