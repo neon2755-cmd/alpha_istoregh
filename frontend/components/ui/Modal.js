@@ -20,6 +20,7 @@ export default function Modal({ onClose, title, children }) {
           </h2>
           <button
             type="button"
+            data-no-hover
             onClick={onClose}
             aria-label="Close"
             className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-ink-muted"

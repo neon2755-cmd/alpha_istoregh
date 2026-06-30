@@ -47,6 +47,7 @@ export default function CartDrawer({ isOpen, onClose }) {
             </h2>
             <button
               type="button"
+              data-no-hover
               onClick={onClose}
               aria-label="Close cart"
               className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink-muted"

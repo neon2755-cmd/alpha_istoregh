@@ -33,8 +33,8 @@ export default function SignupPage() {
       toast.error('Please enter a valid phone number');
       return;
     }
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+    if (password.length < 8) {
+      toast.error('Password must be at least 8 characters');
       return;
     }
 
@@ -86,7 +86,7 @@ export default function SignupPage() {
             </div>
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '5px' }}>Password</label>
-              <PasswordInput value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} placeholder="Min 6 characters"
+              <PasswordInput value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} placeholder="Min 8 characters"
                 style={{ width: '100%', height: '44px', padding: '0 14px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
             </div>
             <button type="submit" disabled={loading}

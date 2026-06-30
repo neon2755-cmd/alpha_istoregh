@@ -122,9 +122,9 @@ export default function OrderReceipt() {
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-ink mb-1">{storeName}</h1>
               <p className="text-xs font-semibold text-ink-subtle mb-3">INVOICE</p>
-              <p className="text-xs text-ink-muted">{contact.address || 'Adum P.Z, Kumasi, Ghana'}</p>
-              <p className="text-xs text-ink-muted">{contact.phone || '+233 575 453 086'}</p>
-              <p className="text-xs text-ink-muted">{contact.email || 'info@alphaistore.com'}</p>
+              {contact.address && <p className="text-xs text-ink-muted">{contact.address}</p>}
+              {contact.phone && <p className="text-xs text-ink-muted">{contact.phone}</p>}
+              {contact.email && <p className="text-xs text-ink-muted">{contact.email}</p>}
             </div>
           </div>
           <div className="text-right">
@@ -242,9 +242,11 @@ export default function OrderReceipt() {
                 {contact.whatsapp && <p>WhatsApp: {Array.isArray(contact.whatsapp) ? contact.whatsapp[0] : contact.whatsapp}</p>}
               </div>
 
-              <p className="text-center text-xs text-ink-muted border-t border-surface-border pt-4 mt-4">
-                {storeName} · {contact.address || 'Adum P.Z, Kumasi, Ghana'} · Generated on {date} at {time}
-              </p>
+                { (contact.address || contact.phone || contact.email) && (
+                  <p className="text-center text-xs text-ink-muted border-t border-surface-border pt-4 mt-4">
+                    {storeName} {contact.address ? `· ${contact.address}` : ''} {contact.phone ? `· ${contact.phone}` : ''} · Generated on {date} at {time}
+                  </p>
+                ) }
             </div>
 
             <div className="bg-surface-muted p-4 rounded-xl border border-surface-border text-center">

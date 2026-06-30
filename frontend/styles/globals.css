@@ -165,3 +165,9 @@ select:focus-visible {
 @media (min-width: 1024px) {
   .products-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
 }
+
+/* Helper to disable hover background on icon buttons when present */
+[data-no-hover]:hover {
+  background-color: transparent !important;
+  background-image: none !important;
+}

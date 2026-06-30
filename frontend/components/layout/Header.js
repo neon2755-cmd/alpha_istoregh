@@ -60,7 +60,7 @@ export default function Header() {
               <span className="text-xl font-bold tracking-tight text-ink">{storeName}</span>
             </Link>
             <div className="flex lg:hidden items-center gap-1">
-              <Link href="/wishlist" className="inline-flex h-9 w-9 items-center justify-center text-ink hover:text-primary">
+              <Link href="/wishlist" data-no-hover className="inline-flex h-9 w-9 items-center justify-center text-ink hover:text-primary">
                 <Heart className="h-5 w-5" />
               </Link>
               <button type="button" onClick={() => setCartOpen(true)} className="relative inline-flex h-9 w-9 items-center justify-center text-ink hover:text-primary" aria-label="Open cart">
@@ -71,7 +71,7 @@ export default function Header() {
                   </span>
                 )}
               </button>
-              <button type="button" onClick={() => setOpenMobile(!openMobile)} className="inline-flex h-9 w-9 items-center justify-center text-ink hover:text-primary" aria-label="Toggle menu">
+              <button type="button" onClick={() => setOpenMobile(!openMobile)} data-no-hover className="inline-flex h-9 w-9 items-center justify-center text-ink hover:text-primary" aria-label="Toggle menu">
                 <Menu className="h-5 w-5" />
               </button>
             </div>
@@ -103,7 +103,7 @@ export default function Header() {
             <div className="flex items-center gap-1">
               {user ? (
                 <div className="relative">
-                  <button onClick={() => setOpenUser(!openUser)} className="inline-flex h-9 items-center justify-center text-ink hover:text-primary" aria-expanded={openUser} aria-label="User menu">
+                  <button onClick={() => setOpenUser(!openUser)} data-no-hover className="inline-flex h-9 items-center justify-center text-ink hover:text-primary" aria-expanded={openUser} aria-label="User menu">
                     <User className="h-5 w-5" />
                   </button>
                   {openUser && (
@@ -133,11 +133,11 @@ export default function Header() {
                 </Link>
               )}
 
-              <Link href="/wishlist" className="relative inline-flex h-9 items-center justify-center text-ink hover:text-primary" aria-label="Wishlist">
+              <Link href="/wishlist" data-no-hover className="relative inline-flex h-9 items-center justify-center text-ink hover:text-primary" aria-label="Wishlist">
                 <Heart className="h-5 w-5" />
               </Link>
 
-              <button type="button" onClick={() => setCartOpen(true)} aria-label="Open cart" className="relative inline-flex h-9 items-center justify-center text-ink hover:text-primary">
+              <button type="button" data-no-hover onClick={() => setCartOpen(true)} aria-label="Open cart" className="relative inline-flex h-9 items-center justify-center text-ink hover:text-primary">
                 <ShoppingCart className="h-5 w-5" />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-2 min-w-[20px] h-[20px] px-1 inline-flex items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow-sm">

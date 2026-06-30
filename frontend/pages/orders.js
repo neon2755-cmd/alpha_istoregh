@@ -114,6 +114,11 @@ export default function Orders() {
                         {' · '}
                         {itemCount} {itemCount === 1 ? 'item' : 'items'}
                       </p>
+                      {order.items && order.items.length > 0 && (
+                        <p className="text-sm text-ink-muted mt-2 line-clamp-2">
+                          {(order.items || []).slice(0, 3).map(i => i.name).filter(Boolean).join(', ')}{order.items.length > 3 ? `, +${order.items.length - 3} more` : ''}
+                        </p>
+                      )}
                     </div>
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium capitalize ${statusClass}`}
