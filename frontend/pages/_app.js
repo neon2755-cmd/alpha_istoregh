@@ -42,11 +42,15 @@ function MyApp({ Component, pageProps, favicon: initialFavicon }) {
   const { isCartOpen, setCartOpen } = useStore();
   const [favicon, setFavicon] = useState(initialFavicon || '/favicon.svg');
 
+  const getFaviconUrl = (settings) => {
+    const fav = settings?.favicon;
+    if (!fav) return null;
+    return typeof fav === 'string' ? fav : fav?.url || null;
+  };
+
   useEffect(() => {
     settingsAPI.get().then(res => {
-      const fav = typeof res?.settings?.favicon === 'string'
-        ? res.settings.favicon
-        : res?.settings?.favicon?.url || null;
+      const fav = getFaviconUrl(res?.settings);
       if (fav) setFavicon(fav);
     }).catch(() => {});
   }, []);
@@ -117,7 +121,9 @@ MyApp.getInitialProps = async (appContext) => {
 
   try {
     const res = await settingsAPI.get();
-    const fav = res?.settings?.favicon?.url || res?.settings?.favicon || null;
+    const fav = typeof res?.settings?.favicon === 'string'
+      ? res.settings.favicon
+      : res?.settings?.favicon?.url || null;
     if (fav) initialFavicon = fav;
   } catch (error) {
     // Keep default favicon if API call fails during SSR

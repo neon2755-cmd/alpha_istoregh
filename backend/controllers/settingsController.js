@@ -24,8 +24,16 @@ const updateSettings = async (req, res) => {
       settings = await Settings.create(req.body);
     } else {
       if (req.body.storeName !== undefined) settings.storeName = req.body.storeName;
-      if (req.body.logo !== undefined) settings.logo = { ...(settings.logo || {}), ...req.body.logo };
-      if (req.body.favicon !== undefined) settings.favicon = { ...(settings.favicon || {}), ...req.body.favicon };
+      if (req.body.logo !== undefined) {
+        settings.logo = typeof req.body.logo === 'string'
+          ? { url: req.body.logo, public_id: '' }
+          : { ...(settings.logo || {}), ...req.body.logo };
+      }
+      if (req.body.favicon !== undefined) {
+        settings.favicon = typeof req.body.favicon === 'string'
+          ? { url: req.body.favicon, public_id: '' }
+          : { ...(settings.favicon || {}), ...req.body.favicon };
+      }
       if (req.body.hero !== undefined) settings.hero = { ...(settings.hero || {}), ...req.body.hero };
       if (req.body.contact !== undefined) settings.contact = { ...(settings.contact || {}), ...req.body.contact };
       if (req.body.social !== undefined) settings.social = { ...(settings.social || {}), ...req.body.social };
