@@ -67,9 +67,21 @@ function AdminOrders() {
   };
 
   const getCustomerName = (order) => {
+    // Try customer field first
+    if (order.customer?.firstName && order.customer?.lastName) {
+      return `${order.customer.firstName} ${order.customer.lastName}`;
+    }
+    if (order.customer?.firstName) return order.customer.firstName;
+    // Then try user reference
     const user = order.user || {};
+    if (user.firstName && user.lastName) return `${user.firstName} ${user.lastName}`;
+    if (user.firstName) return user.firstName;
+    // Then try guestInfo
     const guest = order.guestInfo || {};
-    return order.customer?.name || [user.firstName, user.lastName].filter(Boolean).join(' ') || [guest.firstName, guest.lastName].filter(Boolean).join(' ') || 'Guest';
+    if (guest.firstName && guest.lastName) return `${guest.firstName} ${guest.lastName}`;
+    if (guest.firstName) return guest.firstName;
+    if (guest.name) return guest.name;
+    return 'Guest';
   };
 
   const getCustomerEmail = (order) => order.customer?.email || order.user?.email || order.guestInfo?.email || '';

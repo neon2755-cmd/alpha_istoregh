@@ -184,6 +184,12 @@ export default function Checkout() {
     try {
       const isPickup = region?.region?.startsWith('Pickup');
       const deliveryAddress = isPickup ? region.region : address;
+      
+      // Split name into parts
+      const nameParts = fullName.split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ');
+      
       const payload = {
         items: safeCart.map((item) => ({
           product: item.id || item._id,
@@ -198,9 +204,13 @@ export default function Checkout() {
           notes: notes || undefined,
         },
         payment: { method: payment },
-        guestInfo: !user
-          ? { name: fullName, email, phone }
-          : undefined,
+        guestInfo: {
+          name: fullName,
+          firstName,
+          lastName,
+          email: user?.email || email,
+          phone,
+        },
         promoCode: promo || undefined,
         discount: discount || 0,
       };

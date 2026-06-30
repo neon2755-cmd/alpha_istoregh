@@ -50,9 +50,18 @@ exports.createOrder = async (req, res, next) => {
 
     const total = subtotal + (delivery?.fee || 0) - (discount || 0);
 
+    // Always save customer info from form (for both auth and guest users)
+    const nameParts = guestInfo?.name?.split(' ') || [req.user?.firstName || '', req.user?.lastName || ''];
+    const customerInfo = {
+      firstName: guestInfo?.firstName || nameParts[0] || req.user?.firstName || '',
+      lastName: guestInfo?.lastName || nameParts.slice(1).join(' ') || req.user?.lastName || '',
+      email: guestInfo?.email || req.user?.email || '',
+      phone: guestInfo?.phone || req.user?.phone || '',
+    };
+
     const order = await Order.create({
       user:     req.user?._id,
-      guestInfo: req.user ? undefined : guestInfo,
+      guestInfo: !req.user ? { name: guestInfo?.name, email: guestInfo?.email, phone: guestInfo?.phone } : undefined,
       items:    enrichedItems,
       delivery,
       payment,
@@ -60,6 +69,8 @@ exports.createOrder = async (req, res, next) => {
       discount: discount || 0,
       subtotal,
       total,
+      // Store customer info for easy access without population
+      customer: customerInfo,
       statusHistory: [{ status: 'pending', note: 'Order placed' }],
     });
 
@@ -115,9 +126,11 @@ exports.createOrder = async (req, res, next) => {
               <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 16px;">
                 <h2 style="color: #006989;">New Order Received</h2>
                 <p><strong>Order:</strong> #${order.orderNumber}</p>
-                <p><strong>Customer:</strong> ${order.user?.firstName || order.guestInfo?.firstName || 'Guest'} — ${customerEmail || 'No email'}</p>
+                <p><strong>Customer:</strong> ${customerInfo.firstName || customerInfo.lastName ? `${customerInfo.firstName} ${customerInfo.lastName}`.trim() : 'Guest'}</p>
+                <p><strong>Email:</strong> ${customerInfo.email || 'N/A'}</p>
+                <p><strong>Phone:</strong> ${customerInfo.phone || 'N/A'}</p>
                 <p><strong>Total:</strong> GHS ${order.total}</p>
-                  <p><strong>Payment:</strong> ${order.payment?.method}</p>
+                <p><strong>Payment:</strong> ${order.payment?.method}</p>
                 <p><strong>Delivery:</strong> ${order.delivery?.method} — ${order.delivery?.region || ''}</p>
                 <p style="color: #94a3b8; font-size: 12px;">Log in to admin panel to manage this order.</p>
               </div>
@@ -138,7 +151,10 @@ exports.createOrder = async (req, res, next) => {
 // GET /api/orders/my (customer)
 exports.getMyOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).sort('-createdAt').populate('items.product', 'name images');
+    const orders = await Order.find({ user: req.user._id })
+      .sort('-createdAt')
+      .populate('items.product', 'name images')
+      .populate('user', 'firstName lastName email phone');
     res.json({ success: true, orders });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -148,7 +164,9 @@ exports.getMyOrders = async (req, res) => {
 // GET /api/orders/track/:orderNumber (public)
 exports.trackOrder = async (req, res) => {
   try {
-    const order = await Order.findOne({ orderNumber: req.params.orderNumber }).populate('items.product', 'name images');
+    const order = await Order.findOne({ orderNumber: req.params.orderNumber })
+      .populate('items.product', 'name images')
+      .populate('user', 'firstName lastName email phone');
     if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
     res.json({ success: true, order });
   } catch (err) {
@@ -164,7 +182,12 @@ exports.getAllOrders = async (req, res) => {
     const skip = (Number(page) - 1) * Number(limit);
 
     const [orders, total] = await Promise.all([
-      Order.find(query).sort('-createdAt').skip(skip).limit(Number(limit)).populate('user', 'firstName lastName email'),
+      Order.find(query)
+        .sort('-createdAt')
+        .skip(skip)
+        .limit(Number(limit))
+        .populate('user', 'firstName lastName email phone')
+        .populate('items.product', 'name'),
       Order.countDocuments(query),
     ]);
     res.json({ success: true, orders, pagination: { total, page: Number(page), pages: Math.ceil(total / Number(limit)) } });

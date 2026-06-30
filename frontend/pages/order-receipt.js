@@ -57,9 +57,17 @@ export default function OrderReceipt() {
   const logo = settings?.logo?.url;
   
   const getCustomerName = () => {
+    // Try customer field first (stored during checkout)
+    if (order.customer?.firstName && order.customer?.lastName) {
+      return `${order.customer.firstName} ${order.customer.lastName}`;
+    }
+    if (order.customer?.firstName) return order.customer.firstName;
+    // Then try user reference (populated)
     if (order.user?.firstName && order.user?.lastName) {
       return `${order.user.firstName} ${order.user.lastName}`;
     }
+    if (order.user?.firstName) return order.user.firstName;
+    // Then try guestInfo
     if (order.guestInfo?.firstName && order.guestInfo?.lastName) {
       return `${order.guestInfo.firstName} ${order.guestInfo.lastName}`;
     }
@@ -67,8 +75,8 @@ export default function OrderReceipt() {
     return 'Guest Customer';
   };
   
-  const getCustomerEmail = () => order.user?.email || order.guestInfo?.email || 'N/A';
-  const getCustomerPhone = () => order.user?.phone || order.guestInfo?.phone || 'N/A';
+  const getCustomerEmail = () => order.customer?.email || order.user?.email || order.guestInfo?.email || 'N/A';
+  const getCustomerPhone = () => order.customer?.phone || order.user?.phone || order.guestInfo?.phone || 'N/A';
 
   return (
     <>
