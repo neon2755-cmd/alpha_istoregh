@@ -12,6 +12,7 @@ import {
   LogOut,
   Store,
   BarChart2,
+  Mail,
 } from 'lucide-react';
 import { useAdminAuthStore } from '../../store/adminAuth';
 
@@ -19,6 +20,7 @@ const NAV = [
   { href: '/portal', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/portal/products', label: 'Products', icon: Package },
   { href: '/portal/orders', label: 'Orders', icon: ShoppingBag },
+  { href: '/portal/messages', label: 'Messages', icon: Mail },
   { href: '/portal/reports', label: 'Reports', icon: BarChart2 },
   { href: '/portal/settings', label: 'Settings', icon: Settings },
 ];
