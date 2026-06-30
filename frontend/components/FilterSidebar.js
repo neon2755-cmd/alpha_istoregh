@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { settingsAPI } from '../lib/api';
 
 const inputClass =
   'w-full h-10 px-3 text-sm bg-white border border-surface-border rounded-xl text-ink focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-shadow';
 
 export default function FilterSidebar({ filters, onFilterChange }) {
   const router = useRouter();
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    settingsAPI.get().then(res => {
+      if (res.settings?.filters) {
+        setSettings(res.settings.filters);
+      }
+    }).catch(console.error).finally(() => setLoading(false));
+  }, []);
 
   const handleChange = (key, value) => {
     onFilterChange(key, value);
@@ -14,6 +25,16 @@ export default function FilterSidebar({ filters, onFilterChange }) {
       shallow: true,
     });
   };
+
+  // Filter options - get from settings or use defaults
+  const brandOptions = settings?.brands?.filter(b => b.enabled)?.map(b => b.name) || 
+    ['Apple', 'Samsung', 'Google', 'Xiaomi', 'Tecno', 'Infinix'];
+  
+  const conditionOptions = settings?.conditions?.filter(c => c.enabled)?.map(c => c.name) || 
+    ['Brand New', 'UK Used', 'Ghana Used'];
+  
+  const storageOptions = settings?.storage?.filter(s => s.enabled)?.map(s => s.name) || 
+    ['64GB', '128GB', '256GB', '512GB'];
 
   return (
     <aside className="w-full md:w-64 bg-white border border-surface-border rounded-2xl p-5 space-y-5">
@@ -31,12 +52,9 @@ export default function FilterSidebar({ filters, onFilterChange }) {
           className={inputClass}
         >
           <option value="">All brands</option>
-          <option value="Apple">Apple</option>
-          <option value="Samsung">Samsung</option>
-          <option value="Google">Google Pixel</option>
-          <option value="Xiaomi">Xiaomi</option>
-          <option value="Tecno">Tecno</option>
-          <option value="Infinix">Infinix</option>
+          {brandOptions.map(brand => (
+            <option key={brand} value={brand}>{brand}</option>
+          ))}
         </select>
       </div>
 
@@ -50,9 +68,9 @@ export default function FilterSidebar({ filters, onFilterChange }) {
           className={inputClass}
         >
           <option value="">All conditions</option>
-          <option value="Brand New">Brand new</option>
-          <option value="UK Used">UK used</option>
-          <option value="Ghana Used">Ghana used</option>
+          {conditionOptions.map(condition => (
+            <option key={condition} value={condition}>{condition}</option>
+          ))}
         </select>
       </div>
 
@@ -66,10 +84,9 @@ export default function FilterSidebar({ filters, onFilterChange }) {
           className={inputClass}
         >
           <option value="">All storage</option>
-          <option value="64">64GB</option>
-          <option value="128">128GB</option>
-          <option value="256">256GB</option>
-          <option value="512">512GB</option>
+          {storageOptions.map(storage => (
+            <option key={storage} value={storage}>{storage}</option>
+          ))}
         </select>
       </div>
 

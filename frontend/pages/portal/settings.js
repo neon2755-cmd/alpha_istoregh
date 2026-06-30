@@ -22,6 +22,12 @@ function AdminSettings() {
     logo: { url: '', public_id: '' },
     favicon: { url: '', public_id: '' },
     hero: { title: '', subtitle: '', image: { url: '', public_id: '' } },
+    heroImages: [],
+    filters: {
+      brands: [],
+      conditions: [],
+      storage: [],
+    },
     contact: { whatsapp: [''], phones: [''], email: '', address: '', googleMapEmbedUrl: '' },
     payment: { mtnMomo: true, telecel: true, airteltigo: false, card: false, payOnDelivery: true },
     social: { facebook: '', instagram: '', twitter: '', tiktok: '' },
@@ -259,6 +265,53 @@ function AdminSettings() {
                     </label>
                   </div>
                 </div>
+
+                <div className="pt-4 border-t border-surface-border">
+                  <div className="flex items-center justify-between mb-4">
+                    <label className={labelClass}>Hero Carousel Images</label>
+                    <button type="button" onClick={() => {
+                      setSettings(prev => ({
+                        ...prev,
+                        heroImages: [...(prev.heroImages || []), { url: '', public_id: '' }]
+                      }));
+                    }} className="text-xs font-bold text-primary hover:text-primary-dark">+ Add Image</button>
+                  </div>
+                  <div className="space-y-3">
+                    {(settings.heroImages || []).map((img, idx) => (
+                      <div key={idx} className="flex items-end gap-3">
+                        <div className="flex-1">
+                          {img.url && <img src={img.url} alt={`Hero ${idx + 1}`} className="h-16 w-full object-cover bg-surface-muted rounded-lg mb-2" />}
+                          <label className="cursor-pointer w-full inline-flex items-center justify-center gap-2 px-4 h-10 bg-surface-muted text-ink-muted hover:text-ink hover:bg-surface-border rounded-xl transition-colors text-sm font-semibold">
+                            <UploadCloud className="w-4 h-4" />
+                            {uploading === `heroImage-${idx}` ? 'Uploading...' : 'Upload'}
+                            <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              setUploading(`heroImage-${idx}`);
+                              const formData = new FormData();
+                              formData.append('images', file);
+                              uploadAPI.images(formData).then(res => {
+                                if (res.success && res.images?.length > 0) {
+                                  const newImages = [...(settings.heroImages || [])];
+                                  newImages[idx] = res.images[0];
+                                  setSettings(prev => ({ ...prev, heroImages: newImages }));
+                                }
+                              }).catch(() => alert('Upload failed')).finally(() => setUploading(''));
+                            }} />
+                          </label>
+                        </div>
+                        <button type="button" onClick={() => {
+                          setSettings(prev => ({
+                            ...prev,
+                            heroImages: (prev.heroImages || []).filter((_, i) => i !== idx)
+                          }));
+                        }} className="h-10 w-10 flex items-center justify-center rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </section>
 
@@ -336,6 +389,137 @@ function AdminSettings() {
                   </div>
                 ))}
                 {!settings.promoBanners?.length && <p className="text-sm text-ink-muted">No promo banners added. Click "+ Add Banner" to create one.</p>}
+              </div>
+            </section>
+
+            {/* Filters Configuration Section */}
+            <section className={cardClass}>
+              <div className="flex items-center gap-3 mb-6">
+                <span className="h-10 w-10 flex items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+                </span>
+                <h2 className="text-xl font-bold tracking-tight text-ink">Shop Filters</h2>
+              </div>
+              <div className="space-y-8">
+                {/* Brands Filter */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <label className={labelClass}>Brand Options</label>
+                    <button type="button" onClick={() => {
+                      setSettings(prev => ({
+                        ...prev,
+                        filters: { ...prev.filters, brands: [...(prev.filters?.brands || []), { name: '', enabled: true }] }
+                      }));
+                    }} className="text-xs font-bold text-primary hover:text-primary-dark">+ Add</button>
+                  </div>
+                  <div className="space-y-2">
+                    {(settings.filters?.brands || []).map((brand, idx) => (
+                      <div key={idx} className="flex gap-3 items-center">
+                        <input type="text" value={brand.name || ''} onChange={(e) => {
+                          const newBrands = [...(settings.filters?.brands || [])];
+                          newBrands[idx] = { ...newBrands[idx], name: e.target.value };
+                          setSettings(prev => ({ ...prev, filters: { ...prev.filters, brands: newBrands } }));
+                        }} className={inputClass} placeholder="e.g. Apple" />
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={brand.enabled} onChange={(e) => {
+                            const newBrands = [...(settings.filters?.brands || [])];
+                            newBrands[idx] = { ...newBrands[idx], enabled: e.target.checked };
+                            setSettings(prev => ({ ...prev, filters: { ...prev.filters, brands: newBrands } }));
+                          }} className="w-4 h-4 rounded border-surface-border text-primary" />
+                          <span className="text-sm text-ink-muted">Show</span>
+                        </label>
+                        <button type="button" onClick={() => {
+                          setSettings(prev => ({
+                            ...prev,
+                            filters: { ...prev.filters, brands: (prev.filters?.brands || []).filter((_, i) => i !== idx) }
+                          }));
+                        }} className="h-10 w-10 flex items-center justify-center rounded-xl bg-red-50 text-red-500 hover:bg-red-100">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Condition Filter */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <label className={labelClass}>Condition Options</label>
+                    <button type="button" onClick={() => {
+                      setSettings(prev => ({
+                        ...prev,
+                        filters: { ...prev.filters, conditions: [...(prev.filters?.conditions || []), { name: '', enabled: true }] }
+                      }));
+                    }} className="text-xs font-bold text-primary hover:text-primary-dark">+ Add</button>
+                  </div>
+                  <div className="space-y-2">
+                    {(settings.filters?.conditions || []).map((cond, idx) => (
+                      <div key={idx} className="flex gap-3 items-center">
+                        <input type="text" value={cond.name || ''} onChange={(e) => {
+                          const newConds = [...(settings.filters?.conditions || [])];
+                          newConds[idx] = { ...newConds[idx], name: e.target.value };
+                          setSettings(prev => ({ ...prev, filters: { ...prev.filters, conditions: newConds } }));
+                        }} className={inputClass} placeholder="e.g. Brand New" />
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={cond.enabled} onChange={(e) => {
+                            const newConds = [...(settings.filters?.conditions || [])];
+                            newConds[idx] = { ...newConds[idx], enabled: e.target.checked };
+                            setSettings(prev => ({ ...prev, filters: { ...prev.filters, conditions: newConds } }));
+                          }} className="w-4 h-4 rounded border-surface-border text-primary" />
+                          <span className="text-sm text-ink-muted">Show</span>
+                        </label>
+                        <button type="button" onClick={() => {
+                          setSettings(prev => ({
+                            ...prev,
+                            filters: { ...prev.filters, conditions: (prev.filters?.conditions || []).filter((_, i) => i !== idx) }
+                          }));
+                        }} className="h-10 w-10 flex items-center justify-center rounded-xl bg-red-50 text-red-500 hover:bg-red-100">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Storage Filter */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <label className={labelClass}>Storage Options</label>
+                    <button type="button" onClick={() => {
+                      setSettings(prev => ({
+                        ...prev,
+                        filters: { ...prev.filters, storage: [...(prev.filters?.storage || []), { name: '', enabled: true }] }
+                      }));
+                    }} className="text-xs font-bold text-primary hover:text-primary-dark">+ Add</button>
+                  </div>
+                  <div className="space-y-2">
+                    {(settings.filters?.storage || []).map((stor, idx) => (
+                      <div key={idx} className="flex gap-3 items-center">
+                        <input type="text" value={stor.name || ''} onChange={(e) => {
+                          const newStor = [...(settings.filters?.storage || [])];
+                          newStor[idx] = { ...newStor[idx], name: e.target.value };
+                          setSettings(prev => ({ ...prev, filters: { ...prev.filters, storage: newStor } }));
+                        }} className={inputClass} placeholder="e.g. 128GB" />
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={stor.enabled} onChange={(e) => {
+                            const newStor = [...(settings.filters?.storage || [])];
+                            newStor[idx] = { ...newStor[idx], enabled: e.target.checked };
+                            setSettings(prev => ({ ...prev, filters: { ...prev.filters, storage: newStor } }));
+                          }} className="w-4 h-4 rounded border-surface-border text-primary" />
+                          <span className="text-sm text-ink-muted">Show</span>
+                        </label>
+                        <button type="button" onClick={() => {
+                          setSettings(prev => ({
+                            ...prev,
+                            filters: { ...prev.filters, storage: (prev.filters?.storage || []).filter((_, i) => i !== idx) }
+                          }));
+                        }} className="h-10 w-10 flex items-center justify-center rounded-xl bg-red-50 text-red-500 hover:bg-red-100">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </section>
 

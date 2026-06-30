@@ -9,6 +9,7 @@ import {
   HeadphonesIcon,
   ArrowRight,
   ChevronRight,
+  ChevronLeft,
 } from 'lucide-react';
 import WhatsAppIcon from '../components/ui/WhatsAppIcon';
 import useProducts from '../hooks/useProducts';
@@ -116,13 +117,37 @@ function HomePage() {
                 ) : (
                   <SkeletonLoader width="100%" height="100%" className="rounded-3xl" />
                 )}
+                
                 {heroImages.length > 1 && (
-                  <div style={{ position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px' }}>
-                    {heroImages.map((_, i) => (
-                      <button key={i} onClick={() => setCurrentSlide(i)}
-                        style={{ width: i === currentSlide ? '24px' : '8px', height: '8px', borderRadius: '999px', background: i === currentSlide ? '#006989' : 'rgba(255,255,255,0.6)', border: 'none', cursor: 'pointer', transition: 'all 0.3s' }} />
-                    ))}
-                  </div>
+                  <>
+                    {/* Previous Button */}
+                    <button
+                      onClick={() => setCurrentSlide(prev => (prev - 1 + heroImages.length) % heroImages.length)}
+                      className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 md:-translate-x-6 h-10 w-10 rounded-full bg-white shadow-md hover:shadow-lg hover:bg-surface-muted transition-all flex items-center justify-center text-ink z-10"
+                      aria-label="Previous slide"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+
+                    {/* Next Button */}
+                    <button
+                      onClick={() => setCurrentSlide(prev => (prev + 1) % heroImages.length)}
+                      className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 md:translate-x-6 h-10 w-10 rounded-full bg-white shadow-md hover:shadow-lg hover:bg-surface-muted transition-all flex items-center justify-center text-ink z-10"
+                      aria-label="Next slide"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+
+                    {/* Dots Navigation */}
+                    <div style={{ position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px' }}>
+                      {heroImages.map((_, i) => (
+                        <button key={i} onClick={() => setCurrentSlide(i)}
+                          style={{ width: i === currentSlide ? '24px' : '8px', height: '8px', borderRadius: '999px', background: i === currentSlide ? '#006989' : 'rgba(255,255,255,0.6)', border: 'none', cursor: 'pointer', transition: 'all 0.3s' }} 
+                          aria-label={`Go to slide ${i + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </>
                 )}
               </div>
             </div>

@@ -9,6 +9,24 @@ const settingsSchema = new mongoose.Schema({
     subtitle: { type: String, default: "Shop the latest iPhones, Samsung, Tecno and more." },
     image:    { url: String, public_id: String },
   },
+  heroImages: [{
+    url: String,
+    public_id: String,
+  }],
+  filters: {
+    brands: [{
+      name: String,
+      enabled: { type: Boolean, default: true },
+    }],
+    conditions: [{
+      name: String,
+      enabled: { type: Boolean, default: true },
+    }],
+    storage: [{
+      name: String,
+      enabled: { type: Boolean, default: true },
+    }],
+  },
   contact: {
     whatsapp: { type: [String], default: ['+233000000000'] },
     phones:   [String],
