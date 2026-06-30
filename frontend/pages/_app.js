@@ -43,9 +43,21 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     settingsAPI.get().then(res => {
-      if (res.settings?.favicon?.url) setFavicon(res.settings.favicon.url);
+      const fav = res.settings?.favicon?.url || res.settings?.favicon || null;
+      if (fav) setFavicon(fav);
     }).catch(() => {});
   }, []);
+
+  // Helper to determine mime type from url
+  const mimeFor = (url) => {
+    if (!url) return 'image/png';
+    const u = url.split('?')[0].toLowerCase();
+    if (u.endsWith('.svg')) return 'image/svg+xml';
+    if (u.endsWith('.png')) return 'image/png';
+    if (u.endsWith('.jpg') || u.endsWith('.jpeg')) return 'image/jpeg';
+    if (u.endsWith('.webp')) return 'image/webp';
+    return 'image/png';
+  };
 
   const getLayout = Component.getLayout;
   const router = useRouter();
@@ -58,7 +70,9 @@ function MyApp({ Component, pageProps }) {
         <Head>
           <title>Admin — Alpha iStore</title>
           <meta name="viewport" content="width=device-width,initial-scale=1" />
-          <link rel="icon" type="image/svg+xml" href={favicon} />
+          <link rel="icon" href={favicon} />
+          <link rel="apple-touch-icon" href={favicon} />
+          <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon} />
         </Head>
         {getLayout ? getLayout(<Component {...pageProps} />) : <Component {...pageProps} />}
         <Toaster position="top-right" toastOptions={{ duration: 3000, style: { background: '#0F172A', color: '#fff', borderRadius: '12px', padding: '12px 16px', fontSize: '14px', fontWeight: 500 }, success: { iconTheme: { primary: '#006989', secondary: '#fff' } }, error: { iconTheme: { primary: '#EF4444', secondary: '#fff' } } }} />
@@ -69,10 +83,12 @@ function MyApp({ Component, pageProps }) {
   // Regular pages get Header/Footer
   return (
     <>
-      <Head>
+        <Head>
         <title>Alpha iStore</title>
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link rel="icon" type="image/svg+xml" href={favicon} />
+        <link rel="icon" href={favicon} />
+        <link rel="apple-touch-icon" href={favicon} />
+        <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon} />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </Head>
