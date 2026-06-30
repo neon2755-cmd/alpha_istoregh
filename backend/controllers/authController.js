@@ -37,46 +37,50 @@ exports.register = async (req, res) => {
     const user = await User.create({ firstName, lastName, email, phone, password });
     sendAuth(res, user, 201);
     
-    // Send welcome email to customer
-    try {
-      await sendEmail({
-        to: user.email,
-        subject: 'Welcome to Alpha iStore!',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 16px;">
-            <h2 style="color: #006989; margin-bottom: 4px;">Alpha iStore</h2>
-            <h3 style="color: #0f172a;">Welcome, ${user.firstName}!</h3>
-            <p style="color: #475569; line-height: 1.6;">Thank you for creating an account with Alpha iStore. You can now shop the latest phones, track your orders, and enjoy a faster checkout experience.</p>
-            <a href="${process.env.CLIENT_URL || 'https://alphaistore.com'}/shop" style="display: inline-block; margin: 20px 0; padding: 12px 28px; background: #006989; color: #fff; border-radius: 8px; text-decoration: none; font-weight: bold;">Start Shopping</a>
-            <p style="color: #94a3b8; font-size: 12px; margin-top: 20px;">Alpha iStore · Adum P.Z, Kumasi, Ghana</p>
-          </div>
-        `,
-      });
-    } catch (emailErr) {
-      console.error('Welcome email failed:', emailErr.message);
-    }
-    
-    // Send admin notification
-    try {
-      if (process.env.ADMIN_EMAIL) {
+    // Send welcome email to customer (non-blocking)
+    (async () => {
+      try {
         await sendEmail({
-          to: process.env.ADMIN_EMAIL,
-          subject: 'New Customer Registered',
+          to: user.email,
+          subject: 'Welcome to Alpha iStore!',
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 16px;">
               <h2 style="color: #006989; margin-bottom: 4px;">Alpha iStore</h2>
-              <h3 style="color: #0f172a;">New Customer Signed Up</h3>
-              <p style="color: #475569;"><strong>Name:</strong> ${user.firstName} ${user.lastName}</p>
-              <p style="color: #475569;"><strong>Email:</strong> ${user.email}</p>
-              <p style="color: #475569;"><strong>Phone:</strong> ${user.phone || 'N/A'}</p>
-              <p style="color: #94a3b8; font-size: 12px; margin-top: 20px;">Registered on ${new Date().toLocaleString()}</p>
+              <h3 style="color: #0f172a;">Welcome, ${user.firstName}!</h3>
+              <p style="color: #475569; line-height: 1.6;">Thank you for creating an account with Alpha iStore. You can now shop the latest phones, track your orders, and enjoy a faster checkout experience.</p>
+              <a href="${process.env.CLIENT_URL || 'https://alphaistore.com'}/shop" style="display: inline-block; margin: 20px 0; padding: 12px 28px; background: #006989; color: #fff; border-radius: 8px; text-decoration: none; font-weight: bold;">Start Shopping</a>
+              <p style="color: #94a3b8; font-size: 12px; margin-top: 20px;">Alpha iStore · Adum P.Z, Kumasi, Ghana</p>
             </div>
           `,
         });
+      } catch (emailErr) {
+        console.error('Welcome email failed:', emailErr.message);
       }
-    } catch (emailErr) {
-      console.error('Admin notification email failed:', emailErr.message);
-    }
+    })();
+    
+    // Send admin notification (non-blocking)
+    (async () => {
+      try {
+        if (process.env.ADMIN_EMAIL) {
+          await sendEmail({
+            to: process.env.ADMIN_EMAIL,
+            subject: 'New Customer Registered',
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 16px;">
+                <h2 style="color: #006989; margin-bottom: 4px;">Alpha iStore</h2>
+                <h3 style="color: #0f172a;">New Customer Signed Up</h3>
+                <p style="color: #475569;"><strong>Name:</strong> ${user.firstName} ${user.lastName}</p>
+                <p style="color: #475569;"><strong>Email:</strong> ${user.email}</p>
+                <p style="color: #475569;"><strong>Phone:</strong> ${user.phone || 'N/A'}</p>
+                <p style="color: #94a3b8; font-size: 12px; margin-top: 20px;">Registered on ${new Date().toLocaleString()}</p>
+              </div>
+            `,
+          });
+        }
+      } catch (emailErr) {
+        console.error('Admin notification email failed:', emailErr.message);
+      }
+    })();
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -109,26 +113,31 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    // Send login alert email
-    try {
-      await sendEmail({
-        to: user.email,
-        subject: 'New Sign-In to Your Alpha iStore Account',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 16px;">
-            <h2 style="color: #006989; margin-bottom: 4px;">Alpha iStore</h2>
-            <h3 style="color: #0f172a;">New Sign-In Detected</h3>
-            <p style="color: #475569; line-height: 1.6;">Hi ${user.firstName || ''}, your Alpha iStore account was just signed into.</p>
-            <p style="color: #64748b; font-size: 13px;"><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-            <p style="color: #64748b; font-size: 13px;">If this wasn't you, please reset your password immediately.</p>
-            <a href="${process.env.CLIENT_URL || 'https://alphaistore.com'}/auth/forgot-password" style="display: inline-block; margin: 16px 0; padding: 10px 24px; background: #ef4444; color: #fff; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px;">Reset Password</a>
-            <p style="color: #94a3b8; font-size: 12px; margin-top: 20px;">Alpha iStore · Adum P.Z, Kumasi, Ghana</p>
-          </div>
-        `,
-      });
-    } catch (emailErr) {
-      console.error('Login alert email failed:', emailErr.message);
-    }
+    const totalEnd = Date.now();
+    console.info(`[auth] total login time for ${email} took ${totalEnd - start}ms`);
+
+    // Send login alert email asynchronously so it doesn't block the response
+    (async () => {
+      try {
+        await sendEmail({
+          to: user.email,
+          subject: 'New Sign-In to Your Alpha iStore Account',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 16px;">
+              <h2 style="color: #006989; margin-bottom: 4px;">Alpha iStore</h2>
+              <h3 style="color: #0f172a;">New Sign-In Detected</h3>
+              <p style="color: #475569; line-height: 1.6;">Hi ${user.firstName || ''}, your Alpha iStore account was just signed into.</p>
+              <p style="color: #64748b; font-size: 13px;"><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+              <p style="color: #64748b; font-size: 13px;">If this wasn't you, please reset your password immediately.</p>
+              <a href="${process.env.CLIENT_URL || 'https://alphaistore.com'}/auth/forgot-password" style="display: inline-block; margin: 16px 0; padding: 10px 24px; background: #ef4444; color: #fff; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px;">Reset Password</a>
+              <p style="color: #94a3b8; font-size: 12px; margin-top: 20px;">Alpha iStore · Adum P.Z, Kumasi, Ghana</p>
+            </div>
+          `,
+        });
+      } catch (emailErr) {
+        console.error('Login alert email failed:', emailErr.message);
+      }
+    })();
 
     sendAuth(res, user);
   } catch (err) {
