@@ -10,16 +10,16 @@ import QRCode from 'react-qr-code';
 export default function OrderReceipt() {
   const router = useRouter();
   const { order: orderNum } = router.query;
+  const orderNumber = Array.isArray(orderNum) ? orderNum[0] : orderNum;
   const [order, setOrder] = useState(null);
-  const [receiptToken, setReceiptToken] = useState('');
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!orderNum) return;
+    if (!orderNumber) return;
     const fetchOrder = async () => {
       try {
-        const res = await ordersAPI.track(orderNum);
+        const res = await ordersAPI.track(orderNumber);
         setOrder(res.order || res.data?.order || res);
       } catch (err) {
         console.error(err);
@@ -28,20 +28,7 @@ export default function OrderReceipt() {
       }
     };
     fetchOrder();
-  }, [orderNum]);
-
-  useEffect(() => {
-    if (!orderNum) return;
-    const fetchReceiptToken = async () => {
-      try {
-        const res = await ordersAPI.getReceiptToken(orderNum);
-        setReceiptToken(res.token || res.data?.token || res);
-      } catch (err) {
-        console.error('Failed to load receipt verification token', err);
-      }
-    };
-    fetchReceiptToken();
-  }, [orderNum]);
+  }, [orderNumber]);
 
   useEffect(() => {
     settingsAPI.get().then(res => {
@@ -72,11 +59,9 @@ export default function OrderReceipt() {
   const logo = settings?.logo?.url;
   const baseUrl = typeof window !== 'undefined'
     ? window.location.origin
-    : siteConfig.frontendUrl;
-  const receiptAuthUrl = receiptToken
-    ? `${baseUrl}/verify-receipt?token=${encodeURIComponent(receiptToken)}`
-    : `${baseUrl}/verify-receipt`;
-  
+    : 'http://localhost:3000';
+  const receiptUrl = `${baseUrl}/order-receipt?order=${encodeURIComponent(orderNumber)}`;
+
   const getCustomerName = () => {
     // Try customer field first (stored during checkout)
     if (order.customer?.firstName && order.customer?.lastName) {
@@ -248,7 +233,7 @@ export default function OrderReceipt() {
             <div>
               <div className="text-center mb-6">
                 <p className="font-bold text-ink mb-1">✓ Thank you for your order!</p>
-                <p className="text-xs text-ink-muted">Your order has been received and is being processed. Scan the QR code to verify receipt authenticity.</p>
+                <p className="text-xs text-ink-muted">Your order has been received and is being processed. A team member will contact you shortly with delivery details.</p>
               </div>
 
               <div className="text-center text-xs text-ink-muted space-y-1 mb-6">
@@ -263,21 +248,20 @@ export default function OrderReceipt() {
             </div>
 
             <div className="bg-surface-muted p-4 rounded-xl border border-surface-border text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-subtle mb-3">Verify Receipt Authenticity</p>
-              <div className="inline-block p-3 bg-white rounded-xl shadow-sm mb-3">
-                  <QRCode value={receiptAuthUrl} size={144} />
-                </div>
-                <p className="text-[10px] text-ink-muted leading-5">
-                  Scan this QR code to confirm this receipt is genuine and has not been altered.
-                </p>
-                {!receiptToken && (
-                  <p className="mt-2 text-[10px] text-amber-600">
-                    Receipt verification token is being generated. If the QR code does not work, refresh or contact support.
-                  </p>
-                )}
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-subtle mb-3">Verify Receipt</p>
+              <div className="mx-auto w-fit rounded-xl bg-white p-4 shadow-sm mb-4">
+                <QRCode value={receiptUrl} size={140} />
               </div>
+              <p className="text-sm text-ink-muted">
+                Scan or visit this URL to view the receipt online.
+              </p>
+              <p className="text-xs text-ink-muted mt-3 break-words">{receiptUrl}</p>
+              <p className="text-center text-xs text-ink-muted border-t border-surface-border pt-4 mt-4">
+                {storeName} · {contact.address || 'Adum P.Z, Kumasi, Ghana'} · Generated on {date} at {time}
+              </p>
             </div>
           </div>
+        </div>
         <div className="mt-8 flex gap-3 justify-center no-print">
           <button onClick={() => window.print()} className="inline-flex items-center gap-2 h-11 px-6 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors">
             <Printer className="h-4 w-4" />

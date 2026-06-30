@@ -1,12 +1,35 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 const sendEmail = require('../utils/sendEmail');
-const { generateReceiptToken, verifyReceiptToken } = require('../middleware/auth');
+
+const getUserFromToken = async (req) => {
+  try {
+    let token;
+    if (req.headers.authorization?.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies?.token) {
+      token = req.cookies.token;
+    } else if (req.body?.token) {
+      token = req.body.token;
+    } else if (req.body?.authToken) {
+      token = req.body.authToken;
+    }
+    if (!token) return null;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return await User.findById(decoded.id).select('-password');
+  } catch {
+    return null;
+  }
+};
 
 // POST /api/orders
 exports.createOrder = async (req, res, next) => {
   try {
     const { items, delivery, payment, guestInfo, promoCode, discount } = req.body;
+    const currentUser = req.user || (await getUserFromToken(req));
+    if (currentUser) req.user = currentUser;
 
     if (!items?.length) return res.status(400).json({ success: false, message: 'No order items' });
 
@@ -61,8 +84,8 @@ exports.createOrder = async (req, res, next) => {
     };
 
     const order = await Order.create({
-      user:     req.user?._id,
-      guestInfo: !req.user ? { name: guestInfo?.name, email: guestInfo?.email, phone: guestInfo?.phone } : undefined,
+      user:     currentUser?._id,
+      guestInfo: !currentUser ? { name: guestInfo?.name, email: guestInfo?.email, phone: guestInfo?.phone } : undefined,
       items:    enrichedItems,
       delivery,
       payment,
@@ -153,6 +176,7 @@ exports.createOrder = async (req, res, next) => {
 exports.getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user._id })
+      .select('-verificationToken')
       .sort('-createdAt')
       .populate('items.product', 'name images')
       .populate('user', 'firstName lastName email phone');
@@ -166,53 +190,11 @@ exports.getMyOrders = async (req, res) => {
 exports.trackOrder = async (req, res) => {
   try {
     const order = await Order.findOne({ orderNumber: req.params.orderNumber })
+      .select('-verificationToken')
       .populate('items.product', 'name images')
       .populate('user', 'firstName lastName email phone');
     if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
     res.json({ success: true, order });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// GET /api/orders/receipt-token/:orderNumber (public)
-exports.getReceiptToken = async (req, res) => {
-  try {
-    const order = await Order.findOne({ orderNumber: req.params.orderNumber });
-    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
-    const token = generateReceiptToken(order.orderNumber);
-    res.json({ success: true, token });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// GET /api/orders/verify-receipt (public)
-exports.verifyReceipt = async (req, res) => {
-  try {
-    const { token } = req.query;
-    if (!token) return res.status(400).json({ success: false, message: 'Verification token is required' });
-    let payload;
-    try {
-      payload = verifyReceiptToken(token);
-    } catch (err) {
-      return res.status(401).json({ success: false, message: 'Invalid or expired verification token' });
-    }
-    const order = await Order.findOne({ orderNumber: payload.orderNumber })
-      .populate('items.product', 'name images')
-      .populate('user', 'firstName lastName email phone');
-    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
-    res.json({
-      success: true,
-      verified: true,
-      order: {
-        orderNumber: order.orderNumber,
-        total: order.total,
-        createdAt: order.createdAt,
-        status: order.status,
-        customer: order.customer || order.guestInfo || {},
-      },
-    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -227,6 +209,7 @@ exports.getAllOrders = async (req, res) => {
 
     const [orders, total] = await Promise.all([
       Order.find(query)
+        .select('-verificationToken')
         .sort('-createdAt')
         .skip(skip)
         .limit(Number(limit))

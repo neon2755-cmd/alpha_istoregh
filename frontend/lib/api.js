@@ -61,9 +61,6 @@ export const trackOrder = (orderNumber) => apiClient.get(`/orders/track/${orderN
 export const getAllOrders = (params) => apiClient.get('/orders', { params });
 export const updateOrderStatus = (id, status) => apiClient.patch(`/orders/${id}/status`, { status });
 export const getDashboardStats = () => apiClient.get('/orders/dashboard-stats');
-export const getReceiptToken = (orderNumber) => apiClient.get(`/orders/receipt-token/${orderNumber}`);
-export const verifyReceiptToken = (token) => apiClient.get('/orders/verify-receipt', { params: { token } });
-
 // Settings
 export const getSettings = () => apiClient.get('/settings');
 export const updateSettings = (settingsData) => apiClient.put('/settings', settingsData);
@@ -99,8 +96,6 @@ export const ordersAPI = {
   getAll: getAllOrders,
   updateStatus: updateOrderStatus,
   getDashboardStats: getDashboardStats,
-  getReceiptToken: getReceiptToken,
-  verifyReceipt: verifyReceiptToken,
   clearAll: () => apiClient.delete('/orders/clear'),
 };
 

@@ -13,8 +13,9 @@ const orderItemSchema = new mongoose.Schema({
 });
 
 const orderSchema = new mongoose.Schema({
-  orderNumber: { type: String, unique: true },
-  user:        { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  orderNumber:       { type: String, unique: true },
+  invoiceNumber:     { type: String, unique: true, sparse: true },
+  user:              { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   guestInfo: {
     name:      String,
     firstName: String,
@@ -61,6 +62,9 @@ orderSchema.pre('save', async function () {
     const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
     const ts = Date.now().toString(36).toUpperCase();
     this.orderNumber = `AIS-${ts}-${rand}`;
+  }
+  if (!this.invoiceNumber) {
+    this.invoiceNumber = this.orderNumber;
   }
 });
 module.exports = mongoose.model('Order', orderSchema);

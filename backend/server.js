@@ -56,9 +56,14 @@ const limiter = rateLimit({
   max: 1000,
   message: { success: false, message: 'Too many requests. Please try again later.' },
 });
+const verifyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { success: false, message: 'Too many verification attempts. Please try again later.' },
+});
 app.use('/api/', limiter);
 
-// ── Routes ────────────────────────────────────────────────────────────────────
+// ── Routes ───────────────────────────────────────────────────────────────────
 app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/orders',   require('./routes/orders'));

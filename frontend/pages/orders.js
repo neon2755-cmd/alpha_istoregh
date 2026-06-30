@@ -23,21 +23,29 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!token) {
+    if (typeof window === 'undefined') return;
+
+    const storedToken = localStorage.getItem('authToken');
+    if (!storedToken) {
       router.push('/auth/login');
       return;
     }
+
     (async () => {
       try {
         const res = await ordersAPI.myOrders();
         setOrders(res.orders || []);
       } catch (e) {
         console.error(e);
+        if (e.response?.status === 401) {
+          router.push('/auth/login');
+          return;
+        }
       } finally {
         setLoading(false);
       }
     })();
-  }, [token, router]);
+  }, [router, token]);
 
   return (
     <>

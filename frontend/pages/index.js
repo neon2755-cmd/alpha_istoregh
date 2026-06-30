@@ -46,7 +46,9 @@ function HomePage() {
     }).catch(console.error);
   }, []);
 
-  const heroImages = settings?.heroImages || (settings?.hero?.image?.url ? [settings.hero.image] : []);
+  const heroImages = Array.isArray(settings?.heroImages) && settings.heroImages.length > 0
+    ? settings.heroImages.map(img => (typeof img === 'string' ? { url: img } : img))
+    : [{ url: settings?.hero?.image?.url || '/images/hero-phone.png' }];
 
   useEffect(() => {
     if (heroImages.length <= 1) return;
@@ -62,7 +64,6 @@ function HomePage() {
 
   const heroTitle = settings?.hero?.title || "The Perfect iPhone\nfor Every Lifestyle";
   const heroSubtitle = settings?.hero?.subtitle || "Discover the latest iPhone 17 Pro Max with premium features, stunning displays, and unmatched performance. Shop now for exclusive deals.";
-  const heroImage = settings?.hero?.image?.url || "/images/hero-phone.png";
   const whatsappNumber = settings?.contact?.whatsapp?.[0] || siteConfig.whatsappNumber || "";
   const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}` : "https://wa.me/";
 

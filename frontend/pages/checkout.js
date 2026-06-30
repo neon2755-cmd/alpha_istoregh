@@ -151,7 +151,7 @@ export default function Checkout() {
     const fullName = form.name.trim();
     const phone = form.phone.trim();
     const email = form.email.trim().toLowerCase();
-    const deliveryAddress = address.trim();
+    const inputAddress = address.trim();
 
     if (!fullName || fullName.length < 2) {
       toast.error('Please enter your full name');
@@ -183,14 +183,15 @@ export default function Checkout() {
     setSubmitting(true);
     try {
       const isPickup = region?.region?.startsWith('Pickup');
-      const deliveryAddress = isPickup ? region.region : address;
+      const deliveryAddressFinal = isPickup ? region.region : inputAddress;
       
       // Split name into parts
       const nameParts = fullName.split(' ');
       const firstName = nameParts[0];
       const lastName = nameParts.slice(1).join(' ');
       
-      const payload = {
+      const authToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    const payload = {
         items: safeCart.map((item) => ({
           product: item.id || item._id,
           quantity: item.quantity,
@@ -199,7 +200,7 @@ export default function Checkout() {
         delivery: {
           method: isPickup ? 'pickup' : 'delivery',
           region: region.region,
-          address: deliveryAddress,
+          address: deliveryAddressFinal,
           fee: region.fee,
           notes: notes || undefined,
         },
@@ -213,6 +214,7 @@ export default function Checkout() {
         },
         promoCode: promo || undefined,
         discount: discount || 0,
+        authToken: authToken || undefined,
       };
       console.log('Checkout payload:', payload);
       const data = await ordersAPI.create(payload);
