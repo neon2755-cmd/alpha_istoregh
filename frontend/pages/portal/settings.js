@@ -137,6 +137,11 @@ function AdminSettings() {
             ...prev,
             [section]: { ...prev[section], [field]: imageUrl }
           }));
+        } else if (section === 'favicon' || section === 'logo') {
+          setSettings(prev => ({
+            ...prev,
+            [section]: { url: imageUrl, public_id: '' }
+          }));
         } else {
           setSettings(prev => ({ ...prev, [section]: imageUrl }));
         }
