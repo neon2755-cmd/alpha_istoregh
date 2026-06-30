@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import toast from 'react-hot-toast';
 import {
   LayoutDashboard,
   Package,
@@ -12,6 +13,7 @@ import {
   Store,
   BarChart2,
 } from 'lucide-react';
+import { useAdminAuthStore } from '../../store/adminAuth';
 
 const NAV = [
   { href: '/portal', label: 'Dashboard', icon: LayoutDashboard },
@@ -24,6 +26,13 @@ const NAV = [
 export default function AdminLayout({ children, title, subtitle, hideSidebar = false }) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { logout } = useAdminAuthStore();
+
+  const handleSignOut = () => {
+    logout();
+    toast.success('Signed out successfully');
+    router.push('/portal/login');
+  };
 
   if (hideSidebar) {
     return (
@@ -108,6 +117,32 @@ export default function AdminLayout({ children, title, subtitle, hideSidebar = f
               {subtitle && <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>{subtitle}</p>}
             </div>
           </div>
+          <button
+            onClick={handleSignOut}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              background: '#fee2e2',
+              color: '#dc2626',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = '#fecaca';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = '#fee2e2';
+            }}
+          >
+            <LogOut size={16} />
+            Sign Out
+          </button>
         </header>
 
         <main style={{ flex: 1, padding: '24px', maxWidth: '1200px', width: '100%', margin: '0 auto' }}>
