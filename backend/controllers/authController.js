@@ -5,6 +5,7 @@ const { sendWelcomeEmail } = require('../utils/mailer');
 const sendEmail = require('../utils/sendEmail');
 const generateResetToken = require('../utils/generateResetToken');
 const { generateToken, setTokenCookie } = require('../middleware/auth');
+const { addLoginDuration } = require('../utils/metrics');
 
 const sendAuth = (res, user, statusCode = 200) => {
   const token = generateToken(user._id);
@@ -114,7 +115,9 @@ exports.login = async (req, res) => {
     }
 
     const totalEnd = Date.now();
-    console.info(`[auth] total login time for ${email} took ${totalEnd - start}ms`);
+    const totalMs = totalEnd - start;
+    console.info(`[auth] total login time for ${email} took ${totalMs}ms`);
+    try { addLoginDuration(email, totalMs); } catch (e) {}
 
     // Send login alert email asynchronously so it doesn't block the response
     (async () => {
