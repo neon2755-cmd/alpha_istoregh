@@ -81,7 +81,15 @@ export const fetchAPI = (endpoint, method = 'GET', data = null, params = null) =
 };
 
 export const authAPI = {
-  login: (credentials) => apiClient.post('/auth/login', credentials),
+  login: async (credentials) => {
+    const t0 = Date.now();
+    const res = await apiClient.post('/auth/login', credentials);
+    const t1 = Date.now();
+    try {
+      console.info(`[auth] client login duration: ${t1 - t0}ms`);
+    } catch (e) {}
+    return res;
+  },
   register: (data) => apiClient.post('/auth/register', data),
   logout: () => apiClient.post('/auth/logout'),
   getMe: () => apiClient.get('/auth/me'),

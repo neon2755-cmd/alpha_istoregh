@@ -89,8 +89,23 @@ exports.login = async (req, res) => {
     if (!email || !password)
       return res.status(400).json({ success: false, message: 'Email and password required' });
 
+    const start = Date.now();
+    // DB lookup
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
-    if (!user || !(await user.comparePassword(password))) {
+    const afterFind = Date.now();
+    console.info(`[auth] login lookup for ${email} took ${afterFind - start}ms`);
+
+    // Password compare
+    let passwordMatch = false;
+    if (user && user.comparePassword) {
+      const cmpStart = Date.now();
+      passwordMatch = await user.comparePassword(password);
+      const cmpEnd = Date.now();
+      console.info(`[auth] password compare for ${email} took ${cmpEnd - cmpStart}ms`);
+    }
+
+    if (!user || !passwordMatch) {
+      console.info(`[auth] login failed for ${email} (userFound=${!!user}, match=${passwordMatch})`);
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
