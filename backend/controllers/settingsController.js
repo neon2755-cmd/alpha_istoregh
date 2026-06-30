@@ -42,6 +42,8 @@ const updateSettings = async (req, res) => {
         }));
       }
       if (req.body.delivery !== undefined) settings.delivery = { ...(settings.delivery || {}), ...req.body.delivery };
+      if (req.body.heroImages !== undefined) settings.heroImages = req.body.heroImages;
+      if (req.body.filters !== undefined) settings.filters = req.body.filters;
       if (req.body.brands !== undefined) settings.brands = req.body.brands;
       if (req.body.categories !== undefined) settings.categories = req.body.categories;
       if (req.body.ourStory !== undefined) settings.ourStory = req.body.ourStory;
