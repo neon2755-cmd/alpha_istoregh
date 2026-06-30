@@ -32,16 +32,70 @@ const ProductCardSkeleton = () => (
 );
 
 function HomePage() {
+  const defaultHero = {
+    title: "The Perfect iPhone\nfor Every Lifestyle",
+    subtitle: "Discover the latest iPhone 17 Pro Max with premium features, stunning displays, and unmatched performance. Shop now for exclusive deals.",
+    image: { url: '/images/hero-phone.png' },
+  };
+
+  const defaultSettings = {
+    hero: defaultHero,
+    contact: { whatsapp: [siteConfig.whatsappNumber || ''] },
+    promoBanners: [],
+  };
+
+  const getString = (value, fallback) => {
+    return typeof value === 'string' && value.trim() ? value : fallback;
+  };
+
   const { featuredProducts, hotDeals, loading, error } = useProducts();
-  const [settings, setSettings] = useState(null);
+  const [settings, setSettings] = useState(defaultSettings);
+  const [heroLoaded, setHeroLoaded] = useState(false);
 
   useEffect(() => {
-    settingsAPI.get().then(res => {
-      if (res.success) setSettings(res.settings);
-    }).catch(console.error);
+    settingsAPI.get()
+      .then(res => {
+        if (!res.success || !res.settings) return;
+
+        setSettings(prevSettings => {
+          const heroFromResponse = res.settings.hero || {};
+          const mergedHero = {
+            ...defaultHero,
+            ...heroFromResponse,
+            title: getString(heroFromResponse.title, defaultHero.title),
+            subtitle: getString(heroFromResponse.subtitle, defaultHero.subtitle),
+            image: {
+              ...defaultHero.image,
+              ...heroFromResponse.image,
+              url: getString(heroFromResponse?.image?.url, defaultHero.image.url),
+            },
+          };
+
+          return {
+            ...defaultSettings,
+            ...res.settings,
+            hero: mergedHero,
+            contact: {
+              ...defaultSettings.contact,
+              ...res.settings.contact,
+              whatsapp: Array.isArray(res.settings.contact?.whatsapp) && res.settings.contact.whatsapp.length > 0
+                ? res.settings.contact.whatsapp
+                : defaultSettings.contact.whatsapp,
+            },
+            promoBanners: Array.isArray(res.settings.promoBanners)
+              ? res.settings.promoBanners
+              : defaultSettings.promoBanners,
+          };
+        });
+      })
+      .catch(console.error);
   }, []);
 
-  const heroImage = settings?.hero?.image?.url || '/images/hero-phone.png';
+  const heroImage = getString(settings.hero.image?.url, defaultHero.image.url);
+
+  useEffect(() => {
+    setHeroLoaded(false);
+  }, [heroImage]);
 
   // Mocking extra product arrays for "Latest Arrivals" and "Best Sellers" since they aren't provided by the hook directly
   const latestArrivals = featuredProducts ? [...featuredProducts].reverse() : [];
@@ -90,10 +144,14 @@ function HomePage() {
             </div>
             <div className="relative flex justify-center items-center z-0 md:h-[450px] h-[300px]">
               <div className="relative w-full h-full max-w-md">
+                {!heroLoaded && (
+                  <SkeletonLoader width="100%" height="100%" className="rounded-[1rem]" />
+                )}
                 <img
                   src={heroImage}
                   alt="Hero image"
-                  className="w-full h-full object-contain rounded-[1rem]"
+                  onLoad={() => setHeroLoaded(true)}
+                  className={`w-full h-full object-contain rounded-[1rem] ${heroLoaded ? 'block' : 'hidden'}`}
                   style={{ background: '#f8fafc' }}
                 />
               </div>
