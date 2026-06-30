@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
-import siteConfig from '../../config';
+import { authAPI } from '../../lib/api';
 import { useAdminAuthStore } from '../../store/adminAuth';
 import toast from 'react-hot-toast';
 import PasswordInput from '../../components/ui/PasswordInput';
@@ -23,14 +22,7 @@ export default function AdminLogin() {
     setError('');
 
     try {
-     const res = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include',
-      });
-
-      const data = await res.json();
+      const data = await authAPI.login({ email, password });
       if (!data.success) {
         setError(data.message || 'Invalid credentials');
         toast.error('Invalid credentials');

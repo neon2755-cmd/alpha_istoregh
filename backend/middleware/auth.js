@@ -29,6 +29,15 @@ exports.adminOnly = (req, res, next) => {
 exports.generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
 
+exports.generateReceiptToken = (orderNumber) =>
+  jwt.sign(
+    { orderNumber },
+    process.env.JWT_SECRET,
+    { expiresIn: '90d' }
+  );
+
+exports.verifyReceiptToken = (token) => jwt.verify(token, process.env.JWT_SECRET);
+
 exports.setTokenCookie = (res, token) => {
   res.cookie('token', token, {
     httpOnly: true,

@@ -5,6 +5,8 @@ const { protect, adminOnly } = require('../middleware/auth');
 router.post('/',                   ctrl.createOrder);
 router.get('/my',    protect,      ctrl.getMyOrders);
 router.get('/track/:orderNumber',  ctrl.trackOrder);
+router.get('/receipt-token/:orderNumber', ctrl.getReceiptToken);
+router.get('/verify-receipt', ctrl.verifyReceipt);
 router.get('/dashboard-stats', protect, adminOnly, ctrl.getDashboardStats);
 router.delete('/clear', protect, adminOnly, ctrl.clearAllOrders);
 router.get('/', protect, adminOnly, ctrl.getAllOrders);

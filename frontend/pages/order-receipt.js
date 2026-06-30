@@ -5,11 +5,13 @@ import { ordersAPI, settingsAPI } from '../lib/api';
 import { formatPrice } from '../lib/utils';
 import siteConfig from '../config';
 import { Printer, Mail } from 'lucide-react';
+import QRCode from 'react-qr-code';
 
 export default function OrderReceipt() {
   const router = useRouter();
   const { order: orderNum } = router.query;
   const [order, setOrder] = useState(null);
+  const [receiptToken, setReceiptToken] = useState('');
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -26,6 +28,19 @@ export default function OrderReceipt() {
       }
     };
     fetchOrder();
+  }, [orderNum]);
+
+  useEffect(() => {
+    if (!orderNum) return;
+    const fetchReceiptToken = async () => {
+      try {
+        const res = await ordersAPI.getReceiptToken(orderNum);
+        setReceiptToken(res.token || res.data?.token || res);
+      } catch (err) {
+        console.error('Failed to load receipt verification token', err);
+      }
+    };
+    fetchReceiptToken();
   }, [orderNum]);
 
   useEffect(() => {
@@ -55,6 +70,12 @@ export default function OrderReceipt() {
   const contact = settings?.contact || siteConfig.contact || {};
   const storeName = settings?.storeName || siteConfig.name;
   const logo = settings?.logo?.url;
+  const baseUrl = typeof window !== 'undefined'
+    ? window.location.origin
+    : siteConfig.frontendUrl;
+  const receiptAuthUrl = receiptToken
+    ? `${baseUrl}/verify-receipt?token=${encodeURIComponent(receiptToken)}`
+    : `${baseUrl}/verify-receipt`;
   
   const getCustomerName = () => {
     // Try customer field first (stored during checkout)
@@ -83,13 +104,33 @@ export default function OrderReceipt() {
       <Head>
         <title>Receipt — {order.orderNumber}</title>
         <style>{`
+          @page {
+            size: A4 portrait;
+            margin: 20mm;
+          }
+
           @media print {
-            body { background: white !important; }
-            .no-print { display: none !important; }
+            html, body {
+              width: 210mm !important;
+              min-height: 297mm !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              background: white !important;
+            }
+            .no-print {
+              display: none !important;
+            }
+            .print-wrapper {
+              width: 100% !important;
+              max-width: none !important;
+              min-height: auto !important;
+              margin: 0 !important;
+              box-shadow: none !important;
+            }
           }
         `}</style>
       </Head>
-      <div className="max-w-3xl mx-auto p-10 bg-white min-h-screen text-ink">
+      <div className="print-wrapper max-w-3xl mx-auto p-10 bg-white min-h-screen text-ink">
         <div className="flex justify-between items-start mb-8 pb-8 border-b-2 border-surface-border">
           <div className="flex items-start gap-4">
             {logo && <img src={logo} alt="Logo" className="h-16 object-contain" />}
@@ -203,22 +244,40 @@ export default function OrderReceipt() {
         </div>
 
         <div className="mt-12 pt-6 border-t-2 border-surface-border">
-          <div className="text-center mb-6">
-            <p className="font-bold text-ink mb-1">✓ Thank you for your order!</p>
-            <p className="text-xs text-ink-muted">Your order has been received and is being processed. Track your order status in your account or via our website.</p>
-          </div>
-          
-          <div className="text-center text-xs text-ink-muted space-y-1 mb-6">
-            <p>Questions? Contact us:</p>
-            <p>{contact.email || 'info@alphaistore.com'} · {contact.phone || '+233 575 453 086'}</p>
-            {contact.whatsapp && <p>WhatsApp: {Array.isArray(contact.whatsapp) ? contact.whatsapp[0] : contact.whatsapp}</p>}
-          </div>
-          
-          <p className="text-center text-xs text-ink-muted border-t border-surface-border pt-4 mt-4">
-            {storeName} · {contact.address || 'Adum P.Z, Kumasi, Ghana'} · Generated on {date} at {time}
-          </p>
-        </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_180px] gap-6 items-start">
+            <div>
+              <div className="text-center mb-6">
+                <p className="font-bold text-ink mb-1">✓ Thank you for your order!</p>
+                <p className="text-xs text-ink-muted">Your order has been received and is being processed. Scan the QR code to verify receipt authenticity.</p>
+              </div>
 
+              <div className="text-center text-xs text-ink-muted space-y-1 mb-6">
+                <p>Questions? Contact us:</p>
+                <p>{contact.email || 'info@alphaistore.com'} · {contact.phone || '+233 575 453 086'}</p>
+                {contact.whatsapp && <p>WhatsApp: {Array.isArray(contact.whatsapp) ? contact.whatsapp[0] : contact.whatsapp}</p>}
+              </div>
+
+              <p className="text-center text-xs text-ink-muted border-t border-surface-border pt-4 mt-4">
+                {storeName} · {contact.address || 'Adum P.Z, Kumasi, Ghana'} · Generated on {date} at {time}
+              </p>
+            </div>
+
+            <div className="bg-surface-muted p-4 rounded-xl border border-surface-border text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-subtle mb-3">Verify Receipt Authenticity</p>
+              <div className="inline-block p-3 bg-white rounded-xl shadow-sm mb-3">
+                  <QRCode value={receiptAuthUrl} size={144} />
+                </div>
+                <p className="text-[10px] text-ink-muted leading-5">
+                  Scan this QR code to confirm this receipt is genuine and has not been altered.
+                </p>
+                {!receiptToken && (
+                  <p className="mt-2 text-[10px] text-amber-600">
+                    Receipt verification token is being generated. If the QR code does not work, refresh or contact support.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
         <div className="mt-8 flex gap-3 justify-center no-print">
           <button onClick={() => window.print()} className="inline-flex items-center gap-2 h-11 px-6 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors">
             <Printer className="h-4 w-4" />

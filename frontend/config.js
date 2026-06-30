@@ -6,7 +6,9 @@ const siteConfig = {
   description:
     "Ghana's trusted destination for new, UK-used, and Ghana-used smartphones.",
   apiEndpoint:
-    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+    process.env.NEXT_PUBLIC_API_ENDPOINT || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+  frontendUrl:
+    process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000',
   whatsappNumber:
     process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '233000000000',
   themeColor: '#2563EB',

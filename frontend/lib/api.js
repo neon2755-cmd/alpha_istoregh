@@ -12,6 +12,22 @@ const apiClient = axios.create({
 });
 
 // Add a response interceptor for handling global errors
+apiClient.interceptors.request.use(
+  (config) => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        config.headers = {
+          ...config.headers,
+          Authorization: `Bearer ${token}`,
+        };
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 apiClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
@@ -45,6 +61,8 @@ export const trackOrder = (orderNumber) => apiClient.get(`/orders/track/${orderN
 export const getAllOrders = (params) => apiClient.get('/orders', { params });
 export const updateOrderStatus = (id, status) => apiClient.patch(`/orders/${id}/status`, { status });
 export const getDashboardStats = () => apiClient.get('/orders/dashboard-stats');
+export const getReceiptToken = (orderNumber) => apiClient.get(`/orders/receipt-token/${orderNumber}`);
+export const verifyReceiptToken = (token) => apiClient.get('/orders/verify-receipt', { params: { token } });
 
 // Settings
 export const getSettings = () => apiClient.get('/settings');
@@ -70,6 +88,8 @@ export const authAPI = {
   register: (data) => apiClient.post('/auth/register', data),
   logout: () => apiClient.post('/auth/logout'),
   getMe: () => apiClient.get('/auth/me'),
+  updateProfile: (data) => apiClient.put('/auth/me', data),
+  changePassword: (newPassword) => apiClient.put('/auth/change-password', { newPassword }),
 };
 
 export const ordersAPI = {
@@ -79,6 +99,8 @@ export const ordersAPI = {
   getAll: getAllOrders,
   updateStatus: updateOrderStatus,
   getDashboardStats: getDashboardStats,
+  getReceiptToken: getReceiptToken,
+  verifyReceipt: verifyReceiptToken,
   clearAll: () => apiClient.delete('/orders/clear'),
 };
 

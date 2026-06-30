@@ -1,6 +1,7 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const sendEmail = require('../utils/sendEmail');
+const { generateReceiptToken, verifyReceiptToken } = require('../middleware/auth');
 
 // POST /api/orders
 exports.createOrder = async (req, res, next) => {
@@ -169,6 +170,49 @@ exports.trackOrder = async (req, res) => {
       .populate('user', 'firstName lastName email phone');
     if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
     res.json({ success: true, order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// GET /api/orders/receipt-token/:orderNumber (public)
+exports.getReceiptToken = async (req, res) => {
+  try {
+    const order = await Order.findOne({ orderNumber: req.params.orderNumber });
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    const token = generateReceiptToken(order.orderNumber);
+    res.json({ success: true, token });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// GET /api/orders/verify-receipt (public)
+exports.verifyReceipt = async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) return res.status(400).json({ success: false, message: 'Verification token is required' });
+    let payload;
+    try {
+      payload = verifyReceiptToken(token);
+    } catch (err) {
+      return res.status(401).json({ success: false, message: 'Invalid or expired verification token' });
+    }
+    const order = await Order.findOne({ orderNumber: payload.orderNumber })
+      .populate('items.product', 'name images')
+      .populate('user', 'firstName lastName email phone');
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    res.json({
+      success: true,
+      verified: true,
+      order: {
+        orderNumber: order.orderNumber,
+        total: order.total,
+        createdAt: order.createdAt,
+        status: order.status,
+        customer: order.customer || order.guestInfo || {},
+      },
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

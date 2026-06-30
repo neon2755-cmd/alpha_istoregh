@@ -4,6 +4,7 @@ import AdminLayout from '../../components/portal/AdminLayout';
 import withAdminAuth from '../../components/portal/withAdminAuth';
 import { Download, FileSpreadsheet, TrendingUp, ShoppingBag, DollarSign, Package } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { ordersAPI } from '../../lib/api';
 
 function AdminReports() {
   const [orders, setOrders] = useState([]);
@@ -13,21 +14,19 @@ function AdminReports() {
   const [dateTo, setDateTo] = useState('');
 
   useEffect(() => {
+    let active = true;
     const fetchOrders = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/orders?limit=10000`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
-        setOrders(data.orders || []);
+        const data = await ordersAPI.getAll({ limit: 10000 });
+        if (active) setOrders(data.orders || []);
       } catch (e) {
         console.error(e);
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
     fetchOrders();
+    return () => { active = false; };
   }, []);
 
   const filteredOrders = orders.filter(o => {

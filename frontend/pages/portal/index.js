@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
 import withAdminAuth from '../../components/portal/withAdminAuth';
+import { ordersAPI, productsAPI } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 
@@ -35,16 +36,10 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const headers = { Authorization: `Bearer ${token}` };
-        
-        const [ordersRes, productsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/orders?limit=1000`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/products?limit=1000`, { headers }),
+        const [ordersData, productsData] = await Promise.all([
+          ordersAPI.getAll({ limit: 1000 }),
+          productsAPI.list({ limit: 1000 }),
         ]);
-        
-        const ordersData = await ordersRes.json();
-        const productsData = await productsRes.json();
         
         const ordersList = ordersData.orders || [];
         const products = productsData.products || [];
@@ -78,10 +73,7 @@ function AdminDashboard() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/orders?limit=5`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
-        });
-        const data = await res.json();
+        const data = await ordersAPI.getAll({ limit: 5 });
         if (!cancelled) setRecentOrders(data.orders || []);
       } catch {
         if (!cancelled) setRecentOrders([]);

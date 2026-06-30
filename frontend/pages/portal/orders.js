@@ -24,11 +24,7 @@ function AdminOrders() {
 
   const fetchOrders = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/orders`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await ordersAPI.getAll();
       setOrders(data.orders || []);
     } catch (e) {
       console.error(e);
@@ -38,7 +34,13 @@ function AdminOrders() {
   };
 
   useEffect(() => {
-    fetchOrders();
+    let active = true;
+    const load = async () => {
+      if (!active) return;
+      await fetchOrders();
+    };
+    load();
+    return () => { active = false; };
   }, []);
 
   const handleUpdateStatus = async (id, status) => {
