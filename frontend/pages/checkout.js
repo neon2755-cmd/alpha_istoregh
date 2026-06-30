@@ -165,7 +165,7 @@ export default function Checkout() {
       toast.error('Please enter a valid email address');
       return;
     }
-    if (!region?.region?.startsWith('Pickup') && deliveryAddress.length < 5) {
+    if (!region?.region?.startsWith('Pickup') && address.trim().length < 5) {
       toast.error('Please enter your delivery address');
       return;
     }
