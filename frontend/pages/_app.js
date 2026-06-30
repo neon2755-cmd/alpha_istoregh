@@ -1,5 +1,6 @@
 import '../styles/globals.css';
 import React, { useState, useEffect } from 'react';
+import App from 'next/app';
 import { Toaster } from 'react-hot-toast';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -37,13 +38,15 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-function MyApp({ Component, pageProps }) {
+function MyApp({ Component, pageProps, favicon: initialFavicon }) {
   const { isCartOpen, setCartOpen } = useStore();
-  const [favicon, setFavicon] = useState('/favicon.svg');
+  const [favicon, setFavicon] = useState(initialFavicon || '/favicon.svg');
 
   useEffect(() => {
     settingsAPI.get().then(res => {
-      const fav = res.settings?.favicon?.url || res.settings?.favicon || null;
+      const fav = typeof res?.settings?.favicon === 'string'
+        ? res.settings.favicon
+        : res?.settings?.favicon?.url || null;
       if (fav) setFavicon(fav);
     }).catch(() => {});
   }, []);
@@ -71,8 +74,8 @@ function MyApp({ Component, pageProps }) {
           <title>Admin — Alpha iStore</title>
           <meta name="viewport" content="width=device-width,initial-scale=1" />
           <link rel="icon" href={favicon} />
-          <link rel="apple-touch-icon" href={favicon} />
-          <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon} />
+          <link rel="apple-touch-icon" href={favicon.endsWith('.png') ? favicon : '/favicon-180.png'} />
+          <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon.endsWith('.png') ? favicon : '/favicon-32.png'} />
         </Head>
         {getLayout ? getLayout(<Component {...pageProps} />) : <Component {...pageProps} />}
         <Toaster position="top-right" toastOptions={{ duration: 3000, style: { background: '#0F172A', color: '#fff', borderRadius: '12px', padding: '12px 16px', fontSize: '14px', fontWeight: 500 }, success: { iconTheme: { primary: '#006989', secondary: '#fff' } }, error: { iconTheme: { primary: '#EF4444', secondary: '#fff' } } }} />
@@ -83,12 +86,12 @@ function MyApp({ Component, pageProps }) {
   // Regular pages get Header/Footer
   return (
     <>
-        <Head>
+      <Head>
         <title>Alpha iStore</title>
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="icon" href={favicon} />
-        <link rel="apple-touch-icon" href={favicon} />
-        <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon} />
+        <link rel="apple-touch-icon" href={favicon.endsWith('.png') ? favicon : '/favicon-180.png'} />
+        <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon.endsWith('.png') ? favicon : '/favicon-32.png'} />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </Head>
@@ -107,5 +110,20 @@ function MyApp({ Component, pageProps }) {
     </>
   );
 }
+
+MyApp.getInitialProps = async (appContext) => {
+  const appProps = await App.getInitialProps(appContext);
+  let initialFavicon = '/favicon.svg';
+
+  try {
+    const res = await settingsAPI.get();
+    const fav = res?.settings?.favicon?.url || res?.settings?.favicon || null;
+    if (fav) initialFavicon = fav;
+  } catch (error) {
+    // Keep default favicon if API call fails during SSR
+  }
+
+  return { ...appProps, favicon: initialFavicon };
+};
 
 export default MyApp;
