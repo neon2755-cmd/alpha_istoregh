@@ -16,6 +16,7 @@ const getUserFromToken = async (req) => {
     } else if (req.body?.authToken) {
       token = req.body.authToken;
     }
+    console.debug('getUserFromToken - extracted token present:', !!token);
     if (!token) return null;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     return await User.findById(decoded.id).select('-password');
@@ -29,6 +30,7 @@ exports.createOrder = async (req, res, next) => {
   try {
     const { items, delivery, payment, guestInfo, promoCode, discount } = req.body;
     const currentUser = req.user || (await getUserFromToken(req));
+    console.debug('createOrder - req.user present:', !!req.user, 'currentUser id:', currentUser?._id);
     if (currentUser) req.user = currentUser;
 
     if (!items?.length) return res.status(400).json({ success: false, message: 'No order items' });
@@ -175,6 +177,7 @@ exports.createOrder = async (req, res, next) => {
 // GET /api/orders/my (customer)
 exports.getMyOrders = async (req, res) => {
   try {
+    console.debug('getMyOrders - req.user id:', req.user?._id);
     const orders = await Order.find({ user: req.user._id })
       .select('-verificationToken')
       .sort('-createdAt')
