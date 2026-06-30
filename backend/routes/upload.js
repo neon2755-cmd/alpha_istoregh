@@ -1,6 +1,7 @@
 const router     = require('express').Router();
 const multer     = require('multer');
 const cloudinary = require('../config/cloudinary');
+const { protect, adminOnly } = require('../middleware/auth');
 
 const storage = multer.memoryStorage();
 const upload  = multer({
@@ -21,7 +22,7 @@ const uploadToCloudinary = (buffer, folder) =>
     stream.end(buffer);
   });
 
-router.post('/images', upload.array('images', 5), async (req, res) => {
+router.post('/images', protect, adminOnly, upload.array('images', 5), async (req, res) => {
   try {
     if (!req.files?.length) return res.status(400).json({ success: false, message: 'No files uploaded' });
     const results = await Promise.all(
@@ -34,7 +35,7 @@ router.post('/images', upload.array('images', 5), async (req, res) => {
   }
 });
 
-router.delete('/image', async (req, res) => {
+router.delete('/image', protect, adminOnly, async (req, res) => {
   try {
     const { public_id } = req.body;
     if (!public_id) return res.status(400).json({ success: false, message: 'public_id required' });

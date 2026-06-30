@@ -145,22 +145,13 @@ function AdminSettings() {
   const handleSave = async (section) => {
     setSaving(true);
     try {
-      const token = localStorage.getItem('authToken') || useAdminAuthStore.getState().token;
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/settings`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(settings),
-      });
-      const data = await response.json();
-      if (data.success) {
+      const res = await settingsAPI.update(settings);
+      if (res.success) {
         toast.success('Settings saved!');
         if (settings.storeName) localStorage.setItem('storeName', settings.storeName);
         if (settings.logo?.url) localStorage.setItem('storeLogo', settings.logo.url);
       } else {
-        toast.error(data.message || 'Failed to save');
+        toast.error(res.message || 'Failed to save');
       }
     } catch (err) {
       toast.error('Failed to save settings');
@@ -398,8 +389,8 @@ function AdminSettings() {
                 </div>
 
                 <div>
-                  <label className={labelClass}>Google Maps Embed URL</label>
-                  <input type="text" value={settings.contact?.googleMapEmbedUrl || ''} onChange={(e) => handleChange('contact', 'googleMapEmbedUrl', e.target.value)} className={inputClass} placeholder="<iframe src=..." />
+                  <label className={labelClass}>Google Maps Link or Embed Code</label>
+                  <input type="text" value={settings.contact?.googleMapEmbedUrl || ''} onChange={(e) => handleChange('contact', 'googleMapEmbedUrl', e.target.value)} className={inputClass} placeholder="https://www.google.com/maps/... or <iframe src=..." />
                 </div>
               </div>
             </section>

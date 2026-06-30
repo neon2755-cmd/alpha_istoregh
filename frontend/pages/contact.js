@@ -40,6 +40,16 @@ export default function Contact() {
   const contactEmail = settings?.contact?.email || siteConfig.contact?.email || 'info@alphaistore.com';
   const contactAddress = settings?.contact?.address || siteConfig.contact?.address || 'Adum P.Z, Kumasi, Ghana';
   const whatsappNumber = (settings?.contact?.whatsapp?.[0] || siteConfig.whatsappNumber || '').replace(/[^0-9]/g, '');
+  const mapLocationValue = typeof settings?.contact?.googleMapEmbedUrl === 'string' ? settings.contact.googleMapEmbedUrl.trim() : '';
+  const mapActionUrl = (() => {
+    if (!mapLocationValue) return '';
+    const match = mapLocationValue.match(/https?:\/\/[^\s<>'"`]+/i);
+    if (match) return match[0];
+    if (/^www\./i.test(mapLocationValue)) return `https://${mapLocationValue}`;
+    return mapLocationValue;
+  })();
+  const isGoogleMapsEmbed = mapLocationValue.includes('<iframe');
+  const isGoogleMapsLink = /google\.(?:com|[a-z]{2,3})\/maps|maps\.app\.goo\.gl|goo\.gl\/maps/i.test(mapActionUrl || mapLocationValue);
 
   const CONTACTS = [
     {
@@ -242,13 +252,33 @@ export default function Contact() {
           </form>
         </section>
 
-        {settings?.contact?.googleMapEmbedUrl && (
+        {mapLocationValue && (
           <section className="rounded-xl border border-surface-border bg-white p-2 md:p-4 mt-6">
             <h2 className="text-base font-semibold tracking-tightish text-ink mb-4 px-2">Our Location</h2>
-            <div
-              className="w-full h-[300px] md:h-[400px] rounded-lg overflow-hidden"
-              dangerouslySetInnerHTML={{ __html: typeof settings.contact.googleMapEmbedUrl === 'string' ? settings.contact.googleMapEmbedUrl : '' }}
-            />
+            {isGoogleMapsEmbed ? (
+              <div
+                className="w-full h-[300px] md:h-[400px] rounded-lg overflow-hidden"
+                dangerouslySetInnerHTML={{ __html: mapLocationValue }}
+              />
+            ) : (
+              <div className="space-y-3 px-2 pb-2">
+                <p className="text-sm text-ink-muted">
+                  Open our location directly in Google Maps.
+                </p>
+                {isGoogleMapsLink && mapActionUrl ? (
+                  <a
+                    href={mapActionUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark transition-colors"
+                  >
+                    Open in Google Maps
+                  </a>
+                ) : (
+                  <p className="text-sm text-ink-muted">Save a valid Google Maps link to show the button here.</p>
+                )}
+              </div>
+            )}
           </section>
         )}
       </div>
