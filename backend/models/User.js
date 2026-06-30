@@ -24,7 +24,9 @@ const userSchema = new mongoose.Schema({
 // Hash password before save
 userSchema.pre('save', async function () {
   if (!this.isModified('password') || !this.password) return;
-  const rounds = Number(process.env.BCRYPT_ROUNDS) || 12;
+  const rounds = process.env.BCRYPT_ROUNDS
+    ? Number(process.env.BCRYPT_ROUNDS)
+    : (process.env.NODE_ENV === 'production' ? 12 : 8);
   this.password = await bcrypt.hash(this.password, rounds);
 });
 

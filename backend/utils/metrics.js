@@ -1,11 +1,41 @@
 // Simple in-memory metrics for auth timings (dev only)
+const fs = require('fs');
+const path = require('path');
 const MAX_ENTRIES = 2000;
+const PERSIST_PATH = path.join(__dirname, '..', 'metrics.jsonl');
 
 const authDurations = []; // { email, ms, ts }
 
+// Load persisted metrics (if any)
+try {
+  if (fs.existsSync(PERSIST_PATH)) {
+    const data = fs.readFileSync(PERSIST_PATH, 'utf8').trim().split(/\r?\n/).filter(Boolean);
+    for (const line of data) {
+      try {
+        const obj = JSON.parse(line);
+        authDurations.push(obj);
+      } catch {}
+    }
+  }
+} catch (e) {
+  console.error('Could not load persisted metrics:', e.message);
+}
+
+function persistEntry(entry) {
+  try {
+    fs.appendFile(PERSIST_PATH, JSON.stringify(entry) + '\n', (err) => {
+      if (err) console.error('Failed to persist metric:', err.message);
+    });
+  } catch (e) {
+    console.error('Failed to persist metric:', e.message);
+  }
+}
+
 function addLoginDuration(email, ms) {
-  authDurations.push({ email, ms, ts: Date.now() });
+  const entry = { email, ms, ts: Date.now() };
+  authDurations.push(entry);
   if (authDurations.length > MAX_ENTRIES) authDurations.shift();
+  persistEntry(entry);
 }
 
 function getAuthMetrics() {
