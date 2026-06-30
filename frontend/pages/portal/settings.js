@@ -1,7 +1,7 @@
 import { useAdminAuthStore } from '../../store/adminAuth';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { Save, Store, MapPin, Image as ImageIcon, CreditCard, Plus, Trash2, Link as LinkIcon, UploadCloud, Loader2 } from 'lucide-react';
+import { Save, Store, MapPin, Image as ImageIcon, CreditCard, Plus, Trash2, Link as LinkIcon, UploadCloud, Loader2, Truck } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
 import withAdminAuth from '../../components/portal/withAdminAuth';
 import { settingsAPI, uploadAPI, authAPI } from '../../lib/api';
@@ -392,6 +392,55 @@ function AdminSettings() {
                   <label className={labelClass}>Google Maps Link or Embed Code</label>
                   <input type="text" value={settings.contact?.googleMapEmbedUrl || ''} onChange={(e) => handleChange('contact', 'googleMapEmbedUrl', e.target.value)} className={inputClass} placeholder="https://www.google.com/maps/... or <iframe src=..." />
                 </div>
+              </div>
+            </section>
+
+            {/* Delivery Locations */}
+            <section className={cardClass}>
+              <div className="flex items-center gap-3 mb-6">
+                <span className="h-10 w-10 flex items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                  <Truck className="h-5 w-5" />
+                </span>
+                <h2 className="text-xl font-bold tracking-tight text-ink">Delivery Locations & Fees</h2>
+              </div>
+              <div className="space-y-4">
+                {(Array.isArray(settings.delivery?.locations) ? settings.delivery.locations : []).map((loc, idx) => (
+                  <div key={idx} className="flex gap-3 items-end">
+                    <div className="flex-1">
+                      <label className={labelClass}>Region</label>
+                      <input type="text" value={loc.region || ''} onChange={(e) => {
+                        const newLocs = [...(settings.delivery?.locations || [])];
+                        newLocs[idx] = { ...newLocs[idx], region: e.target.value };
+                        setSettings(prev => ({ ...prev, delivery: { ...prev.delivery, locations: newLocs } }));
+                      }} className={inputClass} placeholder="Region name" />
+                    </div>
+                    <div className="w-28">
+                      <label className={labelClass}>Fee (GHS)</label>
+                      <input type="number" value={loc.fee || 0} onChange={(e) => {
+                        const newLocs = [...(settings.delivery?.locations || [])];
+                        newLocs[idx] = { ...newLocs[idx], fee: Number(e.target.value) };
+                        setSettings(prev => ({ ...prev, delivery: { ...prev.delivery, locations: newLocs } }));
+                      }} className={inputClass} placeholder="0" min="0" />
+                    </div>
+                    <button type="button" onClick={() => {
+                      setSettings(prev => ({
+                        ...prev,
+                        delivery: { ...prev.delivery, locations: (prev.delivery?.locations || []).filter((_, i) => i !== idx) }
+                      }));
+                    }} className="h-11 w-11 flex items-center justify-center rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => {
+                  setSettings(prev => ({
+                    ...prev,
+                    delivery: { 
+                      ...prev.delivery, 
+                      locations: [...(prev.delivery?.locations || []), { region: '', fee: 0 }]
+                    }
+                  }));
+                }} className="text-xs font-bold text-primary hover:text-primary-dark">+ Add Location</button>
               </div>
             </section>
 

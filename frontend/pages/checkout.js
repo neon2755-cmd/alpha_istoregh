@@ -13,11 +13,19 @@ import {
   Share,
 } from 'lucide-react';
 import { useStore } from '../store';
-import { ordersAPI, validatePromoCode } from '../lib/api';
+import { ordersAPI, validatePromoCode, settingsAPI } from '../lib/api';
 import { formatPrice } from '../lib/utils';
 import toast from 'react-hot-toast';
 
-const DELIVERY_REGIONS = [
+const PAYMENT_METHODS_MAP = {
+  mtnMomo: { id: 'mtn_momo', label: 'MTN Mobile Money', color: '#FFC107' },
+  telecel: { id: 'telecel', label: 'Telecel Cash', color: '#E53935' },
+  airteltigo: { id: 'airteltigo', label: 'AirtelTigo Money', color: '#FF5722' },
+  card: { id: 'card', label: 'Credit/Debit Card', color: '#1976D2' },
+  payOnDelivery: { id: 'pay_on_delivery', label: 'Pay on Delivery', color: '#388E3C' },
+};
+
+const DEFAULT_DELIVERY_REGIONS = [
   { region: 'Pickup at Kumasi Adum', fee: 0 },
   { region: 'Greater Accra', fee: 20 },
   { region: 'Ashanti', fee: 40 },
@@ -30,14 +38,6 @@ const DELIVERY_REGIONS = [
   { region: 'Upper West', fee: 90 },
   { region: 'Bono', fee: 60 },
   { region: 'Pickup (Accra)', fee: 0 },
-];
-
-const PAYMENT_OPTIONS = [
-  { id: 'mtn_momo', label: 'MTN Mobile Money', color: '#FFC107', icon: '📱' },
-  { id: 'telecel', label: 'Telecel Cash', color: '#E53935', icon: '📱' },
-  { id: 'airteltigo', label: 'AirtelTigo Money', color: '#FF5722', icon: '📱' },
-  { id: 'card', label: 'Credit/Debit Card', color: '#1976D2', icon: '💳' },
-  { id: 'pay_on_delivery', label: 'Pay on Delivery', color: '#388E3C', icon: '🚚' },
 ];
 
 const inputClass =
@@ -55,18 +55,54 @@ export default function Checkout() {
   const user = useStore((s) => s.user);
   const clearCart = useStore((s) => s.clearCart);
 
+  const [settings, setSettings] = useState(null);
+  const [deliveryRegions, setDeliveryRegions] = useState(DEFAULT_DELIVERY_REGIONS);
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  
   const [form, setForm] = useState({
     name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : '',
     email: user?.email || '',
     phone: user?.phone || '',
   });
-  const [region, setRegion] = useState(DELIVERY_REGIONS[0]);
+  const [region, setRegion] = useState(deliveryRegions[0]);
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [payment, setPayment] = useState('mtn_momo');
   const [promo, setPromo] = useState('');
   const [discount, setDiscount] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    settingsAPI.get().then(res => {
+      if (!active) return;
+      if (res.settings) {
+        setSettings(res.settings);
+        
+        // Set delivery regions from settings or use defaults
+        const regions = res.settings.delivery?.locations?.length > 0 
+          ? res.settings.delivery.locations 
+          : DEFAULT_DELIVERY_REGIONS;
+        setDeliveryRegions(regions);
+        setRegion(regions[0]);
+        
+        // Build available payment methods
+        const available = [];
+        if (res.settings.payment?.mtnMomo) available.push(PAYMENT_METHODS_MAP.mtnMomo);
+        if (res.settings.payment?.telecel) available.push(PAYMENT_METHODS_MAP.telecel);
+        if (res.settings.payment?.airteltigo) available.push(PAYMENT_METHODS_MAP.airteltigo);
+        if (res.settings.payment?.card) available.push(PAYMENT_METHODS_MAP.card);
+        if (res.settings.payment?.payOnDelivery) available.push(PAYMENT_METHODS_MAP.payOnDelivery);
+        
+        setPaymentMethods(available);
+        if (available.length > 0) setPayment(available[0].id);
+      }
+    }).catch(() => {
+      setDeliveryRegions(DEFAULT_DELIVERY_REGIONS);
+      setRegion(DEFAULT_DELIVERY_REGIONS[0]);
+    });
+    return () => { active = false };
+  }, []);
 
   const subtotal = cart.reduce((s, item) => s + item.price * item.quantity, 0);
   const total = Math.max(0, subtotal + region.fee - discount);
@@ -271,11 +307,11 @@ export default function Checkout() {
                     value={region.region}
                     onChange={(e) =>
                       setRegion(
-                        DELIVERY_REGIONS.find((r) => r.region === e.target.value)
+                        deliveryRegions.find((r) => r.region === e.target.value)
                       )
                     }
                   >
-                    {DELIVERY_REGIONS.map((r) => (
+                    {deliveryRegions.map((r) => (
                       <option key={r.region} value={r.region}>
                         {r.region} — {r.fee === 0 ? 'Free' : formatPrice(r.fee)}
                       </option>
@@ -317,7 +353,7 @@ export default function Checkout() {
                 </h2>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px' }}>
-                {PAYMENT_OPTIONS.map(method => (
+                {paymentMethods.map(method => (
                   <label key={method.id} style={{
                     display: 'flex', alignItems: 'center', gap: '10px',
                     padding: '12px', borderRadius: '12px', cursor: 'pointer',
@@ -329,7 +365,6 @@ export default function Checkout() {
                       checked={payment === method.id}
                       onChange={() => setPayment(method.id)}
                       style={{ display: 'none' }} />
-                    <span style={{ fontSize: '20px' }}>{method.icon}</span>
                     <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{method.label}</span>
                   </label>
                 ))}
