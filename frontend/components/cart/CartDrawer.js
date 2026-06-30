@@ -49,7 +49,7 @@ export default function CartDrawer({ isOpen, onClose }) {
               type="button"
               onClick={onClose}
               aria-label="Close cart"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink-muted hover:bg-surface-muted hover:text-ink"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink-muted"
             >
               <X className="h-4 w-4" />
             </button>
@@ -74,7 +74,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                     key={item.id + JSON.stringify(item.variant || {})}
                     className="flex gap-4 py-5"
                   >
-                    <div className="h-20 w-20 shrink-0 rounded-lg overflow-hidden bg-surface-muted border border-surface-border">
+                    <div className="h-20 w-20 shrink-0 rounded-lg overflow-hidden border border-surface-border">
                       <Image
                         src={item.imageUrl || '/images/placeholder-phone.jpg'}
                         alt={item.name}

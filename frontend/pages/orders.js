@@ -124,11 +124,12 @@ export default function Orders() {
 
                   <div className="flex items-center gap-2 mb-4">
                     {(order.items || []).slice(0, 4).map((item, i) => (
-                      <span
-                        key={i}
-                        className="h-12 w-12 inline-flex items-center justify-center rounded-xl bg-surface-muted text-ink-subtle shrink-0"
-                      >
-                        <Smartphone className="h-5 w-5" />
+                      <span key={i} className="h-12 w-12 inline-flex items-center justify-center rounded-xl overflow-hidden shrink-0 bg-white">
+                        {item.image ? (
+                          <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <Smartphone className="h-5 w-5 text-ink-subtle" />
+                        )}
                       </span>
                     ))}
                     {itemCount > 4 && (

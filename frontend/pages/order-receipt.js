@@ -267,7 +267,7 @@ export default function OrderReceipt() {
             <Printer className="h-4 w-4" />
             Print / Save as PDF
           </button>
-          <button onClick={() => router.push('/')} className="inline-flex items-center gap-2 h-11 px-6 rounded-xl border border-surface-border text-ink text-sm font-bold hover:bg-surface-muted transition-colors">
+          <button onClick={() => router.push('/')} className="inline-flex items-center gap-2 h-11 px-6 rounded-xl border border-surface-border text-ink text-sm font-bold transition-colors">
             <Mail className="h-4 w-4" />
             Back Home
           </button>

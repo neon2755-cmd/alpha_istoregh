@@ -254,34 +254,7 @@ function HomePage() {
           </div>
         </section>
 
-        {/* Flash Deals */}
-        <section className="pt-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <span className="text-sm font-bold text-red-600 uppercase tracking-wider mb-2 block">Limited Time</span>
-                <h2 className="text-3xl font-bold tracking-tight text-ink">
-                  Flash Deals
-                </h2>
-              </div>
-              <Link
-                href="/shop?filter=hotDeals"
-                className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-dark"
-              >
-                View all deals
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </div>
-            
-            {!loading && !error && hotDeals.length > 0 && (
-              <div className="products-grid">
-                {hotDeals.slice(0, 4).map((product) => (
-                  <ProductCard key={product._id || product.id} product={product} />
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
+        {/* Flash Deals removed per request */}
 
       </div>
     </>

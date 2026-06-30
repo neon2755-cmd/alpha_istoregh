@@ -77,7 +77,7 @@ export default function Header() {
             </div>
           </div>
 
-          <form
+              <form
             onSubmit={(e) => {
               e.preventDefault();
               const query = e.target.search.value.trim();
@@ -108,17 +108,17 @@ export default function Header() {
                   </button>
                   {openUser && (
                     <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-surface-border bg-white shadow-smooth-lg overflow-hidden">
-                      <div className="px-4 py-4 border-b border-surface-border bg-surface-muted/50">
+                      <div className="px-4 py-4 border-b border-surface-border bg-transparent">
                         <p className="text-sm font-semibold text-ink truncate">{user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'My account'}</p>
                         <p className="text-xs text-ink-subtle truncate">{user.email}</p>
                       </div>
                       <div className="py-2">
-                        <Link href="/orders" className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-ink hover:bg-surface-muted" onClick={() => setOpenUser(false)}>
+                        <Link href="/orders" className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-ink" onClick={() => setOpenUser(false)}>
                           <Package className="h-4 w-4 text-ink-subtle" />
                           My orders
                         </Link>
                         <div className="px-4 py-2.5">
-                          <button onClick={handleSignOut} className="w-full flex items-center gap-3 text-sm font-medium text-red-600 hover:bg-red-50">
+                          <button onClick={handleSignOut} className="w-full flex items-center gap-3 text-sm font-medium text-red-600">
                             <LogOut className="h-4 w-4" />
                             Sign out
                           </button>
@@ -167,16 +167,16 @@ export default function Header() {
               </div>
             </form>
             <nav className="space-y-1">
-              <Link href="/" onClick={() => setOpenMobile(false)} className="block px-4 py-3 rounded-xl text-sm font-semibold text-ink hover:bg-surface-muted transition-colors">Home</Link>
-              <Link href="/shop" onClick={() => setOpenMobile(false)} className="block px-4 py-3 rounded-xl text-sm font-semibold text-ink hover:bg-surface-muted transition-colors">Products</Link>
-              <Link href="/about" onClick={() => setOpenMobile(false)} className="block px-4 py-3 rounded-xl text-sm font-semibold text-ink hover:bg-surface-muted transition-colors">About</Link>
+              <Link href="/" onClick={() => setOpenMobile(false)} className="block px-4 py-3 rounded-xl text-sm font-semibold text-ink transition-colors">Home</Link>
+              <Link href="/shop" onClick={() => setOpenMobile(false)} className="block px-4 py-3 rounded-xl text-sm font-semibold text-ink transition-colors">Products</Link>
+              <Link href="/about" onClick={() => setOpenMobile(false)} className="block px-4 py-3 rounded-xl text-sm font-semibold text-ink transition-colors">About</Link>
               {user ? (
                 <>
-                  <Link href="/orders" onClick={() => setOpenMobile(false)} className="block px-4 py-3 rounded-xl text-sm font-semibold text-ink hover:bg-surface-muted transition-colors">My Orders</Link>
+                  <Link href="/orders" onClick={() => setOpenMobile(false)} className="block px-4 py-3 rounded-xl text-sm font-semibold text-ink transition-colors">My Orders</Link>
                   <button type="button" onClick={handleSignOut} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors">Sign out</button>
                 </>
               ) : (
-                <Link href="/auth/login" onClick={() => setOpenMobile(false)} className="block px-3 py-2 rounded-xl text-sm font-semibold text-primary hover:bg-primary-50">Sign in</Link>
+                <Link href="/auth/login" onClick={() => setOpenMobile(false)} className="block px-3 py-2 rounded-xl text-sm font-semibold text-primary">Sign in</Link>
               )}
             </nav>
           </div>

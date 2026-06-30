@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
+    "build": "npm install --legacy-peer-deps",
     "dev": "node --watch server.js",
     "seed": "node utils/seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"

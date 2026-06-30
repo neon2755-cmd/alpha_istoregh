@@ -48,9 +48,11 @@ function MyApp({ Component, pageProps }) {
   }, []);
 
   const getLayout = Component.getLayout;
+  const router = useRouter();
+  const isPortalRoute = typeof window !== 'undefined' && router?.pathname?.startsWith('/portal');
 
-  // If page has its own layout (admin pages), use it directly
-  if (getLayout) {
+  // If page is a portal/admin route, render it without the global Header/Footer
+  if (isPortalRoute || getLayout) {
     return (
       <>
         <Head>
@@ -58,7 +60,7 @@ function MyApp({ Component, pageProps }) {
           <meta name="viewport" content="width=device-width,initial-scale=1" />
           <link rel="icon" type="image/svg+xml" href={favicon} />
         </Head>
-        {getLayout(<Component {...pageProps} />)}
+        {getLayout ? getLayout(<Component {...pageProps} />) : <Component {...pageProps} />}
         <Toaster position="top-right" toastOptions={{ duration: 3000, style: { background: '#0F172A', color: '#fff', borderRadius: '12px', padding: '12px 16px', fontSize: '14px', fontWeight: 500 }, success: { iconTheme: { primary: '#006989', secondary: '#fff' } }, error: { iconTheme: { primary: '#EF4444', secondary: '#fff' } } }} />
       </>
     );
@@ -71,6 +73,8 @@ function MyApp({ Component, pageProps }) {
         <title>Alpha iStore</title>
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="icon" type="image/svg+xml" href={favicon} />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </Head>
       <ErrorBoundary>
         <>
