@@ -6,7 +6,7 @@ import {
   Truck,
   PackageCheck,
   HeadphonesIcon,
-  ArrowRight,
+  ChevronRight,
 } from 'lucide-react';
 import WhatsAppIcon from '../components/ui/WhatsAppIcon';
 import useProducts from '../hooks/useProducts';
@@ -49,49 +49,45 @@ function HomePage() {
   };
 
   const { featuredProducts, hotDeals, loading, error } = useProducts();
-  const [settings, setSettings] = useState(defaultSettings);
+  const [settings, setSettings] = useState(null);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [heroLoaded, setHeroLoaded] = useState(false);
 
   useEffect(() => {
+    let active = true;
+
     settingsAPI.get()
       .then(res => {
-        if (!res.success || !res.settings) return;
-
-        setSettings(prevSettings => {
-          const heroFromResponse = res.settings.hero || {};
-          const mergedHero = {
-            ...defaultHero,
-            ...heroFromResponse,
-            title: getString(heroFromResponse.title, defaultHero.title),
-            subtitle: getString(heroFromResponse.subtitle, defaultHero.subtitle),
-            image: {
-              ...defaultHero.image,
-              ...heroFromResponse.image,
-              url: getString(heroFromResponse?.image?.url, defaultHero.image.url),
-            },
-          };
-
-          return {
-            ...defaultSettings,
-            ...res.settings,
-            hero: mergedHero,
-            contact: {
-              ...defaultSettings.contact,
-              ...res.settings.contact,
-              whatsapp: Array.isArray(res.settings.contact?.whatsapp) && res.settings.contact.whatsapp.length > 0
-                ? res.settings.contact.whatsapp
-                : defaultSettings.contact.whatsapp,
-            },
-            promoBanners: Array.isArray(res.settings.promoBanners)
-              ? res.settings.promoBanners
-              : defaultSettings.promoBanners,
-          };
-        });
+        if (!active) return;
+        if (res.success && res.settings) {
+          setSettings(res.settings);
+        }
       })
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => {
+        if (active) setSettingsLoaded(true);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const heroImage = getString(settings.hero.image?.url, defaultHero.image.url);
+  const heroFromResponse = settings?.hero || {};
+  const mergedHero = {
+    ...defaultHero,
+    ...heroFromResponse,
+    title: getString(heroFromResponse.title, defaultHero.title),
+    subtitle: getString(heroFromResponse.subtitle, defaultHero.subtitle),
+    image: {
+      ...defaultHero.image,
+      ...heroFromResponse.image,
+      url: getString(heroFromResponse?.image?.url, defaultHero.image.url),
+    },
+  };
+
+  const heroImage = getString(mergedHero.image?.url, defaultHero.image.url);
+  const showHeroTextSkeleton = settings === null && !settingsLoaded;
 
   useEffect(() => {
     setHeroLoaded(false);
@@ -101,16 +97,19 @@ function HomePage() {
   const latestArrivals = featuredProducts ? [...featuredProducts].reverse() : [];
   const bestSellers = hotDeals ? [...hotDeals].reverse() : [];
 
-  const heroTitle = settings?.hero?.title || "The Perfect iPhone\nfor Every Lifestyle";
-  const heroSubtitle = settings?.hero?.subtitle || "Discover the latest iPhone 17 Pro Max with premium features, stunning displays, and unmatched performance. Shop now for exclusive deals.";
-  const whatsappNumber = settings?.contact?.whatsapp?.[0] || siteConfig.whatsappNumber || "";
+  const heroTitle = settings ? getString(mergedHero.title, defaultHero.title) : '';
+  const heroSubtitle = settings ? getString(mergedHero.subtitle, defaultHero.subtitle) : '';
+  const metaDescription = settings ? heroSubtitle : defaultHero.subtitle;
+  const whatsappNumber = Array.isArray(settings?.contact?.whatsapp) && settings.contact.whatsapp.length > 0
+    ? settings.contact.whatsapp[0]
+    : siteConfig.whatsappNumber || "";
   const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}` : "https://wa.me/";
 
   return (
     <>
       <Head>
         <title>{settings?.storeName || siteConfig.name} — Premium Experience</title>
-        <meta name="description" content={heroSubtitle} />
+        <meta name="description" content={metaDescription} />
       </Head>
 
       {/* Hero Section */}
@@ -118,12 +117,20 @@ function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="z-10">
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-ink leading-tight mb-6 whitespace-pre-line">
-                {settings?.hero?.title || "The Perfect iPhone\nfor Every Lifestyle"}
-              </h1>
-              <p className="text-lg text-ink-muted leading-relaxed max-w-lg mb-10">
-                {settings?.hero?.subtitle || "Discover the latest iPhone 17 Pro Max with premium features, stunning displays, and unmatched performance. Shop now for exclusive deals."}
-              </p>
+              {showHeroTextSkeleton ? (
+                <SkeletonLoader width="80%" height="4.5rem" className="mb-6 rounded-xl" />
+              ) : (
+                <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-ink leading-tight mb-6 whitespace-pre-line">
+                  {heroTitle}
+                </h1>
+              )}
+              {showHeroTextSkeleton ? (
+                <SkeletonLoader width="100%" height="2.25rem" className="mb-10 rounded-xl" />
+              ) : (
+                <p className="text-lg text-ink-muted leading-relaxed max-w-lg mb-10">
+                  {heroSubtitle}
+                </p>
+              )}
               <div className="flex flex-wrap items-center gap-4">
                 <Link
                   href="/shop"
@@ -144,15 +151,21 @@ function HomePage() {
             </div>
             <div className="relative flex justify-center items-center z-0 md:h-[450px] h-[300px]">
               <div className="relative w-full h-full max-w-md">
-                {!heroLoaded && (
-                  <SkeletonLoader width="100%" height="100%" className="rounded-[1rem]" />
-                )}
+                <SkeletonLoader
+                  width="100%"
+                  height="100%"
+                  className={`rounded-[1rem] absolute inset-0 ${heroLoaded ? 'opacity-0 transition-opacity duration-300' : 'opacity-100'}`}
+                />
                 <img
                   src={heroImage}
                   alt="Hero image"
                   onLoad={() => setHeroLoaded(true)}
-                  className={`w-full h-full object-contain rounded-[1rem] ${heroLoaded ? 'block' : 'hidden'}`}
-                  style={{ background: '#f8fafc' }}
+                  className="absolute inset-0 w-full h-full object-contain rounded-[1rem]"
+                  style={{
+                    background: '#f8fafc',
+                    opacity: heroLoaded ? 1 : 0,
+                    transition: 'opacity 0.3s ease-in-out',
+                  }}
                 />
               </div>
             </div>
