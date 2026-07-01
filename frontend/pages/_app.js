@@ -66,6 +66,35 @@ function MyApp({ Component, pageProps, favicon: initialFavicon }) {
     }).catch(() => {});
   }, []);
 
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const removeOldIcons = () => {
+      document.querySelectorAll('link[rel*="icon"]').forEach((link) => link.remove());
+      document.querySelectorAll('link[rel="apple-touch-icon"]').forEach((link) => link.remove());
+    };
+
+    const addLink = (rel, href, type = '', sizes = '') => {
+      const link = document.createElement('link');
+      link.rel = rel;
+      link.href = href;
+      if (type) link.type = type;
+      if (sizes) link.sizes = sizes;
+      document.head.appendChild(link);
+    };
+
+    removeOldIcons();
+    addLink('icon', faviconVersioned, mimeFor(favicon));
+    addLink('shortcut icon', faviconVersioned, mimeFor(favicon));
+    if (favicon.endsWith('.png')) {
+      addLink('icon', faviconVersioned, mimeFor(favicon), '32x32');
+      addLink('apple-touch-icon', faviconVersioned);
+    } else {
+      addLink('icon', faviconFallback32, mimeFor(favicon), '32x32');
+      addLink('apple-touch-icon', faviconFallback180);
+    }
+  }, [faviconVersioned, favicon, faviconFallback32, faviconFallback180]);
+
   // Helper to determine mime type from url
   const mimeFor = (url) => {
     if (!url) return 'image/png';
@@ -88,9 +117,10 @@ function MyApp({ Component, pageProps, favicon: initialFavicon }) {
         <Head>
           <title>Admin — Alpha iStore</title>
           <meta name="viewport" content="width=device-width,initial-scale=1" />
-          <link rel="icon" href={faviconVersioned} />
-          <link rel="apple-touch-icon" href={favicon.endsWith('.png') ? faviconVersioned : faviconFallback180} />
-          <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon.endsWith('.png') ? faviconVersioned : faviconFallback32} />
+          <link rel="icon" href={faviconVersioned} type={mimeFor(favicon)} key="favicon" />
+          <link rel="shortcut icon" href={faviconVersioned} type={mimeFor(favicon)} key="shortcut-icon" />
+          <link rel="apple-touch-icon" href={favicon.endsWith('.png') ? faviconVersioned : faviconFallback180} key="apple-touch-icon" />
+          <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon.endsWith('.png') ? faviconVersioned : faviconFallback32} key="favicon-32" />
         </Head>
         {getLayout ? getLayout(<Component {...pageProps} />) : <Component {...pageProps} />}
         <Toaster position="top-right" toastOptions={{ duration: 3000, style: { background: '#0F172A', color: '#fff', borderRadius: '12px', padding: '12px 16px', fontSize: '14px', fontWeight: 500 }, success: { iconTheme: { primary: '#006989', secondary: '#fff' } }, error: { iconTheme: { primary: '#EF4444', secondary: '#fff' } } }} />
@@ -104,9 +134,10 @@ function MyApp({ Component, pageProps, favicon: initialFavicon }) {
       <Head>
         <title>Alpha iStore</title>
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link rel="icon" href={faviconVersioned} />
-        <link rel="apple-touch-icon" href={favicon.endsWith('.png') ? faviconVersioned : faviconFallback180} />
-        <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon.endsWith('.png') ? faviconVersioned : faviconFallback32} />
+        <link rel="icon" href={faviconVersioned} type={mimeFor(favicon)} key="favicon" />
+        <link rel="shortcut icon" href={faviconVersioned} type={mimeFor(favicon)} key="shortcut-icon" />
+        <link rel="apple-touch-icon" href={favicon.endsWith('.png') ? faviconVersioned : faviconFallback180} key="apple-touch-icon" />
+        <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon.endsWith('.png') ? faviconVersioned : faviconFallback32} key="favicon-32" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </Head>
