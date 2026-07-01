@@ -54,9 +54,7 @@ export default function Header() {
         <div className="flex flex-col lg:flex-row h-auto lg:h-16 py-3 lg:py-0 items-center justify-between gap-4">
           <div className="flex items-center justify-between w-full lg:w-auto">
             <Link href="/" className="flex items-center gap-2 shrink-0">
-              {logoUrl ? (
-                <img src={logoUrl} alt={storeName} loading="eager" className="h-8 w-auto object-contain" />
-              ) : null}
+              <img src={logoUrl || '/favicon-32.png'} alt={storeName} loading="eager" className="h-8 w-auto object-contain" />
               <span className="text-xl font-bold tracking-tight text-ink">{storeName}</span>
             </Link>
             <div className="flex lg:hidden items-center gap-1">

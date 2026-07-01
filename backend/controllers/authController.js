@@ -1,9 +1,7 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const { sendWelcomeEmail } = require('../utils/mailer');
 const sendEmail = require('../utils/sendEmail');
-const generateResetToken = require('../utils/generateResetToken');
 const { generateToken, setTokenCookie } = require('../middleware/auth');
 const { addLoginDuration } = require('../utils/metrics');
 
@@ -218,28 +216,29 @@ exports.forgotPassword = async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) return res.status(404).json({ success: false, message: 'No account with that email' });
 
-    const { token, hashed, expire } = generateResetToken();
-    user.resetPasswordToken = hashed;
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+    const expire = Date.now() + 30 * 60 * 1000; // 30 minutes
+
+    user.resetPasswordOTP = hashedOtp;
     user.resetPasswordExpire = expire;
     await user.save();
 
-    const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}/auth/reset-password?token=${token}&email=${email}`;
-
     await sendEmail({
       to: email,
-      subject: 'Reset your Alpha iStore password',
+      subject: 'Your Alpha iStore password reset code',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 16px;">
           <h2 style="color: #006989; margin-bottom: 8px;">Alpha iStore</h2>
-          <h3 style="color: #0f172a;">Password Reset Request</h3>
-          <p style="color: #475569;">Click the button below to reset your password. This link expires in 30 minutes.</p>
-          <a href="${resetUrl}" style="display: inline-block; margin: 24px 0; padding: 12px 28px; background: #006989; color: #fff; border-radius: 8px; text-decoration: none; font-weight: bold;">Reset Password</a>
+          <h3 style="color: #0f172a;">Password Reset Code</h3>
+          <p style="color: #475569;">Use the code below to reset your password. It expires in 30 minutes.</p>
+          <p style="font-size: 28px; font-weight: 700; letter-spacing: 4px; margin: 24px 0; color: #111827;">${otp}</p>
           <p style="color: #94a3b8; font-size: 12px;">If you did not request this, ignore this email.</p>
         </div>
       `,
     });
 
-    res.json({ success: true, message: 'Password reset email sent' });
+    res.json({ success: true, message: 'Password reset code sent to email' });
   } catch (err) {
     console.error('FORGOT PASSWORD ERROR:', err.message);
     res.status(500).json({ success: false, message: err.message });
@@ -249,17 +248,21 @@ exports.forgotPassword = async (req, res) => {
 // POST /api/auth/reset-password
 exports.resetPassword = async (req, res) => {
   try {
-    const { token, email, password } = req.body;
-    const hashed = crypto.createHash('sha256').update(token).digest('hex');
+    const { email, otp, password } = req.body;
+    if (!email) return res.status(400).json({ success: false, message: 'Email is required' });
+    if (!otp) return res.status(400).json({ success: false, message: 'OTP is required' });
+    if (!password) return res.status(400).json({ success: false, message: 'Password is required' });
+
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
     const user = await User.findOne({
       email: email.toLowerCase(),
-      resetPasswordToken: hashed,
+      resetPasswordOTP: hashedOtp,
       resetPasswordExpire: { $gt: Date.now() },
     });
-    if (!user) return res.status(400).json({ success: false, message: 'Invalid or expired token' });
+    if (!user) return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
 
     user.password = password;
-    user.resetPasswordToken = undefined;
+    user.resetPasswordOTP = undefined;
     user.resetPasswordExpire = undefined;
     await user.save();
 
