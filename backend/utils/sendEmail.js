@@ -1,23 +1,21 @@
 const nodemailer = require('nodemailer');
 
-const smtpHost = process.env.SMTP_HOST || process.env.EMAIL_HOST || 'smtp.gmail.com';
-const smtpPort = parseInt(process.env.SMTP_PORT || process.env.EMAIL_PORT || '587', 10);
-const smtpUser = process.env.SMTP_EMAIL || process.env.EMAIL_USER || process.env.BREVO_EMAIL || '';
-const smtpPass = process.env.SMTP_PASSWORD || process.env.EMAIL_PASS || process.env.BREVO_SMTP_KEY || '';
+const smtpHost = process.env.BREVO_EMAIL ? 'smtp-relay.brevo.com' : (process.env.SMTP_HOST || 'smtp.gmail.com');
+const smtpPort = process.env.BREVO_EMAIL ? 587 : parseInt(process.env.SMTP_PORT || '587', 10);
+const smtpUser = process.env.BREVO_EMAIL || process.env.SMTP_EMAIL || '';
+const smtpPass = process.env.BREVO_SMTP_KEY || process.env.SMTP_PASSWORD || '';
 
 const transporter = nodemailer.createTransport({
   host: smtpHost,
   port: smtpPort,
-  secure: smtpPort === 465,
-  auth: {
-    user: smtpUser,
-    pass: smtpPass,
-  },
+  secure: false,
+  family: 4,
+  auth: { user: smtpUser, pass: smtpPass },
 });
 
 const sendEmail = async ({ to, subject, html }) => {
   if (!smtpUser || !smtpPass) {
-    throw new Error('Email transport is not configured. Set SMTP_EMAIL/SMTP_PASSWORD or EMAIL_USER/EMAIL_PASS in .env.');
+    throw new Error('Email not configured.');
   }
   const result = await transporter.sendMail({
     from: `"Alpha iStore" <${smtpUser}>`,
