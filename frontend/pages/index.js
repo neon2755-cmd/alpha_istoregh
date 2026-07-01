@@ -35,7 +35,7 @@ function HomePage() {
   const defaultHero = {
     title: "The Perfect iPhone\nfor Every Lifestyle",
     subtitle: "Discover the latest iPhone 17 Pro Max with premium features, stunning displays, and unmatched performance. Shop now for exclusive deals.",
-    image: { url: '/images/hero-phone.png' },
+    image: { url: '/images/placeholder-phone.jpg' },
   };
 
   const defaultSettings = {
