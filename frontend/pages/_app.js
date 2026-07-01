@@ -1,5 +1,5 @@
 import '../styles/globals.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import App from 'next/app';
 import { Toaster } from 'react-hot-toast';
 import Head from 'next/head';
@@ -48,6 +48,17 @@ function MyApp({ Component, pageProps, favicon: initialFavicon }) {
     return typeof fav === 'string' ? fav : fav?.url || null;
   };
 
+  const cacheBuster = useMemo(() => encodeURIComponent(new Date().getTime()), []);
+
+  const faviconVersioned = useMemo(() => {
+    if (!favicon) return `/favicon.svg?v=${cacheBuster}`;
+    const sep = favicon.includes('?') ? '&' : '?';
+    return `${favicon}${sep}v=${cacheBuster}`;
+  }, [favicon, cacheBuster]);
+
+  const faviconFallback180 = `/favicon-180.png?v=${cacheBuster}`;
+  const faviconFallback32 = `/favicon-32.png?v=${cacheBuster}`;
+
   useEffect(() => {
     settingsAPI.get().then(res => {
       const fav = getFaviconUrl(res?.settings);
@@ -68,7 +79,7 @@ function MyApp({ Component, pageProps, favicon: initialFavicon }) {
 
   const getLayout = Component.getLayout;
   const router = useRouter();
-  const isPortalRoute = typeof window !== 'undefined' && router?.pathname?.startsWith('/portal');
+  const isPortalRoute = router?.pathname?.startsWith('/portal');
 
   // If page is a portal/admin route, render it without the global Header/Footer
   if (isPortalRoute || getLayout) {
@@ -77,9 +88,9 @@ function MyApp({ Component, pageProps, favicon: initialFavicon }) {
         <Head>
           <title>Admin — Alpha iStore</title>
           <meta name="viewport" content="width=device-width,initial-scale=1" />
-          <link rel="icon" href={favicon} />
-          <link rel="apple-touch-icon" href={favicon.endsWith('.png') ? favicon : '/favicon-180.png'} />
-          <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon.endsWith('.png') ? favicon : '/favicon-32.png'} />
+          <link rel="icon" href={faviconVersioned} />
+          <link rel="apple-touch-icon" href={favicon.endsWith('.png') ? faviconVersioned : faviconFallback180} />
+          <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon.endsWith('.png') ? faviconVersioned : faviconFallback32} />
         </Head>
         {getLayout ? getLayout(<Component {...pageProps} />) : <Component {...pageProps} />}
         <Toaster position="top-right" toastOptions={{ duration: 3000, style: { background: '#0F172A', color: '#fff', borderRadius: '12px', padding: '12px 16px', fontSize: '14px', fontWeight: 500 }, success: { iconTheme: { primary: '#006989', secondary: '#fff' } }, error: { iconTheme: { primary: '#EF4444', secondary: '#fff' } } }} />
@@ -93,9 +104,9 @@ function MyApp({ Component, pageProps, favicon: initialFavicon }) {
       <Head>
         <title>Alpha iStore</title>
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link rel="icon" href={favicon} />
-        <link rel="apple-touch-icon" href={favicon.endsWith('.png') ? favicon : '/favicon-180.png'} />
-        <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon.endsWith('.png') ? favicon : '/favicon-32.png'} />
+        <link rel="icon" href={faviconVersioned} />
+        <link rel="apple-touch-icon" href={favicon.endsWith('.png') ? faviconVersioned : faviconFallback180} />
+        <link rel="icon" type={mimeFor(favicon)} sizes="32x32" href={favicon.endsWith('.png') ? faviconVersioned : faviconFallback32} />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </Head>
