@@ -9,7 +9,6 @@ import Footer from '../components/layout/Footer';
 import WhatsAppFloat from '../components/ui/WhatsAppFloat';
 import CartDrawer from '../components/cart/CartDrawer';
 import { useStore } from '../store';
-import siteConfig from '../config';
 import { settingsAPI } from '../lib/api';
 
 class ErrorBoundary extends React.Component {
@@ -38,9 +37,21 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+const defaultFavicon = '/favicon.svg';
+
+const mimeFor = (url) => {
+  if (!url) return 'image/png';
+  const u = url.split('?')[0].toLowerCase();
+  if (u.endsWith('.svg')) return 'image/svg+xml';
+  if (u.endsWith('.png')) return 'image/png';
+  if (u.endsWith('.jpg') || u.endsWith('.jpeg')) return 'image/jpeg';
+  if (u.endsWith('.webp')) return 'image/webp';
+  return 'image/png';
+};
+
 function MyApp({ Component, pageProps, favicon: initialFavicon }) {
   const { isCartOpen, setCartOpen } = useStore();
-  const [favicon, setFavicon] = useState(initialFavicon || '/favicon.svg');
+  const [favicon, setFavicon] = useState(initialFavicon || defaultFavicon);
 
   const getFaviconUrl = (settings) => {
     const fav = settings?.favicon;
@@ -49,62 +60,25 @@ function MyApp({ Component, pageProps, favicon: initialFavicon }) {
   };
 
   const cacheBuster = useMemo(() => encodeURIComponent(new Date().getTime()), []);
+  const safeFavicon = favicon || defaultFavicon;
+  const faviconIsPng = safeFavicon.toLowerCase().endsWith('.png');
 
   const faviconVersioned = useMemo(() => {
-    if (!favicon) return `/favicon.svg?v=${cacheBuster}`;
-    const sep = favicon.includes('?') ? '&' : '?';
-    return `${favicon}${sep}v=${cacheBuster}`;
-  }, [favicon, cacheBuster]);
+    const sep = safeFavicon.includes('?') ? '&' : '?';
+    return `${safeFavicon}${sep}v=${cacheBuster}`;
+  }, [safeFavicon, cacheBuster]);
 
   const faviconFallback180 = `/favicon-180.png?v=${cacheBuster}`;
   const faviconFallback32 = `/favicon-32.png?v=${cacheBuster}`;
 
   useEffect(() => {
-    settingsAPI.get().then(res => {
-      const fav = getFaviconUrl(res?.settings);
-      if (fav) setFavicon(fav);
-    }).catch(() => {});
+    settingsAPI.get()
+      .then((res) => {
+        const fav = getFaviconUrl(res?.settings);
+        if (fav) setFavicon(fav);
+      })
+      .catch(() => {});
   }, []);
-
-  useEffect(() => {
-    if (typeof document === 'undefined') return;
-
-    const removeOldIcons = () => {
-      document.querySelectorAll('link[rel*="icon"]').forEach((link) => link.remove());
-      document.querySelectorAll('link[rel="apple-touch-icon"]').forEach((link) => link.remove());
-    };
-
-    const addLink = (rel, href, type = '', sizes = '') => {
-      const link = document.createElement('link');
-      link.rel = rel;
-      link.href = href;
-      if (type) link.type = type;
-      if (sizes) link.sizes = sizes;
-      document.head.appendChild(link);
-    };
-
-    removeOldIcons();
-    addLink('icon', faviconVersioned, mimeFor(favicon));
-    addLink('shortcut icon', faviconVersioned, mimeFor(favicon));
-    if (favicon.endsWith('.png')) {
-      addLink('icon', faviconVersioned, mimeFor(favicon), '32x32');
-      addLink('apple-touch-icon', faviconVersioned);
-    } else {
-      addLink('icon', faviconFallback32, mimeFor(favicon), '32x32');
-      addLink('apple-touch-icon', faviconFallback180);
-    }
-  }, [faviconVersioned, favicon, faviconFallback32, faviconFallback180]);
-
-  // Helper to determine mime type from url
-  const mimeFor = (url) => {
-    if (!url) return 'image/png';
-    const u = url.split('?')[0].toLowerCase();
-    if (u.endsWith('.svg')) return 'image/svg+xml';
-    if (u.endsWith('.png')) return 'image/png';
-    if (u.endsWith('.jpg') || u.endsWith('.jpeg')) return 'image/jpeg';
-    if (u.endsWith('.webp')) return 'image/webp';
-    return 'image/png';
-  };
 
   const getLayout = Component.getLayout;
   const router = useRouter();
