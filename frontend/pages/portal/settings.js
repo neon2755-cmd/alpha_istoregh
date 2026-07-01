@@ -126,21 +126,23 @@ function AdminSettings() {
       const res = await uploadAPI.images(formData);
       
       if (res.success && res.images?.length > 0) {
-        const imageUrl = res.images[0];
-        
+        const uploaded = res.images[0];
+        const imageUrl = typeof uploaded === 'string' ? uploaded : uploaded.url;
+        const publicId = typeof uploaded === 'string' ? '' : uploaded.public_id || '';
+
         if (promoIndex !== null) {
           const newPromos = [...settings.promoBanners];
-          newPromos[promoIndex].image = imageUrl;
+          newPromos[promoIndex].image = uploaded;
           setSettings(prev => ({ ...prev, promoBanners: newPromos }));
         } else if (field) {
           setSettings(prev => ({
             ...prev,
-            [section]: { ...prev[section], [field]: imageUrl }
+            [section]: { ...prev[section], [field]: uploaded }
           }));
         } else if (section === 'favicon' || section === 'logo') {
           setSettings(prev => ({
             ...prev,
-            [section]: { url: imageUrl, public_id: '' }
+            [section]: { url: imageUrl, public_id: publicId }
           }));
         } else {
           setSettings(prev => ({ ...prev, [section]: imageUrl }));
