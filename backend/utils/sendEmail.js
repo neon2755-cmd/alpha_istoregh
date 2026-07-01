@@ -1,30 +1,34 @@
-const nodemailer = require('nodemailer');
-
-const smtpHost = process.env.BREVO_EMAIL ? 'smtp-relay.brevo.com' : (process.env.SMTP_HOST || 'smtp.gmail.com');
-const smtpPort = process.env.BREVO_EMAIL ? 587 : parseInt(process.env.SMTP_PORT || '587', 10);
-const smtpUser = process.env.BREVO_EMAIL || process.env.SMTP_EMAIL || '';
-const smtpPass = process.env.BREVO_SMTP_KEY || process.env.SMTP_PASSWORD || '';
-
-const transporter = nodemailer.createTransport({
-  host: smtpHost,
-  port: smtpPort,
-  secure: false,
-  family: 4,
-  auth: { user: smtpUser, pass: smtpPass },
-});
-
 const sendEmail = async ({ to, subject, html }) => {
-  if (!smtpUser || !smtpPass) {
-    throw new Error('Email not configured.');
+  const apiKey = process.env.BREVO_API_KEY || process.env.BREVO_SMTP_KEY;
+  const fromEmail = process.env.BREVO_EMAIL || process.env.SMTP_EMAIL || 'neon2755@gmail.com';
+
+  if (!apiKey) {
+    throw new Error('BREVO_API_KEY not configured');
   }
-  const result = await transporter.sendMail({
-    from: `"Alpha iStore" <${smtpUser}>`,
-    to,
-    subject,
-    html,
+
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'api-key': apiKey,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { name: 'Alpha iStore', email: fromEmail },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
   });
-  console.log('Email sent:', result.messageId);
-  return result;
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Failed to send email via Brevo API');
+  }
+
+  console.log('Email sent via Brevo API:', data.messageId);
+  return data;
 };
 
 module.exports = sendEmail;
