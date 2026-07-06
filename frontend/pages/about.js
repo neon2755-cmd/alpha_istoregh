@@ -69,7 +69,7 @@ export default function About() {
             Ghana's most trusted phone store
           </h1>
           <p className="mt-5 text-base md:text-lg text-ink-muted leading-relaxed max-w-2xl mx-auto">
-            AlphaiStore was founded in Accra with one mission: make it easy for
+            AlphaiStore was founded in Kumasi with one mission: make it easy for
             every Ghanaian to own a great smartphone at a fair price.
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function About() {
             Our story
           </h2>
           <p className="text-sm md:text-base text-ink-muted leading-relaxed mb-3">
-            We started in 2019 as a small shop in Accra and have grown to serve
+            We started as a small shop in Kumasi and have grown to serve
             customers across all regions of Ghana. What began as a dream to make
             quality smartphones accessible to everyone has become one of Ghana's
             most trusted online phone stores.
