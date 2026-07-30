@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
+import Image from 'next/image';
 import {
   Plus, Pencil, Trash2, Search, X, Upload, ImageIcon,
-  Star, Flame, Tag, ChevronDown, Loader2, AlertTriangle,
-  PackageCheck, Eye, EyeOff,
+  Star, Flame, Tag, Loader2, AlertTriangle,
+  PackageCheck, Eye,
 } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
 import withAdminAuth from '../../components/portal/withAdminAuth';
@@ -22,6 +23,7 @@ const EMPTY_FORM = {
   images: [],
   variants: [],
   flashSale: { active: false, endsAt: '', salePrice: '' },
+  specifications: [],
   tags: '',
 };
 
@@ -35,24 +37,6 @@ function InputField({ label, id, error, ...props }) {
         {...props}
       />
       {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
-    </div>
-  );
-}
-
-function SelectField({ label, id, children, ...props }) {
-  return (
-    <div>
-      {label && <label htmlFor={id} className="block text-xs font-semibold text-ink-muted mb-1.5">{label}</label>}
-      <div className="relative">
-        <select
-          id={id}
-          className="w-full h-10 pl-3 pr-8 text-sm rounded-xl border border-surface-border bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary appearance-none transition-all"
-          {...props}
-        >
-          {children}
-        </select>
-        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-subtle" />
-      </div>
     </div>
   );
 }
@@ -86,26 +70,43 @@ function AdminProducts() {
   const [uploading, setUploading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [newVariant, setNewVariant] = useState({ colorName: '', colorHex: '#000000', storage: '', price: '', stock: '' });
+  const [newSpec, setNewSpec] = useState({ k: '', v: '' });
   const fileRef = useRef();
 
   // ── Fetch products ──────────────────────────────────────────────────────────
   const fetchProducts = async (q = '') => {
-    setLoading(true);
-    try {
-      const res = await productsAPI.list({ search: q, limit: 50, page: 1 });
-      setProducts(res.products || []);
-    } catch {
-      toast.error('Failed to load products');
-    } finally {
-      setLoading(false);
-    }
+    const res = await productsAPI.list({ search: q, limit: 50, page: 1 });
+    return res.products || [];
   };
 
-  useEffect(() => { fetchProducts(); }, []);
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      try {
+        setProducts(await fetchProducts());
+      } catch {
+        toast.error('Failed to load products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => fetchProducts(search), 400);
-    return () => clearTimeout(t);
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        setProducts(await fetchProducts(search));
+      } catch {
+        toast.error('Failed to load products');
+      } finally {
+        setLoading(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
   }, [search]);
 
   // ── Form helpers ────────────────────────────────────────────────────────────
@@ -137,6 +138,12 @@ function AdminProducts() {
         endsAt: product.flashSale?.endsAt ? product.flashSale.endsAt.split('T')[0] : '',
         salePrice: product.flashSale?.discount ?? '',
       },
+      specifications: product.specifications ? (Array.isArray(product.specifications)
+        ? product.specifications
+        : product.specifications instanceof Map
+          ? [...product.specifications.entries()].map(([k, v]) => ({ k, v }))
+          : Object.entries(product.specifications || {}).map(([k, v]) => ({ k, v }))
+      ) : [],
       tags: (product.tags || []).join(', '),
     });
     setErrors({});
@@ -212,6 +219,7 @@ function AdminProducts() {
       images: form.images,
       variants: form.variants,
       tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+      specifications: (form.specifications || []).reduce((acc, s) => { if (s.k) acc[s.k] = s.v || ''; return acc; }, {}),
       flashSale: form.flashSale.active ? {
         active: true,
         endsAt: form.flashSale.endsAt || undefined,
@@ -310,7 +318,7 @@ function AdminProducts() {
                     <td colSpan={6} className="px-4 py-16 text-center">
                       <PackageCheck className="h-10 w-10 mx-auto text-ink-subtle mb-3" />
                       <p className="text-sm text-ink-subtle font-medium">No products found</p>
-                      <p className="text-xs text-ink-subtle mt-1">Click "Add Product" to create your first one.</p>
+                      <p className="text-xs text-ink-subtle mt-1">Click &quot;Add Product&quot; to create your first one.</p>
                     </td>
                   </tr>
                 ) : (
@@ -318,9 +326,9 @@ function AdminProducts() {
                     <tr key={product._id} className="hover:bg-surface-muted/50 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="h-11 w-11 rounded-xl overflow-hidden border border-surface-border bg-surface-muted shrink-0">
+                          <div className="relative h-11 w-11 overflow-hidden rounded-xl border border-surface-border bg-surface-muted shrink-0">
                             {product.images?.[0]?.url ? (
-                              <img src={product.images[0].url} alt={product.name} className="h-full w-full object-cover" />
+                              <Image src={product.images[0].url} alt={product.name} fill className="object-cover" unoptimized />
                             ) : (
                               <div className="h-full w-full flex items-center justify-center">
                                 <ImageIcon className="h-5 w-5 text-ink-subtle" />
@@ -438,16 +446,22 @@ function AdminProducts() {
                 <h3 className="text-sm font-bold text-ink">Basic Information</h3>
                 <InputField label="Product Name *" id="name" value={form.name} onChange={e => setField('name', e.target.value)} placeholder="e.g. iPhone 15 Pro Max" error={errors.name} />
                 <div className="grid grid-cols-2 gap-3">
-                  <SelectField label="Brand" id="brand" value={form.brand} onChange={e => setField('brand', e.target.value)}>
-                    {BRANDS.map(b => <option key={b}>{b}</option>)}
-                  </SelectField>
-                  <SelectField label="Category" id="category" value={form.category} onChange={e => setField('category', e.target.value)}>
-                    {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-                  </SelectField>
+                  <div>
+                    <label className="block text-xs font-semibold text-ink-muted mb-1.5">Brand</label>
+                    <input list="brand-list" value={form.brand} onChange={e => setField('brand', e.target.value)} className="w-full h-10 px-3 text-sm rounded-xl border border-surface-border bg-white" />
+                    <datalist id="brand-list">{BRANDS.map(b => <option key={b} value={b} />)}</datalist>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-ink-muted mb-1.5">Category</label>
+                    <input list="category-list" value={form.category} onChange={e => setField('category', e.target.value)} className="w-full h-10 px-3 text-sm rounded-xl border border-surface-border bg-white" />
+                    <datalist id="category-list">{CATEGORIES.map(c => <option key={c} value={c} />)}</datalist>
+                  </div>
                 </div>
-                <SelectField label="Condition" id="condition" value={form.condition} onChange={e => setField('condition', e.target.value)}>
-                  {CONDITIONS.map(c => <option key={c}>{c}</option>)}
-                </SelectField>
+                <div>
+                  <label className="block text-xs font-semibold text-ink-muted mb-1.5">Condition</label>
+                  <input list="condition-list" value={form.condition} onChange={e => setField('condition', e.target.value)} className="w-full h-10 px-3 text-sm rounded-xl border border-surface-border bg-white" />
+                  <datalist id="condition-list">{CONDITIONS.map(c => <option key={c} value={c} />)}</datalist>
+                </div>
                 <div>
                   <label className="block text-xs font-semibold text-ink-muted mb-1.5">Description</label>
                   <textarea
@@ -486,8 +500,8 @@ function AdminProducts() {
                 {form.images.length > 0 && (
                   <div className="flex flex-wrap gap-3">
                     {form.images.map((img, idx) => (
-                      <div key={idx} className="relative group">
-                        <img src={img.url} alt="" className="h-20 w-20 object-cover rounded-xl border border-surface-border" />
+                      <div key={idx} className="relative group h-20 w-20 overflow-hidden rounded-xl border border-surface-border">
+                        <Image src={img.url} alt={`Product image ${idx + 1}`} fill className="object-cover" unoptimized />
                         <button type="button" onClick={() => removeImage(idx)} className="absolute -top-2 -right-2 h-5 w-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                           <X className="h-3 w-3" />
                         </button>
@@ -510,6 +524,53 @@ function AdminProducts() {
                   )}
                 </button>
                 <p className="text-[11px] text-ink-subtle">Requires Cloudinary to be configured in backend .env</p>
+              </div>
+
+              {/* ── Specifications ───────────────────────────────────── */}
+              <div className="bg-white rounded-2xl p-5 space-y-4 border border-surface-border">
+                <h3 className="text-sm font-bold text-ink">Specifications</h3>
+                {form.specifications.length > 0 && (
+                  <div className="space-y-2">
+                    {form.specifications.map((s, idx) => (
+                      <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                        <input value={s.k} onChange={e => {
+                          const arr = [...form.specifications]; arr[idx] = { ...arr[idx], k: e.target.value }; setField('specifications', arr);
+                        }} placeholder="Key (e.g. Battery)" className="col-span-5 h-9 px-3 rounded-xl border border-surface-border" />
+                        <input value={s.v} onChange={e => {
+                          const arr = [...form.specifications]; arr[idx] = { ...arr[idx], v: e.target.value }; setField('specifications', arr);
+                        }} placeholder="Value (e.g. 5000mAh)" className="col-span-6 h-9 px-3 rounded-xl border border-surface-border" />
+                        <button type="button" onClick={() => setField('specifications', form.specifications.filter((_, i) => i !== idx))} className="col-span-1 h-9 rounded-xl bg-red-50 text-red-600">✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="grid grid-cols-3 gap-2">
+                  <input
+                    value={newSpec.k}
+                    onChange={(e) => setNewSpec((prev) => ({ ...prev, k: e.target.value }))}
+                    placeholder="Key"
+                    className="h-9 px-3 rounded-xl border border-surface-border"
+                  />
+                  <input
+                    value={newSpec.v}
+                    onChange={(e) => setNewSpec((prev) => ({ ...prev, v: e.target.value }))}
+                    placeholder="Value"
+                    className="h-9 px-3 rounded-xl border border-surface-border"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const k = newSpec.k.trim();
+                      if (!k) return;
+                      setField('specifications', [...form.specifications, { k, v: newSpec.v.trim() }]);
+                      setNewSpec({ k: '', v: '' });
+                    }}
+                    className="h-9 rounded-xl bg-surface-muted"
+                  >
+                    Add
+                  </button>
+                </div>
+                <p className="text-xs text-ink-subtle">Add product specifications such as battery, camera, dimensions, etc.</p>
               </div>
 
               {/* ── Variants ────────────────────────────────────── */}

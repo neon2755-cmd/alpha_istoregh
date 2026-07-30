@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
@@ -13,29 +13,15 @@ import {
   Heart,
 } from 'lucide-react';
 import useStore from '../../store';
-import { settingsAPI } from '../../lib/api';
+import { useSettings } from '../../hooks/useSettings';
 
 export default function Header() {
   const router = useRouter();
   const { user, logout, cart, setCartOpen } = useStore();
   const [openUser, setOpenUser] = useState(false);
   const [openMobile, setOpenMobile] = useState(false);
-  const [settings, setSettings] = useState(null);
+  const { settings } = useSettings();
   const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
-
-  useEffect(() => {
-    let active = true;
-    settingsAPI.get().then(res => {
-      if (active && res.settings) {
-        setSettings(res.settings);
-        if (typeof window !== 'undefined') {
-          if (res.settings.storeName) localStorage.setItem('storeName', res.settings.storeName);
-          if (res.settings.logo?.url) localStorage.setItem('storeLogo', res.settings.logo.url);
-        }
-      }
-    }).catch(() => {});
-    return () => { active = false };
-  }, []);
 
   const cachedName = typeof window !== 'undefined' ? localStorage.getItem('storeName') : null;
   const cachedLogo = typeof window !== 'undefined' ? localStorage.getItem('storeLogo') : null;

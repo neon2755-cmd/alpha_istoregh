@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { ordersAPI, settingsAPI } from '../lib/api';
+import { ordersAPI } from '../lib/api';
+import { useSettings } from '../hooks/useSettings';
 import { formatPrice } from '../lib/utils';
 import siteConfig from '../config';
 import { Printer, Mail } from 'lucide-react';
@@ -12,7 +13,7 @@ export default function OrderReceipt() {
   const { order: orderNum } = router.query;
   const orderNumber = Array.isArray(orderNum) ? orderNum[0] : orderNum;
   const [order, setOrder] = useState(null);
-  const [settings, setSettings] = useState(null);
+  const { settings } = useSettings();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,12 +30,6 @@ export default function OrderReceipt() {
     };
     fetchOrder();
   }, [orderNumber]);
-
-  useEffect(() => {
-    settingsAPI.get().then(res => {
-      if (res.settings) setSettings(res.settings);
-    }).catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (order && !loading) {

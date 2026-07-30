@@ -3,12 +3,20 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-import WhatsAppFloat from '../components/ui/WhatsAppFloat';
-import CartDrawer from '../components/cart/CartDrawer';
+import { useSettings } from '../hooks/useSettings';
 import { useStore } from '../store';
-import { settingsAPI } from '../lib/api';
+
+const CartDrawer = dynamic(() => import('../components/cart/CartDrawer'), {
+  ssr: false,
+  loading: () => null,
+});
+const WhatsAppFloat = dynamic(() => import('../components/ui/WhatsAppFloat'), {
+  ssr: false,
+  loading: () => null,
+});
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -84,6 +92,8 @@ function MyApp({ Component, pageProps }) {
   const safeFavicon = favicon || defaultFavicon;
   const faviconVersioned = useMemo(() => withVersion(safeFavicon, cacheBuster), [safeFavicon, cacheBuster]);
 
+  const { settings } = useSettings();
+
   useEffect(() => {
     let isMounted = true;
 
@@ -109,18 +119,13 @@ function MyApp({ Component, pageProps }) {
 
     syncFavicon();
 
-    settingsAPI.get()
-      .then((res) => {
-        if (!isMounted) return;
-        const fav = getFaviconUrl(res?.settings);
-        if (fav) setFavicon(fav);
-      })
-      .catch(() => {});
+    const fav = getFaviconUrl(settings);
+    if (isMounted && fav) setFavicon(fav);
 
     return () => {
       isMounted = false;
     };
-  }, [cacheBuster, faviconVersioned, safeFavicon]);
+  }, [cacheBuster, faviconVersioned, safeFavicon, settings]);
 
   const getLayout = Component.getLayout;
   const router = useRouter();

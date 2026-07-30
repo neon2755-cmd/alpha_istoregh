@@ -46,6 +46,7 @@ apiClient.interceptors.response.use(
 
 // Products
 export const getProducts = (params) => apiClient.get('/products', { params });
+export const getHomeProducts = () => apiClient.get('/products/homefeed');
 export const getProduct = (id) => apiClient.get(`/products/${id}`);
 export const createProduct = (productData) => apiClient.post('/products', productData);
 export const updateProduct = (id, productData) => apiClient.put(`/products/${id}`, productData);
@@ -94,7 +95,12 @@ export const authAPI = {
   logout: () => apiClient.post('/auth/logout'),
   getMe: () => apiClient.get('/auth/me'),
   updateProfile: (data) => apiClient.put('/auth/me', data),
-  changePassword: (newPassword) => apiClient.put('/auth/change-password', { newPassword }),
+  changePassword: (payload) => {
+    if (typeof payload === 'string') {
+      return apiClient.put('/auth/change-password', { newPassword: payload });
+    }
+    return apiClient.put('/auth/change-password', payload);
+  },
 };
 
 export const ordersAPI = {

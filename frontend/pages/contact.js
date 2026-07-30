@@ -9,7 +9,8 @@ import {
 } from 'lucide-react';
 import siteConfig from '../config';
 import WhatsAppIcon from '../components/ui/WhatsAppIcon';
-import { settingsAPI, contactAPI } from '../lib/api';
+import { contactAPI } from '../lib/api';
+import { useSettings } from '../hooks/useSettings';
 
 const inputClass =
   'w-full h-12 px-4 text-sm bg-surface-muted border border-surface-border rounded-lg text-ink placeholder:text-ink-subtle focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-colors';
@@ -18,7 +19,7 @@ const labelClass =
   'block text-sm font-semibold tracking-wide text-ink-muted mb-2';
 
 export default function Contact() {
-  const [settings, setSettings] = useState(null);
+  const { settings } = useSettings();
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -27,14 +28,6 @@ export default function Contact() {
     message: '',
   });
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    settingsAPI.get().then(res => {
-      if (active && res.settings) setSettings(res.settings);
-    }).catch(() => {});
-    return () => { active = false };
-  }, []);
 
   const contactPhone = settings?.contact?.phones?.[0] || settings?.contact?.phone || siteConfig.contact?.phone || '+233 575 453 086';
   const contactEmail = settings?.contact?.email || siteConfig.contact?.email || 'info@alphaistore.com';

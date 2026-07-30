@@ -1,0 +1,387 @@
+FETCH PAGE https://neonio.site
+{
+  "status_code": 200,
+  "final_url": "https://neonio.site/",
+  "content_length": 19921,
+  "elapsed": 2.361264,
+  "page_time": 2.3653742999886163,
+  "headers": {
+    "Age": "824388",
+    "Cache-Control": "public, max-age=0, must-revalidate",
+    "Content-Encoding": "gzip",
+    "Content-Type": "text/html; charset=utf-8",
+    "Server": "Vercel"
+  }
+}
+RESOURCE_COUNTS 18 scripts 12 styles 2 images 2
+{
+  "resources": [
+    {
+      "type": "script",
+      "url": "https://neonio.site/_next/static/chunks/1cdhdu27vj76k.js",
+      "status": 200,
+      "content_type": "application/javascript; charset=utf-8",
+      "content_encoding": "gzip",
+      "cache_control": "public,max-age=31536000,immutable",
+      "age": "824387",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 45057,
+      "elapsed": 0.19137169999885373,
+      "cdn": "Vercel",
+      "src": "/_next/static/chunks/1cdhdu27vj76k.js"
+    },
+    {
+      "type": "script",
+      "url": "https://neonio.site/_next/static/chunks/0pbntyuszya68.js",
+      "status": 200,
+      "content_type": "application/javascript; charset=utf-8",
+      "content_encoding": "gzip",
+      "cache_control": "public,max-age=31536000,immutable",
+      "age": "824387",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 86591,
+      "elapsed": 0.1440133000141941,
+      "cdn": "Vercel",
+      "src": "/_next/static/chunks/0pbntyuszya68.js"
+    },
+    {
+      "type": "script",
+      "url": "https://neonio.site/_next/static/chunks/0e26tqc_ko6eq.js",
+      "status": 200,
+      "content_type": "application/javascript; charset=utf-8",
+      "content_encoding": "gzip",
+      "cache_control": "public,max-age=31536000,immutable",
+      "age": "824388",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 58198,
+      "elapsed": 0.20507749999524094,
+      "cdn": "Vercel",
+      "src": "/_next/static/chunks/0e26tqc_ko6eq.js"
+    },
+    {
+      "type": "script",
+      "url": "https://neonio.site/_next/static/chunks/19ywq9ff91yos.js",
+      "status": 200,
+      "content_type": "application/javascript; charset=utf-8",
+      "content_encoding": "gzip",
+      "cache_control": "public,max-age=31536000,immutable",
+      "age": "824388",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 210699,
+      "elapsed": 0.20346640000934713,
+      "cdn": "Vercel",
+      "src": "/_next/static/chunks/19ywq9ff91yos.js"
+    },
+    {
+      "type": "script",
+      "url": "https://neonio.site/_next/static/chunks/06la52_b0b2uj.js",
+      "status": 200,
+      "content_type": "application/javascript; charset=utf-8",
+      "content_encoding": "gzip",
+      "cache_control": "public,max-age=31536000,immutable",
+      "age": "824388",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 68429,
+      "elapsed": 0.1945780000241939,
+      "cdn": "Vercel",
+      "src": "/_next/static/chunks/06la52_b0b2uj.js"
+    },
+    {
+      "type": "script",
+      "url": "https://neonio.site/_next/static/chunks/turbopack-3qg9xpq9nxozz.js",
+      "status": 200,
+      "content_type": "application/javascript; charset=utf-8",
+      "content_encoding": "gzip",
+      "cache_control": "public,max-age=31536000,immutable",
+      "age": "824388",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 11092,
+      "elapsed": 0.12854870001319796,
+      "cdn": "Vercel",
+      "src": "/_next/static/chunks/turbopack-3qg9xpq9nxozz.js"
+    },
+    {
+      "type": "script",
+      "url": "https://neonio.site/_next/static/chunks/2kn23b-ryy5da.js",
+      "status": 200,
+      "content_type": "application/javascript; charset=utf-8",
+      "content_encoding": "gzip",
+      "cache_control": "public,max-age=31536000,immutable",
+      "age": "824388",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 25053,
+      "elapsed": 0.11376860001473688,
+      "cdn": "Vercel",
+      "src": "/_next/static/chunks/2kn23b-ryy5da.js"
+    },
+    {
+      "type": "script",
+      "url": "https://neonio.site/_next/static/chunks/0-0yd-i7h16xm.js",
+      "status": 200,
+      "content_type": "application/javascript; charset=utf-8",
+      "content_encoding": "gzip",
+      "cache_control": "public,max-age=31536000,immutable",
+      "age": "824388",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 36527,
+      "elapsed": 0.13575280000804923,
+      "cdn": "Vercel",
+      "src": "/_next/static/chunks/0-0yd-i7h16xm.js"
+    },
+    {
+      "type": "script",
+      "url": "https://neonio.site/_next/static/chunks/turbopack-0xnr2zi67phy3.js",
+      "status": 200,
+      "content_type": "application/javascript; charset=utf-8",
+      "content_encoding": "gzip",
+      "cache_control": "public,max-age=31536000,immutable",
+      "age": "824388",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 11091,
+      "elapsed": 0.14107049998710863,
+      "cdn": "Vercel",
+      "src": "/_next/static/chunks/turbopack-0xnr2zi67phy3.js"
+    },
+    {
+      "type": "script",
+      "url": "https://neonio.site/_next/static/rpYaxr2Hx_lonYBFssLR8/_buildManifest.js",
+      "status": 200,
+      "content_type": "application/javascript; charset=utf-8",
+      "content_encoding": "gzip",
+      "cache_control": "public,max-age=31536000,immutable",
+      "age": "2003677",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 2517,
+      "elapsed": 0.11838840000564232,
+      "cdn": "Vercel",
+      "src": "/_next/static/rpYaxr2Hx_lonYBFssLR8/_buildManifest.js"
+    },
+    {
+      "type": "script",
+      "url": "https://neonio.site/_next/static/rpYaxr2Hx_lonYBFssLR8/_ssgManifest.js",
+      "status": 200,
+      "content_type": "application/javascript; charset=utf-8",
+      "content_encoding": "",
+      "cache_control": "public,max-age=31536000,immutable",
+      "age": "824389",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 76,
+      "elapsed": 0.11372430002666079,
+      "cdn": "Vercel",
+      "src": "/_next/static/rpYaxr2Hx_lonYBFssLR8/_ssgManifest.js"
+    },
+    {
+      "type": "script",
+      "url": "https://neonio.site/_next/static/rpYaxr2Hx_lonYBFssLR8/_clientMiddlewareManifest.js",
+      "status": 200,
+      "content_type": "application/javascript; charset=utf-8",
+      "content_encoding": "",
+      "cache_control": "public,max-age=31536000,immutable",
+      "age": "824389",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 96,
+      "elapsed": 0.13278620000346564,
+      "cdn": "Vercel",
+      "src": "/_next/static/rpYaxr2Hx_lonYBFssLR8/_clientMiddlewareManifest.js"
+    },
+    {
+      "type": "style",
+      "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
+      "status": 200,
+      "content_type": "text/css; charset=utf-8",
+      "content_encoding": "gzip",
+      "cache_control": "private, max-age=86400",
+      "age": "",
+      "server": "ESF",
+      "via": "",
+      "content_length": 1145,
+      "elapsed": 2.4746291999763343,
+      "cdn": "ESF",
+      "src": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    },
+    {
+      "type": "style",
+      "url": "https://neonio.site/_next/static/chunks/307c8cwdla3ju.css",
+      "status": 200,
+      "content_type": "text/css; charset=utf-8",
+      "content_encoding": "gzip",
+      "cache_control": "public,max-age=31536000,immutable",
+      "age": "824391",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 33359,
+      "elapsed": 0.17066890001296997,
+      "cdn": "Vercel",
+      "src": "/_next/static/chunks/307c8cwdla3ju.css"
+    },
+    {
+      "type": "icon",
+      "url": "https://neonio.site/favicon.svg?v=1783366022553",
+      "status": 200,
+      "content_type": "image/svg+xml",
+      "content_encoding": "",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "age": "824389",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 420,
+      "elapsed": 0.10904300000402145,
+      "cdn": "Vercel",
+      "src": "/favicon.svg?v=1783366022553"
+    },
+    {
+      "type": "apple-touch-icon",
+      "url": "https://neonio.site/favicon-180.png?v=1783366022553",
+      "status": 200,
+      "content_type": "image/png",
+      "content_encoding": "",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "age": "357259",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 3426,
+      "elapsed": 1.2150916999962647,
+      "cdn": "Vercel",
+      "src": "/favicon-180.png?v=1783366022553"
+    },
+    {
+      "type": "preload",
+      "url": "https://neonio.site/favicon-32.png",
+      "status": 200,
+      "content_type": "image/png",
+      "content_encoding": "",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "age": "824394",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 598,
+      "elapsed": 1.217806600005133,
+      "cdn": "Vercel",
+      "src": "/favicon-32.png"
+    },
+    {
+      "type": "preload",
+      "url": "https://neonio.site/images/placeholder-phone.jpg",
+      "status": 200,
+      "content_type": "image/jpeg",
+      "content_encoding": "",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "age": "824395",
+      "server": "Vercel",
+      "via": "",
+      "content_length": 1035,
+      "elapsed": 1.2397772000113036,
+      "cdn": "Vercel",
+      "src": "/images/placeholder-phone.jpg"
+    }
+  ]
+}
+{
+  "api_results": [
+    {
+      "path": "/api/products/homefeed",
+      "url": "https://neonio.site/api/products/homefeed",
+      "status": 500,
+      "elapsed": 1.5597306999843568,
+      "content_type": "application/json; charset=utf-8",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "age": "",
+      "content_length": 128,
+      "json_keys": [
+        "success",
+        "message"
+      ]
+    },
+    {
+      "path": "/api/settings",
+      "url": "https://neonio.site/api/settings",
+      "status": 200,
+      "elapsed": 1.0247276999871247,
+      "content_type": "application/json; charset=utf-8",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "age": "",
+      "content_length": 3028,
+      "json_keys": [
+        "success",
+        "settings"
+      ]
+    },
+    {
+      "path": "/api/orders/dashboard-stats",
+      "url": "https://neonio.site/api/orders/dashboard-stats",
+      "status": 401,
+      "elapsed": 0.40876430002390407,
+      "content_type": "application/json; charset=utf-8",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "age": "",
+      "content_length": 47,
+      "json_keys": [
+        "success",
+        "message"
+      ]
+    },
+    {
+      "path": "/api/contact",
+      "url": "https://neonio.site/api/contact",
+      "status": 401,
+      "elapsed": 0.40753210001275875,
+      "content_type": "application/json; charset=utf-8",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "age": "",
+      "content_length": 47,
+      "json_keys": [
+        "success",
+        "message"
+      ]
+    },
+    {
+      "path": "/api/auth/me",
+      "url": "https://neonio.site/api/auth/me",
+      "status": 401,
+      "elapsed": 0.5157466999953613,
+      "content_type": "application/json; charset=utf-8",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "age": "",
+      "content_length": 47,
+      "json_keys": [
+        "success",
+        "message"
+      ]
+    }
+  ]
+}
+{
+  "third_party": [
+    {
+      "type": "style",
+      "src": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
+      "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
+      "host": "fonts.googleapis.com"
+    }
+  ]
+}
+PAGESPEED_ERROR mobile 429 {
+  "error": {
+    "code": 429,
+    "message": "Quota exceeded for quota metric 'Queries' and limit 'Queries per day' of service 'pagespeedonline.googleapis.com' for consumer 'project_number:583797351490'.",
+    "errors": [
+      {
+        "message": "Quota exceeded for quota metric 'Queries' and limit 'Queries per day' of service 'pagespeedonline.googleapis.com' for consumer 'project_number:583797351490'.",
+        "domain": "global",
+        "reason": "rateLimitExceeded"
+      }
+    ],
+    "st
+PAGESPEED_EXCEPTION desktop ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))

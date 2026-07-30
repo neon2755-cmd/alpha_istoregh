@@ -1,21 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Facebook, Instagram, ChevronUp, ChevronDown, Mail, Phone, MapPin, BookOpen } from 'lucide-react';
 import siteConfig from '../../config';
-import { settingsAPI } from '../../lib/api';
+import { useSettings } from '../../hooks/useSettings';
 
 function Footer() {
   const currentYear = new Date().getFullYear();
-  const [settings, setSettings] = useState(null);
+  const { settings } = useSettings();
   const [isExpanded, setIsExpanded] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    settingsAPI.get().then(res => {
-      if (active && res.settings) setSettings(res.settings);
-    }).catch(() => {});
-    return () => { active = false };
-  }, []);
 
   const storeName = settings?.storeName || siteConfig.name;
   const social = settings?.social || siteConfig.social;

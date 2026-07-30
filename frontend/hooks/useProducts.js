@@ -1,6 +1,10 @@
 // frontend/hooks/useProducts.js
-import { useState, useEffect, useCallback } from 'react';
-import { getProducts as fetchProductsAPI, getProduct as fetchProductAPI } from '../lib/api'; // Use your API functions
+import { useState, useCallback } from 'react';
+import {
+  getProducts as fetchProductsAPI,
+  getProduct as fetchProductAPI,
+  getHomeProducts,
+} from '../lib/api';
 
 const useProducts = () => {
   const [products, setProducts] = useState([]);
@@ -15,21 +19,15 @@ const useProducts = () => {
     setError(null);
     try {
       const data = await fetchProductsAPI(params);
-      setProducts(data.products || []); // Assuming API returns { products: [...] }
+      const results = data.products || [];
+      setProducts(results);
 
-      // Filter products based on flags if backend doesn't handle it
-      if (params.featured === true) setFeaturedProducts(data.products || []);
-      if (params.hotDeal === true) setHotDeals(data.products || []);
-
-      // If filtering by featured/hotdeal, set the main products list accordingly
-      if (params.featured || params.hotDeal) {
-         setProducts(data.products || []);
-      }
-
+      if (params.featured === true) setFeaturedProducts(results);
+      if (params.hotDeal === true) setHotDeals(results);
     } catch (err) {
-      console.error("Failed to fetch products:", err);
+      console.error('Failed to fetch products:', err);
       setError(err.message || 'Could not load products.');
-      setProducts([]); // Clear products on error
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -41,7 +39,7 @@ const useProducts = () => {
     setError(null);
     try {
       const data = await fetchProductAPI(id);
-      setProduct(data.product || data); // Assuming API returns { product: ... } or just ...
+      setProduct(data.product || data);
     } catch (err) {
       console.error(`Failed to fetch product ${id}:`, err);
       setError(`Could not load product details for ID ${id}.`);
@@ -51,12 +49,24 @@ const useProducts = () => {
     }
   }, []);
 
-  // Initial fetch for homepage or shop page - adjust parameters as needed
-  useEffect(() => {
-    fetchProducts({ limit: 10 }); // Example: fetch first 10 products
-    fetchProducts({ featured: true, limit: 5 }); // Fetch featured products
-    fetchProducts({ hotDeal: true, limit: 3 }); // Fetch hot deals
-  }, [fetchProducts]);
+  const fetchHomeProducts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getHomeProducts();
+      setFeaturedProducts(data.featured || []);
+      setHotDeals(data.hotDeals || []);
+      setProducts(data.latest || []);
+    } catch (err) {
+      console.error('Failed to fetch home products:', err);
+      setError(err.message || 'Could not load home products.');
+      setFeaturedProducts([]);
+      setHotDeals([]);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   return {
     products,
@@ -67,6 +77,7 @@ const useProducts = () => {
     error,
     fetchProducts,
     fetchProductById,
+    fetchHomeProducts,
     setProduct, // Allow manual setting if needed (e.g., for product detail page updates)
   };
 };

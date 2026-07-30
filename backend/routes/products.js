@@ -3,7 +3,10 @@ const ctrl   = require('../controllers/productController');
 
 const { protect, adminOnly } = require('../middleware/auth');
 
+// Important: static and named routes must be declared before parameterized routes like /:id.
+// Otherwise a request for /homefeed or /stats may be interpreted as an ID route.
 router.get('/',                    ctrl.getProducts);
+router.get('/homefeed',            ctrl.getHomeFeed);
 router.get('/stats',              ctrl.getStats);
 router.get('/slug/:slug',          ctrl.getProductBySlug);
 router.get('/:id',                 ctrl.getProduct);

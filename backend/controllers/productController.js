@@ -145,6 +145,26 @@ exports.addReview = async (req, res) => {
   }
 };
 
+// GET /api/products/homefeed
+exports.getHomeFeed = async (req, res) => {
+  try {
+    const [featured, hotDeals, latest] = await Promise.all([
+      Product.find({ isActive: true, isFeatured: true }).sort({ createdAt: -1 }).limit(4),
+      Product.find({ isActive: true, isHotDeal: true }).sort({ createdAt: -1 }).limit(3),
+      Product.find({ isActive: true }).sort({ createdAt: -1 }).limit(12),
+    ]);
+
+    res.json({
+      success: true,
+      featured,
+      hotDeals,
+      latest,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // GET /api/products/stats (admin)
 exports.getStats = async (req, res) => {
   try {

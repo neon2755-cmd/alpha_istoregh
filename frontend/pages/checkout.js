@@ -13,7 +13,8 @@ import {
   Share,
 } from 'lucide-react';
 import { useStore } from '../store';
-import { ordersAPI, validatePromoCode, settingsAPI } from '../lib/api';
+import { ordersAPI, validatePromoCode } from '../lib/api';
+import { useSettings } from '../hooks/useSettings';
 import { formatPrice } from '../lib/utils';
 import toast from 'react-hot-toast';
 
@@ -55,7 +56,7 @@ export default function Checkout() {
   const user = useStore((s) => s.user);
   const clearCart = useStore((s) => s.clearCart);
 
-  const [settings, setSettings] = useState(null);
+  const { settings } = useSettings();
   const [deliveryRegions, setDeliveryRegions] = useState(DEFAULT_DELIVERY_REGIONS);
   const [paymentMethods, setPaymentMethods] = useState([]);
   
@@ -73,36 +74,24 @@ export default function Checkout() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    let active = true;
-    settingsAPI.get().then(res => {
-      if (!active) return;
-      if (res.settings) {
-        setSettings(res.settings);
-        
-        // Set delivery regions from settings or use defaults
-        const regions = res.settings.delivery?.locations?.length > 0 
-          ? res.settings.delivery.locations 
-          : DEFAULT_DELIVERY_REGIONS;
-        setDeliveryRegions(regions);
-        setRegion(regions[0]);
-        
-        // Build available payment methods
-        const available = [];
-        if (res.settings.payment?.mtnMomo) available.push(PAYMENT_METHODS_MAP.mtnMomo);
-        if (res.settings.payment?.telecel) available.push(PAYMENT_METHODS_MAP.telecel);
-        if (res.settings.payment?.airteltigo) available.push(PAYMENT_METHODS_MAP.airteltigo);
-        if (res.settings.payment?.card) available.push(PAYMENT_METHODS_MAP.card);
-        if (res.settings.payment?.payOnDelivery) available.push(PAYMENT_METHODS_MAP.payOnDelivery);
-        
-        setPaymentMethods(available);
-        if (available.length > 0) setPayment(available[0].id);
-      }
-    }).catch(() => {
-      setDeliveryRegions(DEFAULT_DELIVERY_REGIONS);
-      setRegion(DEFAULT_DELIVERY_REGIONS[0]);
-    });
-    return () => { active = false };
-  }, []);
+    if (!settings) return;
+
+    const regions = settings.delivery?.locations?.length > 0
+      ? settings.delivery.locations
+      : DEFAULT_DELIVERY_REGIONS;
+    setDeliveryRegions(regions);
+    setRegion(regions[0]);
+
+    const available = [];
+    if (settings.payment?.mtnMomo) available.push(PAYMENT_METHODS_MAP.mtnMomo);
+    if (settings.payment?.telecel) available.push(PAYMENT_METHODS_MAP.telecel);
+    if (settings.payment?.airteltigo) available.push(PAYMENT_METHODS_MAP.airteltigo);
+    if (settings.payment?.card) available.push(PAYMENT_METHODS_MAP.card);
+    if (settings.payment?.payOnDelivery) available.push(PAYMENT_METHODS_MAP.payOnDelivery);
+
+    setPaymentMethods(available);
+    if (available.length > 0) setPayment(available[0].id);
+  }, [settings]);
 
   const subtotal = cart.reduce((s, item) => s + item.price * item.quantity, 0);
   const total = Math.max(0, subtotal + region.fee - discount);

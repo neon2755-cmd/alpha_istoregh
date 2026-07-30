@@ -95,8 +95,10 @@ const bcrypt = require('bcryptjs');
 // ── Database & Start ──────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(mongoUri)
   .then(async () => {
     console.log('✅ MongoDB connected');
 

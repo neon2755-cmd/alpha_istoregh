@@ -10,10 +10,10 @@ import {
 } from 'lucide-react';
 import WhatsAppIcon from '../components/ui/WhatsAppIcon';
 import useProducts from '../hooks/useProducts';
+import { useSettings } from '../hooks/useSettings';
 import ProductCard from '../components/product/ProductCard';
 import SkeletonLoader from '../components/ui/SkeletonLoader';
 import siteConfig from '../config';
-import { settingsAPI } from '../lib/api';
 
 const featureItems = [
   { label: 'Nationwide Delivery', Icon: Truck },
@@ -48,30 +48,13 @@ function HomePage() {
     return typeof value === 'string' && value.trim() ? value : fallback;
   };
 
-  const { featuredProducts, hotDeals, loading, error } = useProducts();
-  const [settings, setSettings] = useState(null);
-  const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const { featuredProducts, hotDeals, loading, error, fetchHomeProducts } = useProducts();
+  const { settings, loading: settingsLoading } = useSettings();
   const [heroLoaded, setHeroLoaded] = useState(false);
 
   useEffect(() => {
-    let active = true;
-
-    settingsAPI.get()
-      .then(res => {
-        if (!active) return;
-        if (res.success && res.settings) {
-          setSettings(res.settings);
-        }
-      })
-      .catch(console.error)
-      .finally(() => {
-        if (active) setSettingsLoaded(true);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
+    fetchHomeProducts();
+  }, [fetchHomeProducts]);
 
   const heroFromResponse = settings?.hero || {};
   const mergedHero = {
@@ -87,7 +70,7 @@ function HomePage() {
   };
 
   const heroImage = getString(mergedHero.image?.url, defaultHero.image.url);
-  const showHeroTextSkeleton = settings === null && !settingsLoaded;
+  const showHeroTextSkeleton = !settings && settingsLoading;
 
   useEffect(() => {
     setHeroLoaded(false);

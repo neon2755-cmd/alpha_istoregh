@@ -1,22 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
-import { settingsAPI } from '../lib/api';
+import { useSettings } from '../hooks/useSettings';
 
 const inputClass =
   'w-full h-10 px-3 text-sm bg-white border border-surface-border rounded-xl text-ink focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-shadow';
 
 export default function FilterSidebar({ filters, onFilterChange }) {
   const router = useRouter();
-  const [settings, setSettings] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    settingsAPI.get().then(res => {
-      if (res.settings?.filters) {
-        setSettings(res.settings.filters);
-      }
-    }).catch(console.error).finally(() => setLoading(false));
-  }, []);
+  const { settings } = useSettings();
 
   const handleChange = (key, value) => {
     onFilterChange(key, value);

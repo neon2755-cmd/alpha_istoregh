@@ -14,7 +14,8 @@ import {
 } from 'lucide-react';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import { useStore } from '../../store';
-import { productsAPI, settingsAPI } from '../../lib/api';
+import { productsAPI } from '../../lib/api';
+import { useSettings } from '../../hooks/useSettings';
 import { formatPrice } from '../../lib/utils';
 import siteConfig from '../../config';
 
@@ -43,7 +44,7 @@ function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { addToCart, user } = useStore();
-  const [settings, setSettings] = useState(null);
+  const { settings } = useSettings();
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
@@ -64,12 +65,6 @@ function ProductDetailPage() {
     };
     fetchProduct();
   }, [id]);
-
-  useEffect(() => {
-    settingsAPI.get().then(res => {
-      if (res.settings) setSettings(res.settings);
-    }).catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (product) {

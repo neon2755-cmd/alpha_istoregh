@@ -1,7 +1,7 @@
 import { useAdminAuthStore } from '../../store/adminAuth';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { Save, Store, MapPin, Image as ImageIcon, CreditCard, Plus, Trash2, Link as LinkIcon, UploadCloud, Loader2, Truck } from 'lucide-react';
+import { Save, Store, MapPin, Image as ImageIcon, CreditCard, Plus, Trash2, Link as LinkIcon, UploadCloud, Loader2, Truck, Info } from 'lucide-react';
 import AdminLayout from '../../components/portal/AdminLayout';
 import withAdminAuth from '../../components/portal/withAdminAuth';
 import { settingsAPI, uploadAPI, authAPI } from '../../lib/api';
@@ -39,7 +39,7 @@ function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState('');
-  const [credForm, setCredForm] = useState({ email: '', newPassword: '', confirmPassword: '' });
+  const [credForm, setCredForm] = useState({ email: '', currentPassword: '', newPassword: '', confirmPassword: '' });
   const [credSaving, setCredSaving] = useState(false);
   const [newPromoCode, setNewPromoCode] = useState('');
   const [newPromoDiscount, setNewPromoDiscount] = useState('');
@@ -183,18 +183,24 @@ function AdminSettings() {
       toast.error('Password must be at least 6 characters');
       return;
     }
+    if (credForm.newPassword && !credForm.currentPassword) {
+      toast.error('Please enter your current password to change password');
+      return;
+    }
     setCredSaving(true);
     try {
       if (credForm.newPassword) {
-        await authAPI.changePassword(credForm.newPassword);
+        await authAPI.changePassword({ currentPassword: credForm.currentPassword, newPassword: credForm.newPassword });
       }
       if (credForm.email) {
         await authAPI.updateProfile({ email: credForm.email });
       }
       toast.success('Credentials updated! Please log in again if email changed.');
-      setCredForm({ email: '', newPassword: '', confirmPassword: '' });
-    } catch {
-      toast.error('Failed to update credentials.');
+      setCredForm({ email: '', currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      // Show server-provided message when available
+      const message = err?.response?.data?.message || 'Failed to update credentials.';
+      toast.error(message);
     } finally {
       setCredSaving(false);
     }
@@ -759,6 +765,14 @@ function AdminSettings() {
                   <div>
                     <label className={labelClass}>New Email</label>
                     <input type="email" value={credForm.email} onChange={(e) => setCredForm(f => ({ ...f, email: e.target.value }))} className={inputClass} placeholder="new@email.com" />
+                  </div>
+                  <div>
+                    <label className={labelClass}>
+                      Current Password
+                      <Info className="inline-block ml-2 w-4 h-4 text-ink-subtle align-middle" title="We require your current password to confirm and authorize password changes." />
+                    </label>
+                    <PasswordInput value={credForm.currentPassword} onChange={(e) => setCredForm(f => ({ ...f, currentPassword: e.target.value }))} className={inputClass} placeholder="Enter current password" />
+                    <p className="text-xs text-ink-subtle mt-2">We require your current password to confirm and authorize password changes.</p>
                   </div>
                   <div>
                     <label className={labelClass}>New Password</label>
